@@ -170,45 +170,36 @@
       tags:
         - install-hr-schema-objects
 
-    - name: Create dir database.js.demo
+    - name: Create dir openrestapi.demo
       ansible.builtin.file:
-        path: "{{ install_path }}/database.js.demo"
+        path: "{{ install_path }}/openrestapi.demo"
         state: directory
       tags:
-        - create-database.js.demo
+        - create-openrestapi.demo
 
-    - name: Check database.js.jar exists
+    - name: Check openrestapi.jar exists
       stat:
-        path: "../../src/database.js/target"
+        path: "../../src/openrestapi/target"
       register: src_database_js_target
       tags: src_database_js_target
 
-    - name: Build database.js.jar
+    - name: Build openrestapi.jar
       ansible.builtin.command: mvn package
       args:
-        chdir: "../../src/database.js"
+        chdir: "../../src/openrestapi"
       when: src_database_js_target.stat.exists == false
       tags:
         - mvn_package
 
-    - name: Check database.js.zip unarchived
+    - name: Check openrestapi.zip unarchived
       stat:
-        path: "../../build/database.js.demo/bin"
+        path: "../../build/openrestapi.demo/bin"
       register: build_database_js_demo_bin
       tags: build_database_js_demo_bin
 
-    - name: Unarchive the futureforms rest api 
-      ansible.builtin.unarchive:
-        src: "../../src/database.js/downloads/database.js.zip"
-        dest: "{{ install_path }}/database.js.demo"
-        remote_src: true
-      when: build_database_js_demo_bin.stat.exists == false
-      tags:
-        - unarchive-database.js.demo
-
     - name: Fix up app destination in config file
       ansible.builtin.replace: 
-        path: "{{ install_path }}/database.js.demo/conf/config.json"
+        path: "{{ install_path }}/openrestapi.demo/conf/config.json"
         regexp: '\"path\": \"./app\"'
         replace: '"path": "../demo"'
       tags:

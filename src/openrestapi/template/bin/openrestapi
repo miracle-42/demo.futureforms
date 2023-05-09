@@ -1,0 +1,2 @@
+#!/bin/sh
+java -jar $(dirname "$0")/../lib/openrestapi-2.1.jar $*

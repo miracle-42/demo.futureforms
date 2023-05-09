@@ -1,0 +1,53 @@
+<include src="/html/formheader"></include>
+
+<div  style="width: 650px;"></div>
+<div class="form" style="display: flex; flex-wrap: wrap;">
+	<div class="block">
+		<div class="needle green" style="bottom:95%;"></div>
+		<div class="search" style="margin-left:20px; margin-bottom:10px">
+			<input name="filter" from="search" placeholder="search">
+		</div>
+		<table>
+			<tr>
+				<th></th>
+				<th>
+					<label for="firstname" onclick="this.sort('first_name')">Firstname</label>
+				</th>
+				<th>
+					<label for="lastname" onclick="this.sort('last_name')">Lastname</label>
+				</th>
+			</tr>
+
+			<tr  foreach="row in 1..10">
+				<td class="indicator"><span from="employees" row="$row" type="row-indicator"></span></td>
+				<td>
+					<input size="10" name="first_name" from="employees" class="table" row="$row" initcap insert="false" query="false">
+				</td>
+				<td>
+					<input size="10" name="last_name" from="employees" class="table" row="$row" initcap insert="false" query="false">
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="block" style="display:inline-block;margin-top:auto; margin-bottom: auto;">
+		<div class="needle red"></div>
+		<p style="margin-top:0px; margin-bottom: 5px;">
+			<span style="display:inline-block; width:100px;">First Name</span>:
+			<input size="10" name="first_name" from="employees" class="detail" initcap required>
+		</p >
+		<p style="margin-top:0px; margin-bottom: 5px;">
+			<span style="display:inline-block; width:100px;">Last Name</span>:
+			<input size="10" name="last_name" from="employees" class="detail" initcap required>
+		</p>
+		<p style="margin-top:0px; margin-bottom: 5px;">
+			<span style="display:inline-block; width:100px;">Phone</span>:
+			<input size="20" name="phone_number" from="employees" class="detail" required>
+		</p>
+		<p style="margin-top:0px; margin-bottom: 5px;">
+			<span style="display:inline-block; width:100px;">Hire Date</span>:
+			<input name="hire_date" size="10" date from="employees" class="detail" required>
+			<span class="icon_calander" onclick="this.showDatePicker('employees', 'hire_date')">&#128197;</span>
+		</p>
+	</div>
+</div>
+

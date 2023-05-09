@@ -1,0 +1,7 @@
+cd ..
+
+rm -rf ipc/*
+rm -rf logs/*
+rm docker/openrestapi.zip
+
+zip -r docker/openrestapi.zip bin lib conf logs ipc security \

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>openrestapi</groupId>
+  <artifactId>authenticator.js</artifactId>
+  <version>2.1</version>
+  <description>Project for Authenticator</description>
+  
+  <properties>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20200518</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>*</include>
+        </includes>
+      </resource>
+      
+      <resource>
+        <directory>src/main/resources/</directory>
+        <includes>
+          <include>*</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <release>14</release>
+        </configuration>
+      </plugin>          
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <includes>
+            <include>**/sso/*</include>
+            <include>**/openrestapi/admin/*.class</include>
+            <include>**/openrestapi/client/*.class</include>
+            <include>**/openrestapi/config/Paths*.class</include>
+            <include>**/openrestapi/config/SSOConfig.class</include>
+            <include>**/openrestapi/logger/Formatter.class</include>
+            <include>**/openrestapi/security/Keystore.class</include>
+            <include>**/openrestapi/security/PKIContext.class</include>
+          </includes>
+          <archive>
+            <manifest>
+              <mainClass>openrestapi.sso.Authenticater</mainClass>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>./json</classpathPrefix>
+            </manifest>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>    
+  </build>
+</project>

@@ -1,0 +1,27 @@
+<include src="/html/formheader"></include>
+
+<!-- Start width -->
+<div style="width: 800px;"></div>
+
+<div class="form">
+	<div class="block">
+		<div class="needle blue"></div>
+		<table>
+			<tr>
+				<th></th>
+				<th onclick="this.sort('department_id')">Id</th>
+				<th onclick="this.sort('department_name')">Name</th>
+				<th>Manager</th>
+				<th>Location</th>
+			</tr>
+			<tr class="row" foreach="row in 1..6">
+				<td class="indicator"><span from="Departments" row="$row" type="row-indicator"></span></td>
+
+				<td><input name="department_id" 		from="Departments" row="$row" size="6"  integer></td>
+				<td><input name="department_name" 	from="Departments" row="$row" size="20" initcap></td>
+				<td><input name="manager" 				from="Departments" row="$row" size="20" derived readonly query="false"></td>
+				<td><input name="location" 			from="Departments" row="$row" size="30" derived readonly query="false"></td>
+			</tr>
+		</table>
+	</div>
+</div>

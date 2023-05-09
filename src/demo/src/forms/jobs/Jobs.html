@@ -1,0 +1,18 @@
+<include src="/html/formheader"></include>
+
+<div class="form">
+	<table class="block">
+		<tr>
+			<th>Id</th>
+			<th>Title</th>
+			<th>Min</th>
+			<th>Max</th>
+		</tr>
+		<tr class="row" foreach="row in 1..5">
+			<td><input name="job_id" from="jobs" row="$row" size="10" upper></td>
+			<td><input name="job_title" from="jobs" row="$row" size="25" initcap></td>
+			<td><input name="min_salary" from="jobs" row="$row" size="6" integer></td>
+			<td><input name="max_salary" from="jobs" row="$row" size="6" integer></td>
+		</tr>
+	</table>
+</div>

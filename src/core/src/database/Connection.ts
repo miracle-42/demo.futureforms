@@ -1,0 +1,701 @@
+/*
+  MIT License
+
+  Copyright © 2023 Alex Høffner
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+  and associated documentation files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or
+  substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+  BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+import { Cursor } from "./Cursor.js";
+import { SQLRest } from "./SQLRest.js";
+import { BindValue } from "./BindValue.js";
+import { Alert } from "../application/Alert.js";
+import { ConnectionScope } from "./ConnectionScope.js";
+import { Logger, Type } from "../application/Logger.js";
+import { EventType } from "../control/events/EventType.js";
+import { FormsModule } from "../application/FormsModule.js";
+import { FormBacking } from "../application/FormBacking.js";
+import { Connection as BaseConnection } from "../public/Connection.js";
+import { FormEvent, FormEvents } from "../control/events/FormEvents.js";
+
+export class Connection extends BaseConnection
+{
+	private trx$:object = null;
+	private conn$:string = null;
+	private touched$:Date = null;
+	private modified$:Date = null;
+	private secret$:string = null;
+	private keepalive$:number = 20;
+	private tmowarn$:boolean = false;
+	private scope$:ConnectionScope = ConnectionScope.transactional;
+
+	public static TRXTIMEOUT:number = 240;
+	public static CONNTIMEOUT:number = 120;
+
+
+	// Be able to get the real connection from the public
+	private static conns$:Connection[] = [];
+
+
+	public static getAllConnections() : Connection[]
+	{
+		return(this.conns$);
+	}
+
+	public constructor(url?:string|URL)
+	{
+		super(url);
+		Connection.conns$.push(this);
+	}
+
+	public get scope() : ConnectionScope
+	{
+		return(this.scope$);
+	}
+
+	public set scope(scope:ConnectionScope)
+	{
+		if (this.connected())
+		{
+			Alert.warning("Connection scope cannot be changed after connect","Database Connection");
+			return;
+		}
+		this.scope$ = scope;
+	}
+
+	public set preAuthenticated(secret:string)
+	{
+		this.secret$ = secret;
+	}
+
+	public connected() : boolean
+	{
+		return(this.conn$ != null);
+	}
+
+	public hasTransactions() : boolean
+	{
+		return(this.modified$ != null);
+	}
+
+	public async connect(username?:string, password?:string) : Promise<boolean>
+	{
+		this.touched$ = null;
+		this.tmowarn$ = false;
+
+		if (username) this.username = username;
+		if (password) this.password = password;
+
+		let scope:string = null;
+
+		let method:string = "database";
+		if (this.secret$) method = "token";
+
+		let secret:string = this.password;
+		if (this.secret$) secret = this.secret$;
+
+		switch(this.scope)
+		{
+			case ConnectionScope.stateless: scope = "none"; break;
+			case ConnectionScope.dedicated: scope = "dedicated"; break;
+			case ConnectionScope.transactional: scope = "transaction"; break;
+		}
+
+		if (this.scope == ConnectionScope.stateless) scope = "none";
+
+		let payload:any =
+		{
+			"scope": scope,
+			"auth.method": method,
+			"auth.secret": secret
+		};
+
+		if (username)
+			payload.username = username;
+
+		Logger.log(Type.database,"connect");
+		let thread:number = FormsModule.get().showLoading("Connecting");
+		let response:any = await this.post("connect",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error("failed to connect as "+this.username);
+			Alert.warning(response.message,"Database Connection");
+			return(false);
+		}
+
+		this.trx$ = new Object();
+		this.conn$ = response.session;
+		this.keepalive$ = (+response.timeout * 4/5)*1000;
+		await FormEvents.raise(FormEvent.AppEvent(EventType.Connect));
+
+		this.keepalive();
+		return(true);
+	}
+
+	public async disconnect() : Promise<boolean>
+	{
+		this.tmowarn$ = false;
+		this.trx$ = new Object();
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"disconnect");
+		let response:any = await this.post(this.conn$+"/disconnect");
+
+		if (response.success)
+		{
+			this.conn$ = null;
+			this.touched$ = null;
+			this.modified$ = null;
+		}
+
+		await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
+		return(response.success);
+	}
+
+	public async commit() : Promise<boolean>
+	{
+		if (this.modified$ == null)
+			return(true);
+
+		this.tmowarn$ = false;
+		this.trx$ = new Object();
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"commit");
+		let thread:number = FormsModule.get().showLoading("Comitting");
+		let response:any = await this.post(this.conn$+"/commit");
+		FormsModule.get().hideLoading(thread);
+
+		if (response.success)
+		{
+			this.touched$ = null;
+			this.modified$ = null;
+		}
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(false);
+		}
+
+		return(true);
+	}
+
+	public async rollback() : Promise<boolean>
+	{
+		if (this.modified$ == null)
+			return(true);
+
+		this.tmowarn$ = false;
+		this.trx$ = new Object();
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"rollback");
+		let thread:number = FormsModule.get().showLoading("Rolling back");
+		let response:any = await this.post(this.conn$+"/rollback");
+		FormsModule.get().hideLoading(thread);
+
+		if (response.success)
+		{
+			this.touched$ = null;
+			this.modified$ = null;
+		}
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(false);
+		}
+
+		return(true);
+	}
+
+	public async select(sql:SQLRest, cursor:Cursor, rows:number, describe?:boolean) : Promise<Response>
+	{
+		if (describe == null)
+			describe = false;
+
+		let skip:number = 0;
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		if (this.modified$) this.modified$ = new Date();
+
+		if (cursor && cursor.trx != this.trx$)
+			skip = cursor.pos;
+
+		if (cursor && this.scope == ConnectionScope.stateless)
+			skip = cursor.pos;
+
+		let payload:any =
+		{
+			rows: rows,
+			skip: skip,
+			compact: true,
+			dateformat: "UTC",
+			describe: describe,
+
+			sql: sql.stmt,
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		if (cursor)
+		{
+			payload.cursor = cursor.name;
+
+			cursor.rows = rows;
+			cursor.pos += rows;
+			cursor.trx = this.trx$;
+			cursor.stmt = sql.stmt;
+			cursor.bindvalues = sql.bindvalues;
+		}
+
+		Logger.log(Type.database,"select");
+		let thread:number = FormsModule.get().showLoading("Querying");
+		let response:any = await this.post(this.conn$+"/select",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		if (cursor)
+			cursor.eof = !response.more;
+
+		return(response);
+	}
+
+	public async fetch(cursor:Cursor) : Promise<Response>
+	{
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		let restore:boolean = false;
+		if (this.modified$) this.modified$ = new Date();
+
+		if (cursor.trx != this.trx$)
+			restore = true;
+
+		if (this.scope == ConnectionScope.stateless)
+			restore = true;
+
+		if (restore)
+		{
+			let sql:SQLRest = new SQLRest();
+
+			sql.stmt = cursor.stmt;
+			sql.bindvalues = cursor.bindvalues;
+
+			return(this.select(sql,cursor,cursor.rows,false));
+		}
+
+		Logger.log(Type.database,"fetch");
+		let payload:any = {cursor: cursor.name};
+		let thread:number = FormsModule.get().showLoading("Fetching data");
+		let response:any = await this.post(this.conn$+"/exec/fetch",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		cursor.eof = !response.more;
+		cursor.pos += response.rows.length;
+
+		return(response);
+	}
+
+	public async close(cursor:Cursor) : Promise<Response>
+	{
+		this.tmowarn$ = false;
+		let response:any = null;
+		if (this.modified$) this.modified$ = new Date();
+
+		if (this.scope == ConnectionScope.stateless)
+			return({success: true, message: null, rows: []});
+
+		if (cursor.trx == this.trx$)
+		{
+			Logger.log(Type.database,"close cursor");
+			let payload:any = {cursor: cursor.name, close: true};
+			response = await this.post(this.conn$+"/exec/fetch",payload);
+
+			if (!response.success)
+			{
+				console.error(response);
+				console.error(new Error().stack);
+				Alert.warning(response.message,"Database Connection");
+				return(response);
+			}
+		}
+
+		return(response);
+	}
+
+	public async lock(sql:SQLRest) : Promise<Response>
+	{
+		let response:any = null;
+		let trxstart:boolean = this.modified$ == null;
+
+		if (this.scope == ConnectionScope.stateless)
+			return({success: true, message: null, rows: []});
+
+		let payload:any =
+		{
+			rows: 1,
+			compact: true,
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"lock");
+		let thread:number = FormsModule.get().showLoading("Locking");
+		response = await this.post(this.conn$+"/select",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			console.error(new Error().stack);
+			return(response);
+		}
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		this.modified$ = new Date();
+
+		if (trxstart)
+			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
+
+		return(response);
+	}
+
+	public async refresh(sql:SQLRest) : Promise<Response>
+	{
+		let response:any = null;
+
+		let payload:any =
+		{
+			rows: 1,
+			compact: true,
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"refresh");
+		let thread:number = FormsModule.get().showLoading("Refresh row");
+		response = await this.post(this.conn$+"/select",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		return(response);
+	}
+
+	public async insert(sql:SQLRest) : Promise<Response>
+	{
+		let trxstart:boolean = this.modified$ == null;
+
+		let payload:any =
+		{
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"insert");
+		let thread:number = FormsModule.get().showLoading("Insert");
+		let returnclause:string = sql.returnclause ? "?returning=true" : "";
+		let response:any = await this.post(this.conn$+"/insert"+returnclause,payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			console.error(new Error().stack);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		this.modified$ = new Date();
+
+		if (trxstart)
+			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
+
+		return(response);
+	}
+
+	public async update(sql:SQLRest) : Promise<Response>
+	{
+		let trxstart:boolean = this.modified$ == null;
+
+		let payload:any =
+		{
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"update");
+		let thread:number = FormsModule.get().showLoading("Update");
+		let returnclause:string = sql.returnclause ? "?returning=true" : "";
+		let response:any = await this.post(this.conn$+"/update"+returnclause,payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			console.error(new Error().stack);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		this.modified$ = new Date();
+
+		if (trxstart)
+			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
+
+		return(response);
+	}
+
+	public async delete(sql:SQLRest) : Promise<Response>
+	{
+		let trxstart:boolean = this.modified$ == null;
+
+		let payload:any =
+		{
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"delete");
+		let thread:number = FormsModule.get().showLoading("Delete");
+		let returnclause:string = sql.returnclause ? "?returning=true" : "";
+		let response:any = await this.post(this.conn$+"/delete"+returnclause,payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			console.error(new Error().stack);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		this.modified$ = new Date();
+
+		if (trxstart)
+			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
+
+		return(response);
+	}
+
+	public async call(patch:boolean, sql:SQLRest) : Promise<Response>
+	{
+		let response:any = null;
+		let trxstart:boolean = this.modified$ == null;
+
+		let payload:any =
+		{
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"call");
+		let thread:number = FormsModule.get().showLoading("Call procedure");
+		if (patch) response = await this.patch(this.conn$+"/exec",payload);
+		else 		  response = await this.post(this.conn$+"/exec",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		if (patch) this.modified$ = new Date();
+
+		if (trxstart && patch)
+			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
+
+		return(response);
+	}
+
+	public async execute(patch:boolean, sql:SQLRest) : Promise<Response>
+	{
+		let response:any = null;
+		let trxstart:boolean = this.modified$ == null;
+
+		let payload:any =
+		{
+			sql: sql.stmt,
+			dateformat: "UTC",
+			bindvalues: this.convert(sql.bindvalues)
+		};
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+
+		Logger.log(Type.database,"execute");
+		let thread:number = FormsModule.get().showLoading("Execute procedure");
+		if (patch) response = await this.patch(this.conn$+"/exec",payload);
+		else 		  response = await this.post(this.conn$+"/exec",payload);
+		FormsModule.get().hideLoading(thread);
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.warning(response.message,"Database Connection");
+			return(response);
+		}
+
+		this.tmowarn$ = false;
+		this.touched$ = new Date();
+		if (patch) this.modified$ = new Date();
+
+		if (trxstart && patch)
+			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
+
+		return(response);
+	}
+
+	private async keepalive() : Promise<void>
+	{
+		await this.sleep(this.keepalive$);
+
+		if (!this.connected())
+			return;
+
+		let response:any = await this.post(this.conn$+"/ping",{keepalive: true});
+
+		if (!response.success)
+		{
+			this.conn$ = null;
+			Alert.warning(response.message,"Database Connection");
+			await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
+			return(response);
+		}
+
+		if (this.scope == ConnectionScope.transactional)
+		{
+			if (this.modified$)
+			{
+				let idle:number = ((new Date()).getTime() - this.modified$.getTime())/1000;
+
+				if (idle > Connection.TRXTIMEOUT && this.tmowarn$)
+				{
+					Alert.warning("Transaction is being rolled back","Database Connection");
+					await FormBacking.rollback();
+				}
+				else
+				{
+					if (idle > Connection.TRXTIMEOUT*2/3 && !this.tmowarn$)
+					{
+						this.tmowarn$ = true;
+						Alert.warning("Transaction will be rolled back in "+Connection.TRXTIMEOUT+" seconds","Database Connection");
+					}
+				}
+			}
+
+			if (this.touched$ && !this.modified$)
+			{
+				if ((new Date()).getTime() - this.touched$.getTime() > 1000 * Connection.CONNTIMEOUT)
+					await this.rollback();
+
+				this.touched$ = null;
+				this.modified$ = null;
+			}
+		}
+
+		this.keepalive();
+	}
+
+	private convert(bindv:BindValue[]) : any[]
+	{
+		let binds:any[] = [];
+		if (bindv == null) return([]);
+
+		bindv.forEach((b) =>
+		{
+			let value:any = b.value;
+			if (value instanceof Date) value = value.getTime();
+			if (b.outtype) binds.push({name: b.name, type: b.type});
+			else
+			{
+				if (!value) binds.push({name: b.name, type: b.type});
+				else binds.push({name: b.name, value: value, type: b.type});
+			}
+		})
+
+		return(binds);
+	}
+
+	public sleep(ms:number) : Promise<void>
+	{
+		return(new Promise(resolve => setTimeout(resolve,ms)));
+	}
+}
+
+export class Response
+{
+	public rows:any[];
+	public message:string = null;
+	public success:boolean = true;
+}

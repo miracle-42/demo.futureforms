@@ -1,0 +1,212 @@
+ html, body
+{
+	padding:0;
+	margin: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+.app-page
+{
+	display: grid;
+	grid-auto-flow: column;
+	height: calc(100vh - 80px);
+	grid-template-columns: fit-content(30%);
+}
+
+.form-area
+{
+	position: relative;
+	background-color: white;
+}
+
+.app-header
+{
+	width: 100%;
+	height: 40px;
+	padding:0 10px;
+	display: inline-grid;
+	align-content: center;
+	grid-auto-flow: column;
+	border: 1px solid black;
+	grid-template-columns: 40px calc(100% - 80px) 40px;
+}
+
+.topbar
+{
+	display:flex;
+	font-size:18px;
+	cursor: default;
+	user-select: none;
+	justify-content: center;
+}
+
+.topbar .link-item,
+.topbar .menu-item
+{
+	margin:0;
+	padding:0 10px;
+	cursor: default;
+	font-weight: bold;
+	position: relative;
+	display:inline-flex;
+	align-items: center;
+	background-color: white;
+}
+
+.topbar .menu-item .menu-items
+{
+	top: 27px;
+	left: 50%;
+	height: 100%;
+	z-index:9999;
+	display: table;
+	cursor: pointer;
+	min-width: 100px;
+	position: absolute;
+	border:solid black 1px;
+	transform: translateX(-50%);
+}
+
+.topbar .menu-items .menu-items .link-item 
+{
+	display:flex;
+}
+
+.topbar .menu-items .menu-items .link-item a
+{
+	width:100%;
+	height:100%;
+	padding: 10px 15px;
+}
+
+.canvas
+{
+	border: 1px solid black;
+	background-color: white;
+}
+
+.form-header
+{
+	width: 100%;
+	height: 20px;
+	cursor: default;
+	user-select: none;
+	display: inline-grid;
+	grid-auto-flow: column;
+	border-bottom: 1px solid black;
+	grid-template-columns: 40px 1fr 60px;
+}
+
+.info
+{
+	width:20px;
+	height: 20px;
+	cursor: pointer;
+	position: relative;
+	display:inline-block;
+   	background-size: 20px;
+	transition: all 0.18s ease;
+	background-repeat: no-repeat;
+	background-image: url('images/icons8-info-50.png');
+}
+
+.info .info-dropdown
+{
+	top: 42px;
+	right: 0px;
+	width:185px;
+	display:none;
+	z-index: 99999;
+	position: fixed;
+	font-size: 14px;
+	cursor: default;
+} 
+
+.form-header-middle
+{
+	display: flex;
+	justify-content: center;
+}
+
+.block
+{
+	margin:5px;
+	padding: 30px;
+}
+
+.menu-left
+{
+	width:0px;
+	height: 100%;
+	border-right: 1px solid black;
+}
+
+.left-menu-container
+{
+	display: block;
+	cursor: default;
+	margin-left:15px;
+	text-align: left;
+	text-decoration: none;
+	background: transparent;
+}
+
+.menu-item
+{
+	display: block;
+	font-size: 13px;
+	margin-top: 15px;
+}
+
+.link-item
+{
+	display:flex;
+	font-size: 13px;
+	margin-top: 15px;
+	user-select: none;
+}
+
+.row-indicator
+{
+	width: 8px;
+	height: 8px;
+	border-radius: 50px;
+}
+
+.filter-indicator
+{
+	width: 8px;
+	height: 8px;
+	display: block;
+}
+
+input:enabled,
+input:disabled,
+input[enabled=enabled],
+input[disabled=disabled]
+{
+	border: none;
+	font-size: 14px;
+	font-weight: normal;
+	border-bottom: 2px solid black;
+}
+
+.warning
+{
+	font-style: italic;
+}
+
+.topbar
+{
+	display:flex;
+	font-size:18px;
+	cursor: default;
+	user-select: none;
+	justify-content: center;
+}
+
+.page-footer-pos:hover .footer-tooltiptext-top
+{
+	visibility: visible !important;
+}

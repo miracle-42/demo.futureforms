@@ -1,0 +1,101 @@
+<include src="/html/formheader"></include>
+
+<!-- Start width -->
+<div style="width: 1000px;"></div>
+
+<div class="form">
+	<div class="block">
+		<div class="needle blue"></div>
+			<table>
+				<tr>
+					<th></th>
+					<th onclick="this.sort('dept','department_id')">Id</th>
+					<th onclick="this.sort('dept','department_name')">Name</th>
+					<th>Manager</th>
+					<th>Location</th>
+				</tr>
+				<tr class="row" foreach="row in 0..2">
+					<td class="indicator"><span from="Departments" row="$row" type="row-indicator"></span></td>
+
+					<td><input name="department_id" 		from="Departments" row="$row" size="6"  integer></td>
+					<td><input name="department_name" 	from="Departments" row="$row" size="20" initcap></td>
+					<td><input name="manager" 				from="Departments" row="$row" size="20" derived readonly query="false"></td>
+					<td><input name="location" 			from="Departments" row="$row" size="30" derived readonly query="false"></td>
+				</tr>
+		</table>
+	</div>
+</div>
+
+<div class="form" style="display:flex; flex-wrap: wrap;">
+	<div class="block">
+		<div class="needle green"></div>
+		<table>
+			<tr class="row">
+				<th></th>
+				<th>
+					<label for="fn0" tabindex="0" draggable="true"
+						onclick="this.sort('emp','first_name')"
+						ondragstart="this.startFieldDragging()">
+						First Name
+					</label>
+				</th>
+				<th>
+					<label for="ln0" tabindex="1" draggable="true"
+						onclick="this.sort('emp','last_name')"
+						ondragstart="this.startFieldDragging()">
+						Last Name
+					</label>
+				</th>
+				<th>
+					<label for="em0" tabindex="2" draggable="true"
+						onclick="this.sort('emp','email')"
+						ondragstart="this.startFieldDragging()">
+						Email
+					</label>
+				</th>
+				<th>
+					<label for="ph0" tabindex="3" draggable="true"
+						onclick="this.sort('emp','phone_number')"
+						ondragstart="this.startFieldDragging()">
+						Phone
+					</label>
+				</th>
+			</tr>
+			<tr class="row" foreach="row in 0..4">
+				<td class="indicator"><span from="Employees" row="$row" type="row-indicator"></span></td>
+
+				<td><input id="fn$row" 	name="first_name" 	from="Employees" row="$row" size="10" initcap required></td>
+				<td><input id="ln$row" 	name="last_name" 		from="Employees" row="$row" size="10" initcap required></td>
+				<td><input id="em$row" 	name="email" 			from="Employees" row="$row" size="32" required></td>
+				<td><input id="ph$row" 	name="phone_number" 	from="Employees" row="$row" size="12" required></td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="block" style="display:flex; align-items: stretch;">
+		<div class="needle red"></div>
+		<table style="display:flex; align-items: center;">
+			<tr>
+				<td>Salary</td>
+				<td>
+					<input name="salary" from="Employees" size="8" required integer>&euro;
+				</td>
+			</tr>
+			<tr>
+				<td>Hire Date</td>
+				<td>
+					<input name="hire_date" from="Employees" date required>
+					<span onclick="this.showDatePicker('Employees','hire_date')">&#128197;</span>
+				</td>
+			</tr>
+			<tr>
+				<td>Job</td>
+				<td style="display:inline-flex">
+					<input name="job_id" from="Employees" size="10" upper required>
+					<input name="job_title" from="Employees" size="20" derived readonly query="false">
+					<span onclick="this.showListOfValues('Employees','job_id')">&#x2807;</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

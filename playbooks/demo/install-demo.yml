@@ -180,22 +180,29 @@
     - name: Check openrestapi.jar exists
       stat:
         path: "../../src/openrestapi/target"
-      register: src_database_js_target
-      tags: src_database_js_target
+      register: src_openrestapi_target
+      tags: src_openrestapi_target
 
     - name: Build openrestapi.jar
       ansible.builtin.command: mvn package
       args:
         chdir: "../../src/openrestapi"
-      when: src_database_js_target.stat.exists == false
+      when: src_openrestapi_target.stat.exists == false
       tags:
         - mvn_package
 
-    - name: Check openrestapi.zip unarchived
+    - name: Check openrestapi template exists
       stat:
         path: "../../build/openrestapi.demo/bin"
-      register: build_database_js_demo_bin
-      tags: build_database_js_demo_bin
+      register: build_openrestapi_demo_bin
+      tags: build_openrestapi_demo_bin
+
+    - name: Copy openrestapi template
+      ansible.builtin.copy:
+        src: "../../src/openrestapi/template/"
+        dest: "{{ install_path }}/openrestapi.demo"
+      when: build_openrestapi_demo_bin.stat.exists == false
+      tags: copy_openrestapi_template
 
     - name: Fix up app destination in config file
       ansible.builtin.replace: 

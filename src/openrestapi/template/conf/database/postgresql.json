@@ -1,0 +1,43 @@
+{
+  "database": {
+    "type": "postgres",
+    "test": "select user",
+    "jdbc": "jdbc:postgresql://localhost:5432/hr?user=[username]&password=[password]&ssl=false"
+  },
+  "repository": {
+    "path": "./repo/postgres"
+  },
+  "resultset": {
+    "compact": false,
+    "dateformat": null
+  },
+  "savepoints": {
+    "post": true,
+    "patch": true,
+    "delete": true
+  },
+  "interceptors": {
+    "rewrite.class": null,
+    "validator.class": null
+  },
+  "pools": {
+    "proxy": {
+      "min": 5,
+      "max": 500,
+      "idle": 10,
+      "busy": 10,
+      "username": "hr",
+      "password": "hr",
+      "auth.secret": "10c3c323-ae10-4204-85e5-50822e6ee63d"
+    },
+    "fixed": {
+      "min": 5,
+      "max": 50,
+      "idle": 10,
+      "busy": 10,
+      "username": "hr",
+      "password": "hr",
+      "auth.secret": "11c3c323-ae10-4204-85e5-50822e6ee63e"
+    }
+  }
+}

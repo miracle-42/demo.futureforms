@@ -2,22 +2,27 @@
 
 These paramaters is set in `conf/config.json`.
 
+An example can be found in the [template/conf](../template/conf) direcory.
+
 ## instance
 
 Name of instance.
 
 If multiple instances are running on the same server
-each must have a unique name.
+each instance must have a unique name.
 
 Example:
+
     "instance": "dbjs01"
 
 ## database
 
-Name of database backend.
+Name of database backend configuration file.
+
 The name must refer to the name of the corresponding database configuration file.
 
 Example:
+
     "database": "postgresql"
 
 In this example a file named `conf/database/postgresql.json` must exist.
@@ -29,7 +34,8 @@ The database server topology can be either:
   * cluster
 
 Example:
-  "topology": "standalone"
+
+    "topology": "standalone"
 
 ---
 	"sso":

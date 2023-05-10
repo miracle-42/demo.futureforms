@@ -201,13 +201,19 @@
       ansible.builtin.copy:
         src: "../../src/openrestapi/template/"
         dest: "{{ install_path }}/openrestapi.demo"
+        mode: preserve
       when: build_openrestapi_demo_bin.stat.exists == false
       tags: copy_openrestapi_template
+
+    - name: Copy openrestapi.jar to build
+      ansible.builtin.copy:
+        src: "../../src/openrestapi/target/openrestapi-2.1.jar"
+        dest: "{{ install_path }}/openrestapi.demo/lib/"
+      tags: copy_openrestapi_jar
 
     - name: Fix up app destination in config file
       ansible.builtin.replace: 
         path: "{{ install_path }}/openrestapi.demo/conf/config.json"
         regexp: '\"path\": \"./app\"'
         replace: '"path": "../demo"'
-      tags:
-        - fix-demo-dest
+      tags: fix_demo_dest

@@ -9,25 +9,19 @@ Read the requirements at the [frontpage](../../README.md).
 
 ## Clone repository
 
-Create a working directory with name of choice and go into it.
 Then clone this repository.
 
 ```
-mkdir foo
-cd foo
-git clone https://github.com/peter-gram/ff-install ff-install
-cd ff-install
+git clone https://github.com/miracle-42/futureforms futureforms
+cd futureforms
 ```
 
 ## Configure
 
-In the top of [install-demo.yml](install-demo.yml) tho
+In the top of [install-demo.yml](install-demo.yml) the
 following changes might be required.
 
-The default target host is set to `app` which could be set to localhost
-if you are running on the same server.
-
-The `install_path` is set to `~/futureforms` in your home dir.
+The `install_path` is set to `build` in the cloned directory.
 This is where the installation will be located.
 
 ## Install
@@ -41,18 +35,18 @@ ansible-playbook playbooks/demo/install-demo.yml
 The installation, download and compilation takes about 3 minutes
 and will take up about 1.1GB disk space.
 
-## Start database.js
+## Start openrestapi
 
-`database.js` is a Java program which is the actual web server.
+`openrestapi` is a Java program which is the actual web server.
 Go to the directory and start the webserver:
 
 ```
-cd ~/futureforms/database.js.demo/
-bin/database.js start
+cd build/openrestapi.demo/
+bin/openrestapi start
 ```
 
 Now the web service is running on port 9002
-and can be seen at http://localhost:9002/
+and can be seen at http://127.0.0.1:9002/
 
 Now the frontscreen can be seen.
 

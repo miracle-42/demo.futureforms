@@ -81,3 +81,85 @@ Click `Query` and `Execute` in the top menu or press the key `F8`.
 Now the table is filled with data from the database.
 
 ![CountryNames](img/ffscreenshot_7.png)
+
+---
+
+## Database less
+
+FutureForms also supports forms without a connection to a database.
+
+### Phone Book
+
+![Phonebook](img/ffscreenshot_8.png)
+
+The *Phone Book* is an example of a hard coded in memory list
+with a relational master/detail.
+
+### Field Types
+
+![Fieldtypes](img/ffscreenshot_9.png)
+
+Field input can be limited and validated.
+
+#### Numbers
+
+**Integer**
+
+Only numbers 0 to 9 can be entered.
+First digit can only be 0 if the whole number is 0.
+
+**Decimal**
+
+Enter integer og decimal numbers.
+Only one dot '.' can be entered.
+Comma or other decimals delimiters are not allowed.
+Only two decimals.
+
+#### Text Case
+
+**Upper**
+
+Text entered will be converted to upper case.
+
+**Lower**
+
+Text entered will be converted to lower case.
+
+**Initcap**
+
+First letter in each word entered will be converted to upper case
+and the rest to lower case.
+
+#### Date
+
+**Date**
+
+Date can only be entered in the format 'DD-MM-YYYY'.
+
+**DateTime**
+
+Date and time can only be entered in the format 'DD-MM-YYYY hh:MM:SS'.
+
+#### Radio and CheckBox
+
+Radio and checkboxes can be selected by typing the value 
+or clicking the circle or box.
+
+#### Formatted input
+
+Select a drop-down
+and limit/validate 'move' with regular expression.
+
+#### Data Mapper
+
+Enter 'y' or 'n' and map to another field.
+
+#### Drop Down Lists
+
+Select one item from a list and get long name in another field.
+
+Select multiple items from a list with Shift and Control key.
+
+#### Any html
+
+Any text entered displayed in another field.

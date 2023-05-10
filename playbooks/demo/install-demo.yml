@@ -91,6 +91,14 @@
       register: build_core_package_json
       tags: build_core_package_json
 
+    - name: Futureforms core npm install
+      ansible.builtin.command: npm install
+      args:
+        chdir: "../../src/core"
+      when: build_core_package_json.stat.exists == false
+      tags:
+        - npm_install_core
+
     - name: Build Futureforms core app
       ansible.builtin.command: npm run build
       args:

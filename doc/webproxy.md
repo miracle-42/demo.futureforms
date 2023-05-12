@@ -16,9 +16,14 @@ In the `proxy_pass` statement an ending `/` is needed
 to strip off the `/s0/` path before it is send to the backend.
 
 Also in Typescript `FormsModule.ts` the `/s0` is added by making the
-`Connection()` have the path set:
+`Connection()` have the path set with `documentURI`:
 
     FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
+
+`documentURI()` will return `https://example.org/s0/index.html`
+and then `match` will strip it to `https://example.org/s0/` 
+with a regular expression. 
+`[0]` will return the first element in the array from `match`.
 
 In case the backend is not running error code `502 Bad Gateway` will be shown.
 In this example a more informative page

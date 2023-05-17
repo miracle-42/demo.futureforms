@@ -14,8 +14,8 @@ A normal Full-stack development consist of af front-end, a back-end and a databa
 In FutureForms this is cut down to a front-end, a generic back-end and a database.
 
 Here the sketch shows the Javascript application running in the client browser
-and then sending SQL to the `openrestapi` back-end.
-The `openrestapi` converts the SQL to the appropriate database driver
+and then sending SQL to the `openrestdb` back-end.
+The `openrestdb` converts the SQL to the appropriate database driver
 and sends the result back to the client.
 
 ![Figure: Building Blocks](img/blocks.svg)
@@ -42,7 +42,7 @@ security technics.
 
 ![Figure: Compare Security](img/compare-security.svg)
 
-`openrestapi` can be configured to reject known keywords like
+`openrestdb` can be configured to reject known keywords like
 `CREATE`, `DROP` and `TRUNCATE` but it recommended to handle
 the security in the database with `GRANT`.
 

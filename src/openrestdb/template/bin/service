@@ -1,2 +1,2 @@
 #!/bin/sh
-java -cp $(dirname "$0")/../lib/openrestapi-2.1.jar openrestapi.control.Service
+java -cp $(dirname "$0")/../lib/openrestdb-2.1.jar openrestdb.control.Service

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>openrestapi</groupId>
+  <groupId>openrestdb</groupId>
   <artifactId>authenticator.js</artifactId>
   <version>2.1</version>
   <description>Project for Authenticator</description>
@@ -53,17 +53,17 @@
         <configuration>
           <includes>
             <include>**/sso/*</include>
-            <include>**/openrestapi/admin/*.class</include>
-            <include>**/openrestapi/client/*.class</include>
-            <include>**/openrestapi/config/Paths*.class</include>
-            <include>**/openrestapi/config/SSOConfig.class</include>
-            <include>**/openrestapi/logger/Formatter.class</include>
-            <include>**/openrestapi/security/Keystore.class</include>
-            <include>**/openrestapi/security/PKIContext.class</include>
+            <include>**/openrestdb/admin/*.class</include>
+            <include>**/openrestdb/client/*.class</include>
+            <include>**/openrestdb/config/Paths*.class</include>
+            <include>**/openrestdb/config/SSOConfig.class</include>
+            <include>**/openrestdb/logger/Formatter.class</include>
+            <include>**/openrestdb/security/Keystore.class</include>
+            <include>**/openrestdb/security/PKIContext.class</include>
           </includes>
           <archive>
             <manifest>
-              <mainClass>openrestapi.sso.Authenticater</mainClass>
+              <mainClass>openrestdb.sso.Authenticater</mainClass>
               <addClasspath>true</addClasspath>
               <classpathPrefix>./json</classpathPrefix>
             </manifest>

@@ -77,9 +77,9 @@ Example:
 		"virtual-path":
 			"endpoint": "/index.html"
 		"handlers": 
-			{"class" : "openrestapi.handlers.FileHandler", "url" : "/", "methods" :  "GET"},
-			{"class" : "openrestapi.handlers.AppFileHandler", "url" : "/files", "methods" :  "GET, PUT, POST"},
-			{"class" : "openrestapi.handlers.RestHandler", "url" : "/", "methods" :  "POST, PATCH, DELETE, OPTIONS"}
+			{"class" : "openrestdb.handlers.FileHandler", "url" : "/", "methods" :  "GET"},
+			{"class" : "openrestdb.handlers.AppFileHandler", "url" : "/files", "methods" :  "GET, PUT, POST"},
+			{"class" : "openrestdb.handlers.RestHandler", "url" : "/", "methods" :  "POST, PATCH, DELETE, OPTIONS"}
 		"cache":
 			{"pattern": "*.js", "maxsize": 1048576},
 			{"pattern": "*.html", "maxsize": 1048576}

@@ -2,6 +2,6 @@ cd ..
 
 rm -rf ipc/*
 rm -rf logs/*
-rm docker/openrestapi.zip
+rm docker/openrestdb.zip
 
-zip -r docker/openrestapi.zip bin lib conf logs ipc security \
+zip -r docker/openrestdb.zip bin lib conf logs ipc security \

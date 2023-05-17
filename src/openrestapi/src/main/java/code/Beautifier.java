@@ -43,7 +43,7 @@ public class Beautifier
   @SuppressWarnings("unused")
   public static void main(String[] args) throws Exception
   {
-    String root = "/Users/alex/Repository/DatabaseJS/projects/openrestapi/src";
+    String root = "/Users/alex/Repository/DatabaseJS/projects/openrestdb/src";
     next(new File(root));
     System.out.println("lines: "+lines+" blanks: "+blanks+" code: "+(lines-blanks));
   }

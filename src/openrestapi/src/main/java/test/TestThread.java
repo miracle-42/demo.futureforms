@@ -23,7 +23,7 @@ package test;
 
 import java.net.URL;
 import javax.net.ssl.TrustManager;
-import openrestapi.security.FakeTrustManager;
+import openrestdb.security.FakeTrustManager;
 
 
 public class TestThread extends Thread

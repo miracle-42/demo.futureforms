@@ -178,50 +178,50 @@
       tags:
         - install-hr-schema-objects
 
-    - name: Create dir openrestapi.demo
+    - name: Create dir openrestdb.demo
       ansible.builtin.file:
-        path: "{{ install_path }}/openrestapi.demo"
+        path: "{{ install_path }}/openrestdb.demo"
         state: directory
       tags:
-        - create-openrestapi.demo
+        - create-openrestdb.demo
 
-    - name: Check openrestapi.jar exists
+    - name: Check openrestdb.jar exists
       stat:
-        path: "../../src/openrestapi/target"
-      register: src_openrestapi_target
-      tags: src_openrestapi_target
+        path: "../../src/openrestdb/target"
+      register: src_openrestdb_target
+      tags: src_openrestdb_target
 
-    - name: Build openrestapi.jar
+    - name: Build openrestdb.jar
       ansible.builtin.command: mvn package
       args:
-        chdir: "../../src/openrestapi"
-      when: src_openrestapi_target.stat.exists == false
+        chdir: "../../src/openrestdb"
+      when: src_openrestdb_target.stat.exists == false
       tags:
         - mvn_package
 
-    - name: Check openrestapi template exists
+    - name: Check openrestdb template exists
       stat:
-        path: "../../build/openrestapi.demo/bin"
-      register: build_openrestapi_demo_bin
-      tags: build_openrestapi_demo_bin
+        path: "../../build/openrestdb.demo/bin"
+      register: build_openrestdb_demo_bin
+      tags: build_openrestdb_demo_bin
 
-    - name: Copy openrestapi template
+    - name: Copy openrestdb template
       ansible.builtin.copy:
-        src: "../../src/openrestapi/template/"
-        dest: "{{ install_path }}/openrestapi.demo"
+        src: "../../src/openrestdb/template/"
+        dest: "{{ install_path }}/openrestdb.demo"
         mode: preserve
-      when: build_openrestapi_demo_bin.stat.exists == false
-      tags: copy_openrestapi_template
+      when: build_openrestdb_demo_bin.stat.exists == false
+      tags: copy_openrestdb_template
 
-    - name: Copy openrestapi.jar to build
+    - name: Copy openrestdb.jar to build
       ansible.builtin.copy:
-        src: "../../src/openrestapi/target/openrestapi-2.1.jar"
-        dest: "{{ install_path }}/openrestapi.demo/lib/"
-      tags: copy_openrestapi_jar
+        src: "../../src/openrestdb/target/openrestdb-2.1.jar"
+        dest: "{{ install_path }}/openrestdb.demo/lib/"
+      tags: copy_openrestdb_jar
 
     - name: Fix up app destination in config file
       ansible.builtin.replace: 
-        path: "{{ install_path }}/openrestapi.demo/conf/config.json"
+        path: "{{ install_path }}/openrestdb.demo/conf/config.json"
         regexp: '\"path\": \"./app\"'
         replace: '"path": "../demo"'
       tags: fix_demo_dest

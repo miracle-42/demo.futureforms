@@ -35,14 +35,14 @@ ansible-playbook playbooks/demo/install-demo.yml
 The installation, download and compilation takes about 3 minutes
 and will take up about 1.1GB disk space.
 
-## Start openrestapi
+## Start openrestdb
 
-`openrestapi` is a Java program which is the actual web server.
+`openrestdb` is a Java program which is the actual web server.
 Go to the directory and start the webserver:
 
 ```
-cd build/openrestapi.demo/
-bin/openrestapi start
+cd build/openrestdb.demo/
+bin/openrestdb start
 ```
 
 Now the web service is running on port 9002

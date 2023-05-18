@@ -57,9 +57,11 @@ to protect your database for this kind of statements.
 
 © 2010 [xkcd.com](https://xkcd.com/327/) 
 
+## Documentation
+
+* [Development &amp; release](doc/devrel.md)
 
 ## Install FutureForms featured demo and tutorial installation
-
 
 This Ansible script will install FutureForms with the extended demo.
 This demo will show what a lot of the classes in FutureForms can do.

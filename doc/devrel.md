@@ -9,6 +9,8 @@ Inspired by
 [A successful Git branching model](https://nvie.com/posts/a-successful-git-branching-model/)
 by *Vincent Driessen*
 we use a number of branches.
+`git flow` is used to managed this way of doing it.
+See also the [git flow cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/) .
 
 ## Branches
 
@@ -24,14 +26,19 @@ Examples of branches.
   Commits to this branch is made by first making a `feature-bling` branch
   and then merge it when it is considered ready.
   Use branch if you want to develop against latest and newest libraries and backends.
+* __feature-*bling*__
+  This is an example of a short lived branch.
+  It is a branch of __dev__.
+  When it is roughly tested it will be merged back to __dev__.
+  After merge it will be deleted.
 * __v0.7.0__
   This is an example of the stable release of version `v0.7.0`.
   This branch will never be changed.
   Later on if this release is still maintained and a bug is dicovered,
   there will be made a hotfix like `hotfix-ssl`
-  and a new release `vvv0.7.1` will be released.
-  To upgrade from `v0.7.0` to `vvv0.7.1` you have to merge
-  `vvv0.7.1` into your current `v0.7.0` release.
+  and a new release `v0.7.1` will be released.
+  To upgrade from `v0.7.0` to `v0.7.1` you have to merge
+  `v0.7.1` into your current `v0.7.0` release.
 * __release-*v0.7.0*__
   This is an example of a short lived branch.
   This is also called the *Release Candidate* (RC).
@@ -45,14 +52,9 @@ Examples of branches.
   This is an example of a short lived branch.
   A bug is discovered in say release `v0.7.0` and a new branch is made to fix this.
   When the fix is ready it will be merged with `v0.7.0`
-  and a new version `vvv0.7.1` will be released.
+  and a new version `v0.7.1` will be released.
   If relevant this hotfix will be merged into `dev`.
   After merge and release this branch will be deleted.
-* __feature-*bling*__
-  This is an example of a short lived branch.
-  It is a branch of __dev__.
-  When it is roughly tested it will be merged back to __dev__.
-  After merge it will be deleted.
 
 
 ## Teams of developers
@@ -109,14 +111,15 @@ Clone your own fork to your harddisk.
 
     git clone git@github.com:<joe>/futureforms.git
     cd futureforms
-    git checkout -b feature-my2cents dev
+    git flow feature start my2cents
     echo My 2 cents. >> README.md
     git add README.md
     git commit -m 'My cents'
-    git push
+    git flow feature finish my2cents
+    git push orgin dev
 
 Now surf to your own fork
-https://github.com/&lt;joe&gt;/futureforms/
+https://github.com/joe/futureforms/
 and make a pull request against the origin repository.
 
 After a *quick* review it will be merged into `dev`
@@ -129,46 +132,42 @@ and a new pull request will be made.
 ## Hotfix
 
 If a bug is dicovered in a previous release
-a new hotfix/patch has to be made for this.
+a new hotfix has to be made for this.
 
 A hotfix can be relevant for:
+* Only latest release
 * Only one release
-* All branches
+* All releases
 
 Steps for a hotfix:
 
-* Create a new branch with this hotfix say `hotfix-vv0.7.1' and checkout
+* Create a new branch with this hotfix say `hotfix-v0.7.1' and checkout
 * Edit the files to be fixed
 * Add files, commit and push so another team members can verify the patch
-* When the hotfix is tested it will be released with a tag say `vvv0.7.1`.
+* When the hotfix is tested it will be released with a tag say `v0.7.1`.
 * Optional: If this hotfix applies to other releases, `main` and `dev`
   it should be merged in to these branches
 * When all branches are updated the hotfix is deleted
 
-    git pull
-    git checkout -b hotfix-vv0.7.1 v0.7.0
-    # Apply hotfix to files
+To start a hotfix from the latest release.
+
+    git flow hotfix start v0.7.1
+
+If the hotfix applies to an old version it must be specified.
+
+    git flow hotfix start v0.7.1 v0.7.0
+
+Change files and add them.
+
     git add <files>
-    git commit <files>
-    git push
+    git commit
+
+If the team should review the hotfix it has to be published.
+
+    git flow hotfix publish
 
     # wait for review and testing
-    git checkout v0.7.0
-    git merge --no-ff hotfix-vv0.7.1
-    git tag -a vvv0.7.1
-    git push
-
-If the hotfix apply to `main` and `dev` it should be merged in.
-
-    git pull
-    git checkout dev
-    git merge --no-ff hotfix-vv0.7.1
-    git push
-
-Now the hotfix is apllied to all relevant branches and can be deleted.
-
-    git branch -d hotfix-vv0.7.1
-    git push
+    git flow hotfix finish
 
 ## Release
 
@@ -182,30 +181,26 @@ To run with the latest stable release it can be done in two ways.
 The simple way is to use the `main` branch.
 Whenever you make a `git pull` you will get the latest release.
 
-    git clone https://miracle-42/futureforms
-    git branch # note '*' prefixed 'main'
-
 If you you want to lock a specific release then check that out.
 The release will never be updated.
 
-    git checkout v0.7.0
-
-If you want have latest upgrade for `0.7.X` list the tags.
-
-    git tags -l
-    git checkout v0.7.1
-
 If the latest release is `v0.7.1`
 the new release will either be `v0.8.0` or `v1.0.0` at your choice.
+By default the base is `dev` which it should be.
 
 First you will create a new branch based on `dev`.
 
-    git checkout -b release-0.8.0 dev
-    # Fix some stuff before release
-    # Test all modules
-    git tag -a v0.8.0 -m "New feature X"
-    git push origin v0.8.0
+    git flow release start v0.8.0
 
+Fix some stuff before release and test all modules.
+When the release is finished it should be 
+commited, merged back to `main` and tagged.
+
+    git flow release finish v0.8.0
+
+Tags are not pushed then do this manually.
+
+    git push origin --tags
 
 <!--
 vim: expandtab tabstop=4 shiftwidth=4 :

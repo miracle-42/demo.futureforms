@@ -6,7 +6,7 @@ module.exports =
   entry: './src/index.ts',
   output:
   {
-    path: __dirname+'/../../build/demo',
+    path: __dirname+'/../../build/demo/app',
     filename: 'demo.js',
     library: "forms42core"
   },

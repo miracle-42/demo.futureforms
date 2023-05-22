@@ -1,0 +1,7 @@
+cd ..
+
+rm -rf ipc/*
+rm -rf logs/*
+rm docker/database.js.zip
+
+zip -r docker/database.js.zip bin lib conf logs ipc security \

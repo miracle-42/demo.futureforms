@@ -6,7 +6,6 @@
     "declaration": true,
     "esModuleInterop": true,
     "moduleResolution":"Node",
-    "experimentalDecorators": true,
-    "outDir": "../../build/demo/"
+    "experimentalDecorators": true
   }
 }

@@ -1,0 +1,5 @@
+echo identity
+keytool -list -keystore demo.p12 -storetype pkcs12 -storepass Manager1
+
+echo trust
+keytool -list -keystore trust.p12 -storetype pkcs12 -storepass Manager1

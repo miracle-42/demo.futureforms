@@ -1,0 +1,21 @@
+{
+	"servers" 		: 2,
+	"waiters"		: null,
+	"workers"		: null,
+	"hot-standby" 	: true
+	,
+	"java":
+	{
+		"java"		: null,
+		"http.jars" : null,
+		"rest.jars" : null,
+		"http.opts"	: "-Xmx512M",
+		"rest.opts"	: "-Xmx756M -Xss5M"
+	}
+	,
+	"ipc" :
+	{
+		"extsize"	: 4096,
+		"heartbeat"	: 1000
+	}
+}

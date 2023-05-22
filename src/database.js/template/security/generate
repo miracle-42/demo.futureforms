@@ -1,0 +1,10 @@
+keyl=2048
+rm demo* trust*
+
+openssl req -config cert.cnf \
+-new -sha256 -newkey rsa:$keyl -nodes -keyout demo.key \
+-x509 -days 825 -out demo.crt
+
+openssl pkcs12 -export -in demo.crt -inkey demo.key -out demo.p12 -name demo -passout pass:Manager1
+
+keytool -keystore trust.p12 -storetype pkcs12 -storepass Manager1 -alias demo -import -file demo.crt

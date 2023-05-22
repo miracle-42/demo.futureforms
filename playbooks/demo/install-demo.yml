@@ -114,20 +114,6 @@
       tags:
         - npm_install_demo
 
-    - name: Check demo.js exists
-      stat:
-        path: "../../build/demo/demo.js"
-      register: build_demo_demo_js
-      tags: build_demo_demo_js
-
-    - name: Build Futureforms demo app
-      ansible.builtin.command: npm run build
-      args:
-        chdir: "../../src/demo"
-      when: build_demo_demo_js.stat.exists == false
-      tags:
-        - npm_build_demo
-
     - name: Remove the postgres database user hr
       community.postgresql.postgresql_user:
         name: hr
@@ -178,50 +164,38 @@
       tags:
         - install-hr-schema-objects
 
-    - name: Create dir openrestdb.demo
+    - name: Create dir demo
       ansible.builtin.file:
-        path: "{{ install_path }}/openrestdb.demo"
+        path: "{{ install_path }}/demo"
         state: directory
       tags:
-        - create-openrestdb.demo
+        - create-demo.database.js
 
-    - name: Check openrestdb.jar exists
+    - name: Check database.js template exists
       stat:
-        path: "../../src/openrestdb/target"
-      register: src_openrestdb_target
-      tags: src_openrestdb_target
+        path: "{{ install_path }}/demo/bin"
+      register: build_demo_database_js_bin
+      tags: build_demo_database_js_bin
 
-    - name: Build openrestdb.jar
-      ansible.builtin.command: mvn package
-      args:
-        chdir: "../../src/openrestdb"
-      when: src_openrestdb_target.stat.exists == false
-      tags:
-        - mvn_package
-
-    - name: Check openrestdb template exists
-      stat:
-        path: "../../build/openrestdb.demo/bin"
-      register: build_openrestdb_demo_bin
-      tags: build_openrestdb_demo_bin
-
-    - name: Copy openrestdb template
+    - name: Copy database.js template
       ansible.builtin.copy:
-        src: "../../src/openrestdb/template/"
-        dest: "{{ install_path }}/openrestdb.demo"
+        src: "../../src/database.js/template/"
+        dest: "{{ install_path }}/demo"
         mode: preserve
-      when: build_openrestdb_demo_bin.stat.exists == false
-      tags: copy_openrestdb_template
+      when: build_demo_database_js_bin.stat.exists == false
+      tags: copy_database_js_template
 
-    - name: Copy openrestdb.jar to build
-      ansible.builtin.copy:
-        src: "../../src/openrestdb/target/openrestdb-2.1.jar"
-        dest: "{{ install_path }}/openrestdb.demo/lib/"
-      tags: copy_openrestdb_jar
+    - name: Check demo.js exists
+      stat:
+        path: "{{ install_path }}/demo/app/demo.js"
+      register: build_demo_demo_js
+      tags: build_demo_demo_js
 
-    - name: Fix up app destination in config file
-      ansible.builtin.replace: 
-        path: "{{ install_path }}/openrestdb.demo/conf/config.json"
-        regexp: '\"path\": \"./app\"'
-        replace: '"path": "../demo"'
-      tags: fix_demo_dest
+    - name: Build Futureforms demo app
+      ansible.builtin.command: npm run build
+      args:
+        chdir: "../../src/demo"
+      when: build_demo_demo_js.stat.exists == false
+      tags:
+        - npm_build_demo
+

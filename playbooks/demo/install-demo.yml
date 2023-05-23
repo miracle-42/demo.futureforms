@@ -87,7 +87,7 @@
 
     - name: Check core is build
       stat:
-        path: "../../build/core/package.json"
+        path: "{{ install_path }}/core/package.json"
       register: build_core_package_json
       tags: build_core_package_json
 
@@ -106,6 +106,14 @@
       when: build_core_package_json.stat.exists == false
       tags:
         - npm_build_core
+
+    - name: Zip Futureforms core
+      community.general.archive:
+        path: "{{ install_path }}/core"
+        dest: "{{ install_path }}/futureforms-lib.zip"
+        format: zip
+      tags:
+        - zip_lib
 
     - name: Install Futureforms demo app packages based on package.json using the npm
       community.general.npm:
@@ -185,6 +193,22 @@
       when: build_demo_database_js_bin.stat.exists == false
       tags: copy_database_js_template
 
+    - name: Build Openrestdb bin
+      ansible.builtin.copy:
+        src: "../../src/database.js/template/"
+        dest: "{{ install_path }}/openrestdb"
+        mode: preserve
+      when: build_demo_database_js_bin.stat.exists == false
+      tags: build_bin
+
+    - name: Zip Openrestdb bin
+      community.general.archive:
+        path: "{{ install_path }}/openrestdb"
+        dest: "{{ install_path }}/openrestdb-bin.zip"
+        format: zip
+      tags:
+        - zip_bin
+
     - name: Check demo.js exists
       stat:
         path: "{{ install_path }}/demo/app/demo.js"
@@ -198,4 +222,3 @@
       when: build_demo_demo_js.stat.exists == false
       tags:
         - npm_build_demo
-

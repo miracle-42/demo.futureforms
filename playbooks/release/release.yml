@@ -1,0 +1,79 @@
+- hosts: localhost
+
+  vars:
+    - relver: 1.2.3
+    - install_path: ../../build
+    - download_path: ../../download
+
+  tasks:
+    - name: Install packages
+      ansible.builtin.package:
+        name: "{{ item }}"
+      become: true
+      become_method: sudo
+      tags:
+        - install_npm
+      loop:
+        - npm
+        - node-typescript
+        - openjdk-19-jre
+        - maven
+
+    - name: Check core is build
+      stat:
+        path: "{{ install_path }}/core/package.json"
+      register: build_core_package_json
+      tags: build_core_package_json
+
+    - name: Futureforms core npm install
+      ansible.builtin.command: npm install
+      args:
+        chdir: "../../src/core"
+      when: build_core_package_json.stat.exists == false
+      tags:
+        - npm_install_core
+
+    - name: Build Futureforms core app
+      ansible.builtin.command: npm run build
+      args:
+        chdir: "../../src/core"
+      when: build_core_package_json.stat.exists == false
+      tags:
+        - npm_build_core
+
+    - name: Create dir download
+      ansible.builtin.file:
+        path: "{{ download_path }}"
+        state: directory
+      tags:
+        - create-download
+
+    - name: Zip Futureforms core
+      community.general.archive:
+        path: "{{ install_path }}/core"
+        dest: "{{ download_path }}/futureforms-lib-{{ relver }}.zip"
+        format: zip
+      tags:
+        - zip_lib
+
+    - name: Check openrestdb present
+      stat:
+        path: "{{ install_path }}/openrestdb"
+      register: openrestdb_template
+      tags: present_openrestdb
+
+    - name: Copy Openrestdb template
+      ansible.builtin.copy:
+        src: "../../src/database.js/template/"
+        dest: "{{ install_path }}/openrestdb"
+        mode: preserve
+      when: openrestdb_template.stat.exists == false
+      tags: copy_openrestdb_template
+
+    - name: Zip Openrestdb bin
+      community.general.archive:
+        path: "{{ install_path }}/openrestdb"
+        dest: "{{ download_path }}/openrestdb-bin-{{ relver }}.zip"
+        format: zip
+      tags:
+        - zip_bin

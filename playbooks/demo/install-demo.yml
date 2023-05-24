@@ -4,90 +4,27 @@
     - install_path: ../../build
 
   tasks:
-
-    - name: Sysstat package
+    - name: Install packages
       ansible.builtin.package:
-        name: sysstat
+        name: "{{ item }}"
       become: true
       become_method: sudo
       tags:
-        - install_sysstat
-
-    - name: Git install
-      ansible.builtin.package:
-        name: git
-      become: true
-      become_method: sudo
-      tags:
-        - install_git
-
-    - name: Ansible install
-      ansible.builtin.package:
-        name: ansible
-      become: true
-      become_method: sudo
-      tags:
-        - install_ansible
-
-    - name: Install python3-psycopg2
-      ansible.builtin.package:
-        name: python3-psycopg2
-      become: true
-      become_method: sudo
-      tags:
-        - install_python3-psycopg2
-
-    - name: Unzip install
-      ansible.builtin.package:
-        name: unzip
-      become: true
-      become_method: sudo
-      tags:
-        - install_unzip
-
-    - name: Npm install
-      ansible.builtin.package:
-        name: npm
-      become: true
-      become_method: sudo
-      tags:
-        - install_npm
-
-    - name: Node-typescript install
-      ansible.builtin.package:
-        name: node-typescript
-      become: true
-      become_method: sudo
-      tags:
-        - install_node-typescript
-
-    - name: Openjdk-19-jre install
-      ansible.builtin.package:
-        name: openjdk-19-jre
-      become: true
-      become_method: sudo
-      tags:
-        - install_openjdk-19-jre
-
-    - name: Maven install
-      ansible.builtin.package:
-        name: maven
-      become: true
-      become_method: sudo
-      tags:
-        - install_maven
-
-    - name: Postgresql install
-      ansible.builtin.package:
-        name: postgresql
-      become: true
-      become_method: sudo
-      tags:
-        - install_postgresql
+        - install_package
+      loop:
+        - sysstat
+        - git
+        - ansible
+        - python3-psycopg2
+        - npm
+        - node-typescript
+        - openjdk-19-jre
+        - maven
+        - postgresql
 
     - name: Check core is build
       stat:
-        path: "../../build/core/package.json"
+        path: "{{ install_path }}/core/package.json"
       register: build_core_package_json
       tags: build_core_package_json
 
@@ -114,18 +51,6 @@
       tags:
         - npm_install_demo
 
-    - name: Remove the postgres database user hr
-      community.postgresql.postgresql_user:
-        name: hr
-        password: hr
-        state: absent
-        fail_on_user: false
-      become: true
-      become_method: sudo
-      become_user: postgres
-      tags:
-        - remove-hr-user
-
     - name: Create the postgres database user hr
       community.postgresql.postgresql_user:
         name: hr
@@ -137,19 +62,10 @@
       tags:
         - create-hr-user
 
-    - name: Remove the postgres database hr
-      community.postgresql.postgresql_db:
-        name: hr
-        state: absent
-      become: true
-      become_method: sudo
-      become_user: postgres
-      tags:
-        - remove-hr-db
-
     - name: Create the postgres database hr
       community.postgresql.postgresql_db:
         name: hr
+        owner: hr
         state: present
       become: true
       become_method: sudo
@@ -185,6 +101,14 @@
       when: build_demo_database_js_bin.stat.exists == false
       tags: copy_database_js_template
 
+    - name: Build Openrestdb bin
+      ansible.builtin.copy:
+        src: "../../src/database.js/template/"
+        dest: "{{ install_path }}/openrestdb"
+        mode: preserve
+      when: build_demo_database_js_bin.stat.exists == false
+      tags: build_bin
+
     - name: Check demo.js exists
       stat:
         path: "{{ install_path }}/demo/app/demo.js"
@@ -198,4 +122,3 @@
       when: build_demo_demo_js.stat.exists == false
       tags:
         - npm_build_demo
-

@@ -82,10 +82,17 @@
 
     - name: Create dir demo
       ansible.builtin.file:
-        path: "{{ install_path }}/demo"
+        path: "{{ install_path }}/demo/data"
         state: directory
       tags:
         - create-demo.database.js
+
+    - name: Copy initial data.sql
+      ansible.builtin.copy:
+        src: ../../src/demo/data/datademo.sql
+        dest: "{{ install_path }}/demo/data/"
+      tags:
+        - copy-data-sql
 
     - name: Check database.js template exists
       stat:

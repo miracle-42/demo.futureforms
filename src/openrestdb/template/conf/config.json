@@ -55,17 +55,17 @@
     },
     "handlers": [
       {
-        "class": "openrestdb.handlers.FileHandler",
+        "class": "database.rest.handlers.FileHandler",
         "url": "/",
         "methods": "GET"
       },
       {
-        "class": "openrestdb.handlers.AppFileHandler",
+        "class": "database.rest.handlers.AppFileHandler",
         "url": "/files",
         "methods": "GET, PUT, POST"
       },
       {
-        "class": "openrestdb.handlers.RestHandler",
+        "class": "database.rest.handlers.RestHandler",
         "url": "/",
         "methods": "POST, PATCH, DELETE, OPTIONS"
       }

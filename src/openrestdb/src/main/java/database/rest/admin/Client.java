@@ -19,73 +19,63 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package test;
+package database.rest.admin;
 
 import java.net.Socket;
 import java.util.ArrayList;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
+import database.rest.client.HTTPRequest;
 import database.rest.client.SocketReader;
-import database.rest.security.FakeTrustManager;
+import database.rest.security.PKIContext;
 
 
-public class Session
+public class Client
 {
+  private Socket socket;
   private final int port;
-  private final int psize;
   private final String host;
-  private final Socket socket;
+  private final boolean ssl;
 
+  private static int psize;
+  private static int timeout;
+  private static PKIContext pki;
 
-  public Session(String host, int port, boolean ssl) throws Exception
+  public static void setConfig(PKIContext pki, int psize, int timeout)
   {
-    this.host = host;
-    this.port = port;
-    Socket socket = null;
-
-    try
-    {
-      if (!ssl)
-      {
-        socket = new Socket(host,port);
-      }
-      else
-      {
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        ctx.init(null,new X509TrustManager[] {new FakeTrustManager()}, new java.security.SecureRandom());
-        socket = ctx.getSocketFactory().createSocket(host,port);
-        ((SSLSocket) socket).startHandshake();
-      }
-
-      socket.setSoTimeout(30000);
-      socket.getOutputStream().flush();
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-      System.exit(-1);
-    }
-
-    this.socket = socket;
-    this.psize = socket.getSendBufferSize();
+    Client.pki = pki;
+    Client.psize = psize;
+    Client.timeout = timeout;
   }
 
 
-  public void invoke(String url, String message) throws Exception
+  public Client(String host, int port, boolean ssl) throws Exception
   {
-    HTTPRequest request = new HTTPRequest(host,url);
+    this.ssl  = ssl;
+    this.host = host;
+    this.port = port;
+  }
+
+
+  public byte[] send(String cmd) throws Exception
+  {
+    return(send(cmd,null));
+  }
+
+
+  public byte[] send(String cmd, String message) throws Exception
+  {
+    HTTPRequest request = new HTTPRequest(host,"/"+cmd);
     request.setBody(message);
 
     InputStream in = socket.getInputStream();
     OutputStream out = socket.getOutputStream();
     SocketReader reader = new SocketReader(in);
 
-    int w = 0;
     byte[] page = request.page();
 
+    int w = 0;
     while(w < page.length)
     {
       int size = psize;
@@ -104,20 +94,39 @@ public class Session
     ArrayList<String> headers = reader.getHeader();
 
     int cl = 0;
+    boolean chunked = false;
+
     for(String header : headers)
     {
       if (header.startsWith("Content-Length"))
         cl = Integer.parseInt(header.split(":")[1].trim());
+
+      if (header.startsWith("Transfer-Encoding") && header.contains("chunked"))
+        chunked = true;
     }
 
-    String response = null;
-    if (cl > 0) response = new String(reader.getContent(cl));
+    byte[] response = null;
+
+    if (cl > 0) response = reader.getContent(cl);
+    else if (chunked) response = reader.getChunkedContent();
+
+    return(response);
   }
 
 
-  public void close()
+  public void connect() throws Exception
   {
-    try {socket.close();}
-    catch (Exception e) {;}
+    if (!ssl)
+    {
+      this.socket = new Socket(host,port);
+    }
+    else
+    {
+      this.socket = pki.getSSLContext().getSocketFactory().createSocket(host,port);
+      ((SSLSocket) socket).startHandshake();
+    }
+
+    this.socket.setSoTimeout(timeout);
+    this.socket.getOutputStream().flush();
   }
 }

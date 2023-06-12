@@ -1,7 +1,7 @@
 node_modules
 .DS_Store
 build
-src/openrestapi/target
+src/openrestdb/target
 
 # Compiled class file
 *.class

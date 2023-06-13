@@ -30,6 +30,22 @@ In this example a more informative page
 `/var/www/html/example.org/errcode/502.html`
 is shown.
 
+If there is a reverse proxy in front of Nginx it might be necessary to
+add a trailing slash `/` to the path. If the location is `/foo` the file
+`/foo/index.html` get's loaded but afterwards `/foo/` should be prefixed so
+`/foo/demo.js` get's loaded. The prefix is missing so the browser tries to
+load `/demo.js` which does'nt exists. This can be fixed by changing `/foo`
+to either `/foo/` or simply `/foo/index.html` which is the file which is
+suppoesed to be loaded.
+
+Use this redirect:
+
+    rewrite ^(/[^/]+)$ $1/ permanent;
+
+or
+
+    rewrite ^(/[^/]+)$ $1/index.html permanent;
+
 Here a full Nginx example:
 
     server {
@@ -50,7 +66,8 @@ Here a full Nginx example:
         location /errcode { }
     
         location /s0 {
-            proxy_pass http://127.0.0.1:9002/; # Need ending '/'
+            rewrite ^(/[^/]+)$ $1/ permanent; # If more than one proxy is used add this rewrite
+            proxy_pass http://127.0.0.1:9002/; # Need trailing slash '/'
         }
         location /s1 {
             proxy_pass http://127.0.0.1:9012/;

@@ -49,6 +49,8 @@ export class MemoryTable implements DataSource
 		if (columns == null) columns = [];
 		if (records == null) records = [];
 
+		this.name = this.constructor.name.toLowerCase();
+
 		if (!Array.isArray(columns))
 			columns = [columns];
 
@@ -83,6 +85,11 @@ export class MemoryTable implements DataSource
 	public clear() : void
 	{
 		this.dirty$ = [];
+	}
+
+	public get transactional() : boolean
+	{
+		return(false);
 	}
 
 	public setData(data:any[][]) : void
@@ -347,13 +354,16 @@ export class MemoryTable implements DataSource
 
 		while(this.pos$ < this.records$.length)
 		{
+			let rec:Record = this.records$[this.pos$++];
+
+			if (rec == null)
+				return([]);
+
 			if (this.filter.empty)
-				return([this.records$[this.pos$++]]);
+				return([rec]);
 
-			if (await this.filter.evaluate(this.records$[this.pos$]))
-				return([this.records$[this.pos$++]]);
-
-			this.pos$++;
+			if (await this.filter.evaluate(rec))
+				return([rec]);
 		}
 
 		return([]);

@@ -25,7 +25,7 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
-export class NullFilter implements Filter
+export class IsNull implements Filter
 {
 	private column$:string = null;
 	private bindval$:string = null;
@@ -42,9 +42,19 @@ export class NullFilter implements Filter
 		this.constraint$ = null;
 	}
 
-	public clone() : NullFilter
+	public get column() : string
 	{
-		let clone:NullFilter = Reflect.construct(this.constructor,[this.column$]);
+		return(this.column$);
+	}
+
+	public set column(column:string)
+	{
+		this.column$ = column;
+	}
+
+	public clone() : IsNull
+	{
+		let clone:IsNull = Reflect.construct(this.constructor,[this.column$]);
 		clone.datatype$ = this.datatype$;
 		return(clone.setConstraint(this.constraint$));
 	}
@@ -54,7 +64,7 @@ export class NullFilter implements Filter
 		return(this.datatype$);
 	}
 
-	public setDataType(type:DataType|string) : NullFilter
+	public setDataType(type:DataType|string) : IsNull
 	{
 		if (typeof type === "string") this.datatype$ = type;
 		else this.datatype$ = DataType[type];
@@ -66,13 +76,13 @@ export class NullFilter implements Filter
 		return(this.bindval$);
 	}
 
-	public setBindValueName(name:string) : NullFilter
+	public setBindValueName(name:string) : IsNull
 	{
 		this.bindval$ = name;
 		return(this);
 	}
 
-	public setConstraint(value:any) : NullFilter
+	public setConstraint(value:any) : IsNull
 	{
 		this.constraint = value;
 		return(this);

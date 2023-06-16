@@ -164,6 +164,24 @@ export class Record
 		}
 	}
 
+	public setReadOnly(field:string, flag:boolean) : void
+	{
+		let props:FieldProperties = this.getProperties(field);
+		if (props) this.setProperties(props.setReadOnly(flag),field);
+	}
+
+	public setEnabled(field:string, flag:boolean) : void
+	{
+		let props:FieldProperties = this.getProperties(field);
+		if (props) this.setProperties(props.setEnabled(flag),field);
+	}
+
+	public setDisabled(field:string, flag:boolean) : void
+	{
+		let props:FieldProperties = this.getProperties(field);
+		if (props) this.setProperties(props.setEnabled(!flag),field);
+	}
+
 	public getStyle(field:string, style:string) : string
 	{
 		return(this.getProperties(field).getStyle(style));

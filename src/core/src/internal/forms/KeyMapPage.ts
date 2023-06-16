@@ -19,19 +19,29 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import content from './Countries.html';
+import { KeyMap } from "../../control/events/KeyMap.js";
 
-import { datasource } from "forms42core";
-import { BaseForm } from "../../BaseForm";
-import { CountryTable } from "./CountryTable";
 
-@datasource("Countries",CountryTable)
-
-export class Countries extends BaseForm
+export class KeyMapPage
 {
-	constructor()
-	{
-		super(content);
-		this.title = "Countries";
-	}
+  private static ul:HTMLElement = null;
+
+  public static show() : HTMLElement
+  {
+   this.ul = document.createElement("ul");
+   this.ul.classList.add("infommationKeyMap");
+    KeyMap.list().forEach(([name,desc]) => {
+     let li:HTMLElement = document.createElement("li");
+      li.innerHTML = "<label class='name'>" + name + "</label><label class='desc'>" + desc + "</label>";
+      this.ul.appendChild(li);
+    });
+
+    return this.ul;
+  }
+
+
+  public static hide()
+  {
+    this.ul.remove();
+  }
 }

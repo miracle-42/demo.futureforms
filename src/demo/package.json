@@ -5,7 +5,7 @@
   "description": "Test suite for forms42core",
   "scripts": {
     "test": "cd ../../build/demo/app/ && ls",
-    "server": "live-server --port=5500 --open=./../../build/demo/app//index.html &",
+    "server": "live-server --port=5500 --open=./../../build/demo/app/index.html &",
     "build": "webpack --mode production && cp index.html *.css ../../build/demo/app/ && cp -R images ../../build/demo/app/"
   },
   "keywords": [],
@@ -15,7 +15,6 @@
     "forms42core": "file:../../build/core"
   },
   "devDependencies": {
-    "eslint-plugin-tsdoc": "^0.2.17",
     "html-loader": "^4.2.0",
     "live-server": "^1.2.2",
     "ts-loader": "^9.4.2",

@@ -19,19 +19,16 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+export enum Navigation
+{
+	vertical,
+	horizontal
+}
+
 export interface MenuOptions
 {
 	skiproot?:boolean;
 	singlepath?:boolean;
 	openOnHoover?:boolean;
-
-	classes?:
-	{
-		open?:string;
-		common?:string;
-		menuitem?:string;
-		linkitem?:string;
-		hinttext?:string;
-		container?:string;
-	}
+	navigation?:Navigation;
 }

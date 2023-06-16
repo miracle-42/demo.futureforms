@@ -226,6 +226,16 @@ export class Record
 
 	public set state(status:RecordState)
 	{
+		if (!this.wrapper?.transactional)
+		{
+			switch(status)
+			{
+				case RecordState.Deleted : status = RecordState.Consistent; break;
+				case RecordState.Updated : status = RecordState.Consistent; break;
+				case RecordState.Inserted : status = RecordState.Consistent; break;
+			}
+		}
+
 		this.status$ = status;
 	}
 

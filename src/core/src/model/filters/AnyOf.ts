@@ -44,6 +44,16 @@ export class AnyOf implements Filter
 		this.constraint$ = null;
 	}
 
+	public get column() : string
+	{
+		return(this.column$);
+	}
+
+	public set column(column:string)
+	{
+		this.column$ = column;
+	}
+
 	public clone() : AnyOf
 	{
 		let clone:AnyOf = Reflect.construct(this.constructor,[this.column$]);

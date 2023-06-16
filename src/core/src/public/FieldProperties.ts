@@ -26,6 +26,9 @@ import { DataMapper } from '../view/fields/DataMapper.js';
 import { BasicProperties } from '../view/fields/BasicProperties.js';
 import { FieldFeatureFactory } from '../view/FieldFeatureFactory.js';
 
+/**
+ * HTML Properties used by bound fields
+ */
 export class FieldProperties extends BasicProperties
 {
 	constructor(properties:BasicProperties)
@@ -41,12 +44,14 @@ export class FieldProperties extends BasicProperties
 		return(new FieldProperties(this));
 	}
 
+	/** The tag ie. div, span, input etc */
 	public setTag(tag:string) : FieldProperties
 	{
 		this.tag = tag;
 		return(this);
 	}
 
+	/** Underlying datatype. Inherited but cannot be changed */
 	public setType(_type:DataType) : FieldProperties
 	{
 		Alert.fatal("Data type cannot be changed","Properties");
@@ -65,6 +70,7 @@ export class FieldProperties extends BasicProperties
 		return(this);
 	}
 
+	/** Determines if field is bound to datasource or not. Inherited but cannot be changed */
 	public setDerived(_flag:boolean) : FieldProperties
 	{
 		Alert.fatal("Derived cannot be changed","Properties");
@@ -149,6 +155,7 @@ export class FieldProperties extends BasicProperties
 		return(this);
 	}
 
+	/** Set a two-way data mapper */
 	public setMapper(mapper:Class<DataMapper>|DataMapper|string) : FieldProperties
 	{
 		super.setMapper(mapper);

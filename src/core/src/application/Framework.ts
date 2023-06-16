@@ -24,6 +24,7 @@ import { Tag } from './tags/Tag.js';
 import { Class } from '../types/Class.js';
 import { Logger, Type } from './Logger.js';
 import { Properties } from './Properties.js';
+import { EventStack } from '../control/events/EventStack.js';
 import { ComponentFactory } from './interfaces/ComponentFactory.js';
 
 
@@ -96,23 +97,23 @@ export class Framework
 
 		if (typeof element === 'string')
 		{
-			let template:HTMLDivElement = document.createElement('div');
+			let template:HTMLElement = document.createElement('div');
 			template.innerHTML = element;
 			element = template;
+
+			if (element.childNodes.length == 1)
+				element = element.childNodes.item(0) as HTMLElement;
 		}
 
 		for(let i=0; i < element.childNodes.length; i++)
 		{
 			let node:Node = element.childNodes.item(i);
 			if (node.nodeType == Node.TEXT_NODE && node.textContent.trim() == "")
-			remove.unshift(i);
+				remove.unshift(i);
 		}
 
 		for(let i=0; i < remove.length; i++)
 			element.childNodes.item(remove[i]).remove();
-
-		if (element.childNodes.length == 1)
-			element = element.childNodes.item(0) as HTMLElement;
 
 		return(element);
 	}
@@ -179,6 +180,9 @@ export class Framework
 		if (!Properties.ParseEvents) return;
 		let prefix:string = Properties.AttributePrefix;
 
+		if (!element.getAttributeNames)
+			return;
+
 		let attrnames:string[] = element.getAttributeNames();
 
 		for (let an = 0; an < attrnames.length; an++)
@@ -236,6 +240,9 @@ export class Framework
 		let attr:string = null;
 		let prefix:string = Properties.AttributePrefix;
 		let name:string = element?.nodeName.toLowerCase();
+
+		if (!element.getAttributeNames)
+			return(null);
 
 		if (Properties.ParseTags)
 		{
@@ -339,7 +346,7 @@ export class Framework
 			{
 				for (let i = 0; i < event.length; i++)
 				{
-					let func:DynamicCall = new DynamicCall(event[i][1]);
+					let func:DynamicCall = new DynamicCall(this.component, event[i][1]);
 					let ename:string = this.eventhandler.addEvent(element,event[i][0],func);
 					element.addEventListener(ename,this.eventhandler);
 				}
@@ -354,10 +361,12 @@ export class DynamicCall
 	public path:string[];
 	public method:string;
 	public args:string[] = [];
+	public component:any = null;
 
-	constructor(signature:string)
+	constructor(component:any, signature:string)
 	{
 		this.parse(signature);
+		this.component = component;
 	}
 
 	private parse(signature:string) : void
@@ -371,7 +380,6 @@ export class DynamicCall
 		this.path = signature.substring(0,pos1).split(".");
 		let arglist:string = signature.substring(pos1+1,pos2).trim();
 
-		let n:number = 0;
 		let arg:string = "";
 		let quote:string = null;
 		this.method = this.path.pop();
@@ -385,7 +393,6 @@ export class DynamicCall
 				if (arg.length > 0)
 				{
 					this.args.push(arg);
-					n++;
 					arg = "";
 				}
 
@@ -396,7 +403,6 @@ export class DynamicCall
 			{
 				if (quote != null && c == quote)
 				{
-					n++;
 					quote = null;
 					continue;
 				}
@@ -413,40 +419,48 @@ export class DynamicCall
 			arg += c;
 		}
 
-		if (this.args.length < n)
+		if (arg.trim().length > 0)
 			this.args.push(arg);
 	}
 
-	public invoke(component:any) : void
+	public async invoke(event:any) : Promise<void>
 	{
+		Framework.setEvent(event);
+		let comp:any = this.component;
+
 		for(let i = 0; i < this.path.length; i++)
 		{
-			if (!component[this.path[i]])
+			if (!this.component[this.path[i]])
 			{
 				let problem:string = "is null";
-				if (!(this.path[i] in component)) problem = "does not exists";
-				let msg:string = "@Framework: Attribute : '"+this.path[i]+"' on component: '"+component.constructor.name+"' "+problem;
+				if (!(this.path[i] in this.component)) problem = "does not exists";
+				let msg:string = "@Framework: Attribute : '"+this.path[i]+"' on component: '"+this.component.constructor.name+"' "+problem;
 				Alert.fatal(msg,"Invoke Method");
 				return;
 			}
 
-			component = component[this.path[i]];
+			comp = this.component[this.path[i]];
 		}
 
 		try
 		{
 			switch(this.args.length)
 			{
-				case 0: component[this.method](); break;
-				case 1: component[this.method](this.args[0]); break;
-				default: component[this.method](...this.args);
+				case 0: await comp[this.method](); break;
+				case 1: await comp[this.method](this.args[0]); break;
+				default: await comp[this.method](...this.args); break;
 			}
 		}
 		catch (error)
 		{
-			let msg:string = "@Framework: Failed to invoke method: '"+this.method+"' on component: "+component.constructor.name;
+			let msg:string = "@Framework: Failed to invoke method: '"+this.method+"' on component: "+this.component.constructor.name;
 			Alert.fatal(msg+" "+error,"Invoke Method");
 		}
+	}
+
+	public toString() : string
+	{
+		return(this.component.constructor.name+" "+this.method);
 	}
 }
 
@@ -489,15 +503,14 @@ class EventHandler implements EventListenerObject
 		{
 			while (elem != null && method == null && elem.parentElement != document.body.parentElement)
 			{
-					elem = elem.parentElement;
-					method = this.getEvent(elem,event.type);
+				elem = elem.parentElement;
+				method = this.getEvent(elem,event.type);
 			}
 		}
 
 		if (method != null)
 		{
-			Framework.setEvent(event);
-			method.invoke(this.component);
+			EventStack.queue(method,event);
 		}
 		else if (elem != null)
 		{
@@ -510,5 +523,5 @@ class EventHandler implements EventListenerObject
 
 class Implementation
 {
-	constructor(public element, public tag:Tag, public name:string, public attr:string) {}
+	constructor(public element:any, public tag:Tag, public name:string, public attr:string) {}
 }

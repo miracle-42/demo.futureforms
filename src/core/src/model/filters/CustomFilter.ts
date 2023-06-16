@@ -44,6 +44,16 @@ export class CustomFilter implements Filter
 		this.constraint$ = null;
 	}
 
+	public get column() : string
+	{
+		return(this.column$);
+	}
+
+	public set column(column:string)
+	{
+		this.column$ = column;
+	}
+
 	public clone(): CustomFilter
 	{
 		let clone:CustomFilter = Reflect.construct(this.constructor,[this.column$]);

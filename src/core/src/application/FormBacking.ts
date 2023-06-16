@@ -23,6 +23,9 @@ import { Alert } from './Alert.js';
 import { Form } from '../public/Form.js';
 import { Class } from '../types/Class.js';
 import { Block } from '../public/Block.js';
+import { Properties } from './Properties.js';
+import { FormsModule } from './FormsModule.js';
+import { Canvas } from './interfaces/Canvas.js';
 import { Key } from '../model/relations/Key.js';
 import { FormMetaData } from './FormMetaData.js';
 import { Form as ViewForm } from '../view/Form.js';
@@ -35,6 +38,8 @@ import { Relation } from '../model/relations/Relation.js';
 import { EventType } from '../control/events/EventType.js';
 import { Form as InternalForm } from '../internal/Form.js';
 import { DateConstraint } from '../public/DateConstraint.js';
+import { EventStack } from '../control/events/EventStack.js';
+import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
 
 export class FormBacking
@@ -50,6 +55,65 @@ export class FormBacking
 
 	private static bdata:Map<Form,FormBacking> =
 		new Map<Form,FormBacking>();
+
+	public static async showform(form:Class<Form|InternalForm>|string, parent:Form|InternalForm, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
+	{
+		if (typeof form === "string")
+		{
+			let path:string = form;
+			form = form.toLowerCase();
+			form = FormsModule.get().getComponent(form);
+			if (form == null) throw "@Application: No components mapped to path '"+path+"'";
+		}
+
+		let curr:Form = FormBacking.getCurrentForm();
+		let currw:ViewForm = FormBacking.getViewForm(curr);
+
+		// check if ok to leave curr
+		if (curr && parent != curr)
+		{
+			if (!await currw.checkLeave(currw))
+				return(null);
+		}
+
+		// Wait for events
+		await EventStack.wait();
+
+		if (container == null)
+			container = FormsModule.get().getRootElement();
+
+		if (!(form.prototype instanceof Form) && !(form.prototype instanceof InternalForm))
+			throw "@Application: Component mapped to '"+form+"' is not a form";
+
+		let factory:ComponentFactory = Properties.FactoryImplementation;
+		let canvasimpl:Class<Canvas> = Properties.CanvasImplementationClass;
+
+		let canvas:Canvas = new canvasimpl();
+		let instance:Form = await factory.createForm(form,parameters);
+		await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance));
+
+		canvas.setComponent(instance);
+		container.appendChild(canvas.getView());
+
+		FormBacking.getViewForm(instance).canvas = canvas;
+		let mform:ModelForm = FormBacking.getModelForm(instance);
+
+		if (parent)
+		{
+			parent.canvas?.block();
+			FormBacking.getBacking(instance).parent = parent;
+			let backing:FormBacking = FormBacking.getBacking(parent);
+			if (backing) backing.hasModalChild = true;
+		}
+
+		FormBacking.setCurrentForm(instance);
+		await mform.wait4EventTransaction(EventType.PostViewInit,null);
+
+		if (await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance)))
+			instance.focus();
+
+		return(instance);
+	}
 
 	public static getCurrentForm() : Form
 	{
@@ -288,17 +352,17 @@ export class FormBacking
 			if (dbconns[i].connected())
 			{
 				if (!await dbconns[i].rollback())
-				{
-					Alert.fatal("Failed to rollback transactions","Database");
 					failed = true;
-				}
 			}
 		}
 
 		for (let i = 0; i < forms.length; i++)
 		{
 			if (!await forms[i].undo())
+			{
+				Alert.warning("Failed to undo transactions for form '"+forms[i].name+"'","Transactions");
 				return(false);
+			}
 
 			forms[i].dirty = false;
 		}

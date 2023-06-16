@@ -20,7 +20,6 @@
 */
 
 import { Status } from "./Row.js";
-import { RecordState } from "../model/Record.js";
 import { Properties } from "../application/Properties.js";
 import { FieldInstance } from "./fields/FieldInstance.js";
 import { FieldProperties } from "./fields/FieldProperties.js";
@@ -65,23 +64,25 @@ export class FieldFeatureFactory
 		return(clone);
 	}
 
-	public static replace(props:BasicProperties, inst$:FieldInstance, status:Status) : void
+	public static replace(props:BasicProperties, inst:FieldInstance, status:Status) : void
 	{
 		let fprops:FieldProperties = null;
 
 		switch(status)
 		{
-			case Status.qbe : fprops = FieldFeatureFactory.clone(inst$.qbeProperties); break;
-			case Status.new : fprops = FieldFeatureFactory.clone(inst$.insertProperties); break;
-			case Status.insert : fprops = FieldFeatureFactory.clone(inst$.insertProperties); break;
-			case Status.update : fprops = FieldFeatureFactory.clone(inst$.updateProperties); break;
-			default: fprops = FieldFeatureFactory.clone(inst$.properties);
+			case Status.qbe : fprops = FieldFeatureFactory.clone(inst.qbeProperties); break;
+			case Status.new : fprops = FieldFeatureFactory.clone(inst.insertProperties); break;
+			case Status.insert : fprops = FieldFeatureFactory.clone(inst.insertProperties); break;
+			case Status.update : fprops = FieldFeatureFactory.clone(inst.updateProperties); break;
+			default: fprops = FieldFeatureFactory.clone(inst.properties);
 		}
 
 		FieldFeatureFactory.copyBasic(props,fprops);
 
-		if (status == null) inst$.applyProperties(fprops);
-		else		   		  inst$.setDefaultProperties(fprops,status);
+		if (status == null) inst.applyProperties(fprops);
+		else		   		  inst.setDefaultProperties(fprops,status);
+
+		this.setMode(inst,fprops);
 	}
 
 	public static copyBasic(exist:BasicProperties, props:BasicProperties) : void
@@ -232,34 +233,30 @@ export class FieldFeatureFactory
 	public static setMode(inst:FieldInstance, props:FieldProperties) : void
 	{
 		let tag:HTMLElement = inst.element;
-		let state:RecordState = inst.field.block.getRecord(inst.row)?.state;
 
+		if (props == null)
+		{
+			tag.setAttribute(Properties.RecordModeAttr,"na");
+			return;
+		}
 
 		if (props.getAttribute(Properties.RecordModeAttr) != null)
 			return;
 
-		if (inst.field.row.status == Status.update)
-		{
-			if (props.enabled && !props.readonly)
-				tag.setAttribute(Properties.RecordModeAttr,"update");
-		}
-
-		if (inst.field.row.status == Status.delete)
-		{
-			tag.setAttribute(Properties.RecordModeAttr,"deleted");
-		}
+		if (inst.field.row.status == Status.na)
+			tag.setAttribute(Properties.RecordModeAttr,"na");
 
 		if (inst.field.row.status == Status.qbe)
-		{
-			if (props.enabled && !props.readonly)
-				tag.setAttribute(Properties.RecordModeAttr,"query");
-		}
+			tag.setAttribute(Properties.RecordModeAttr,"query");
+
+		if (inst.field.row.status == Status.update)
+			tag.setAttribute(Properties.RecordModeAttr,"update");
+
+		if (inst.field.row.status == Status.delete)
+			tag.setAttribute(Properties.RecordModeAttr,"deleted");
 
 		if (inst.field.row.status == Status.new || inst.field.row.status == Status.insert)
-		{
-			if (props.enabled && !props.readonly)
-				tag.setAttribute(Properties.RecordModeAttr,"insert");
-		}
+			tag.setAttribute(Properties.RecordModeAttr,"insert");
 	}
 
 	public static applyType(inst:FieldInstance) : void
@@ -350,7 +347,12 @@ export class FieldFeatureFactory
 	public static setReadOnly(tag:HTMLElement, flag:boolean) : void
 	{
 		if (tag instanceof HTMLInputElement)
+		{
 			tag.readOnly = flag;
+
+			if (tag.type == "checkbox" || tag.type == "radio")
+				tag.disabled = flag;
+		}
 
 		if (tag instanceof HTMLSelectElement)
 			tag.disabled = flag;
@@ -358,7 +360,16 @@ export class FieldFeatureFactory
 
 	public static setEnabled(tag:HTMLElement, props:FieldProperties, flag:boolean) : void
 	{
-		if (tag instanceof HTMLInputElement) tag.disabled = !flag;
+		if (tag instanceof HTMLInputElement)
+		{
+			if (tag.type == "checkbox" || tag.type == "radio")
+			{
+				if (!props.readonly)
+					tag.disabled = !flag
+			}
+			else tag.disabled = !flag;
+		}
+
 		if (tag instanceof HTMLSelectElement && !props.readonly) tag.disabled = !flag;
 	}
 

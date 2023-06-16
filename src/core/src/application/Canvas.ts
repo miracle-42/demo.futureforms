@@ -182,8 +182,12 @@ export class Canvas implements CanvasDefinition, EventListenerObject
 
 		this.content.tabIndex = -1;
 		this.zindex = Canvas.newLayer;
-		this.content.style.width = "100%";
-		this.content.style.height = "100%";
+
+		if (this.content.style)
+		{
+			this.content.style.width = "100%";
+			this.content.style.height = "100%";
+		}
 
 		this.moveable = component.moveable;
 		this.resizable = component.resizable;

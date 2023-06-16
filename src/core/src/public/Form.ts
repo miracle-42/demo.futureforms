@@ -30,7 +30,6 @@ import { KeyMap } from '../control/events/KeyMap.js';
 import { TriggerFunction } from './TriggerFunction.js';
 import { Framework } from '../application/Framework.js';
 import { EventType } from '../control/events/EventType.js';
-import { FormsModule } from '../application/FormsModule.js';
 import { FormBacking } from '../application/FormBacking.js';
 import { DataSource } from '../model/interfaces/DataSource.js';
 import { EventFilter } from '../control/events/EventFilter.js';
@@ -42,6 +41,15 @@ import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
  * Any change to this, must be carried forward to interal/form.
  * These 2 classes must be identical to avoid the severe javascript brain damage:
  * ReferenceError: Cannot access 'Form' before initialization, when forms calling forms
+ */
+
+/**
+ * The form object links html and business logic.
+ *
+ * A form consists of blocks that links to backend data.
+ * The form can hold all necessary code, LOV's etc. But in general
+ * generic code for blocks should be put at the block level to ensure reuse.
+ *
  */
 
 export class Form implements CanvasComponent
@@ -63,6 +71,7 @@ export class Form implements CanvasComponent
 		return(this.constructor.name.toLowerCase());
 	}
 
+	/** The canvas points to the html associated with the form */
 	public get canvas() : Canvas
 	{
 		return(FormBacking.getViewForm(this)?.canvas);
@@ -84,6 +93,7 @@ export class Form implements CanvasComponent
 		this.focus();
 	}
 
+	/** Clears the form. If force, no validation will take place and changes will be ignored */
 	public async clear(force?:boolean) : Promise<boolean>
 	{
 		if (force) FormBacking.getModelForm(this)?.clear()
@@ -100,6 +110,7 @@ export class Form implements CanvasComponent
 		return(this.getBlock(FormBacking.getViewForm(this).block.name));
 	}
 
+	/** Requires the block using the current filter. Often used with sorting */
 	public async reQuery(block:string) : Promise<boolean>
 	{
 		block = block?.toLowerCase();
@@ -114,6 +125,7 @@ export class Form implements CanvasComponent
 		return(blk.reQuery());
 	}
 
+	/** Enter the Query By Example mode for the specified block (and children)*/
 	public async enterQueryMode(block:string) : Promise<boolean>
 	{
 		block = block?.toLowerCase();
@@ -128,6 +140,7 @@ export class Form implements CanvasComponent
 		return(blk.enterQueryMode());
 	}
 
+	/** Execute query for the specified block (and children) */
 	public async executeQuery(block:string) : Promise<boolean>
 	{
 		block = block?.toLowerCase();
@@ -142,6 +155,7 @@ export class Form implements CanvasComponent
 		return(blk.executeQuery());
 	}
 
+	/** Show the datepicker popup */
 	public showDatePicker(block:string, field:string) : void
 	{
 		block = block?.toLowerCase();
@@ -149,6 +163,7 @@ export class Form implements CanvasComponent
 		FormBacking.getViewForm(this).showDatePicker(block,field);
 	}
 
+	/** Show the LOV associated with the block, field. Normally only 1 LOV can be active, force overrules this rule */
 	public showListOfValues(block:string, field:string, force?:boolean) : void
 	{
 		block = block?.toLowerCase();
@@ -156,37 +171,42 @@ export class Form implements CanvasComponent
 		FormBacking.getViewForm(this).showListOfValues(block,field,force);
 	}
 
+	/** Simulate keystroke from a field. The field is located from the block, field an optionally css-class*/
 	public async sendkey(key:KeyMap, block?:string, field?:string, clazz?:string) : Promise<boolean>
 	{
 		return(FormBacking.getViewForm(this).sendkey(key,block,field,clazz));
 	}
 
+	/** Link 2 blocks (master detail) on specified keys. If not orphan, the child block will not be part of QBE */
 	public link(master:Key, detail:Key, orphanQueries?:boolean) : void
 	{
 		if (orphanQueries == null) orphanQueries = true;
-		FormBacking.getBacking(this).setLink(master,detail, orphanQueries);
+		FormBacking.getBacking(this).setLink(master,detail,orphanQueries);
 	}
 
-	public goBlock(block:string) : void
+	public async goBlock(block:string) : Promise<boolean>
 	{
-		this.getBlock(block)?.focus();
+		return(this.getBlock(block)?.focus());
 	}
 
-	public goField(block:string, field:string, clazz?:string) : void
+	public async goField(block:string, field:string, clazz?:string) : Promise<boolean>
 	{
-		this.getBlock(block)?.goField(field,clazz);
+		return(this.getBlock(block)?.goField(field,clazz));
 	}
 
+	/** Pop up a message (like javascript alert) */
 	public message(msg:string, title?:string) : void
 	{
 		Alert.message(msg,title);
 	}
 
+	/** Pop up a warning (like javascript alert) */
 	public warning(msg:string, title?:string) : void
 	{
 		Alert.warning(msg,title);
 	}
 
+	/** Has the form been validated, and is everthing consistent */
 	public get valid() : boolean
 	{
 		if (FormBacking.getModelForm(this).eventTransaction.running() > 0)
@@ -195,11 +215,13 @@ export class Form implements CanvasComponent
 		return(FormBacking.getViewForm(this).validated());
 	}
 
+	/** Validates all user input */
 	public async validate() : Promise<boolean>
 	{
 		return(FormBacking.getViewForm(this).validate());
 	}
 
+	/** Returns the canvas html-element */
 	public getView() : HTMLElement
 	{
 		let view:HTMLElement = this.canvas?.getView();
@@ -207,16 +229,19 @@ export class Form implements CanvasComponent
 		else return(FormBacking.getBacking(this).page);
 	}
 
+	/** Returns the canvas view (x,y,h,w) */
 	public getViewPort() : View
 	{
 		return(this.canvas.getViewPort());
 	}
 
+	/** Sets the canvas view (x,y,h,w) */
 	public setViewPort(view:View) : void
 	{
 		this.canvas.setViewPort(view);
 	}
 
+	/** Returns the canvas parent view (x,y,h,w) */
 	public getParentViewPort() : View
 	{
 		return(this.canvas.getParentViewPort());
@@ -227,11 +252,13 @@ export class Form implements CanvasComponent
 		return(FormBacking.getBacking(this).blocks.get(block?.toLowerCase()));
 	}
 
+	/** Set the datasource for the given block */
 	public setDataSource(block:string,source:DataSource) : void
 	{
 		FormBacking.getModelForm(this).setDataSource(block?.toLowerCase(),source);
 	}
 
+	/** Set the LOV for the given block, field or fields */
 	public setListOfValues(lov:ListOfValues, block:string, field:string|string[]) : void
 	{
 		if (!Array.isArray(field))
@@ -241,6 +268,7 @@ export class Form implements CanvasComponent
 			FormBacking.getBacking(this).setListOfValues(block,field[i],lov);
 	}
 
+	/** Set the date constraint ie exclude weekends and holidays from the datepicker */
 	public setDateConstraint(datecstr:DateConstraint, block:string, field:string|string[]) : void
 	{
 		if (!Array.isArray(field))
@@ -250,52 +278,51 @@ export class Form implements CanvasComponent
 			FormBacking.getBacking(this).setDateConstraint(block,field[i],datecstr);
 	}
 
+	/** Get the value of a given block, field */
 	public getValue(block:string, field:string) : any
 	{
 		return(this.getBlock(block)?.getValue(field));
 	}
 
+	/** Set the value of a given block, field */
 	public setValue(block:string, field:string, value:any) : void
 	{
 		this.getBlock(block)?.setValue(field,value);
 	}
 
+	/** Flush all changes to the backend */
 	public async flush() : Promise<boolean>
 	{
 		return(FormBacking.getModelForm(this).flush());
 	}
 
+	/** Call another form in non modal mode */
 	public async showform(form:Class<Form>|string, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
 	{
 		if (!await this.validate()) return(null);
-		let cform:Form = await FormsModule.get().showform(form,parameters,container);
-		return(cform);
+		return(FormBacking.showform(form,null,parameters,container));
 	}
 
+	/** Call another form in modal mode */
 	public async callform(form:Class<Form>|string, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
 	{
-		this.canvas.block();
-
-		FormBacking.getBacking(this).hasModalChild = true;
-		let cform:Form = await FormsModule.get().showform(form,parameters,container);
-
-		if (cform) FormBacking.getBacking(cform).parent = this;
-		else       FormBacking.getBacking(this).hasModalChild = false;
-
-		return(cform);
+		return(FormBacking.showform(form,this,parameters,container));
 	}
 
+	/** After changes to the HTML, reindexing is necessary */
 	public reIndexFieldOrder() : void
 	{
 		FormBacking.getViewForm(this).rehash();
 	}
 
+	/** 'Labels' that points to fields can be repositioned by the user */
 	public startFieldDragging() : void
 	{
 		let label:HTMLElement = Framework.getEvent().target;
 		FormBacking.getViewForm(this).dragfields(label);
 	}
 
+	/** Replace the HTML. Change everything, delete all blocks and create new etc */
 	public async setView(page:string|HTMLElement) : Promise<void>
 	{
 		let canvas:Canvas = this.canvas;
@@ -337,6 +364,7 @@ export class Form implements CanvasComponent
 		await FormBacking.getModelForm(this,true).finalize();
 	}
 
+	/** Close the form. If force no validation will take place */
 	public async close(force?:boolean) : Promise<boolean>
 	{
 		let vform:ViewForm = FormBacking.getViewForm(this);
@@ -353,29 +381,34 @@ export class Form implements CanvasComponent
 			return(false);
 
 		this.canvas.close();
-		let parent:Form = FormBacking.getBacking(this).parent;
+
+		let backing:FormBacking = FormBacking.getBacking(this);
+		let parent:Form = backing.parent;
 
 		if (parent != null)
 		{
-			parent.canvas.unblock();
-
-			parent.focus();
-
-			if (FormBacking.getBacking(parent))
-				FormBacking.getBacking(parent).hasModalChild = false;
+			parent.canvas?.unblock(); parent.focus();
+			if (backing) backing.hasModalChild = false;
 		}
 
-		FormBacking.removeBacking(this);
+		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.PostForm,this)))
+			return(false);
+
 		let success:boolean = await FormEvents.raise(FormEvent.FormEvent(EventType.PostCloseForm,this));
+
+		vform.setURL(true);
+		FormBacking.removeBacking(this);
 
 		return(success);
 	}
 
+	/** Remove an eventlistener. This should also be done before setView is called */
 	public removeEventListener(handle:object) : void
 	{
 		FormBacking.getBacking(this).removeEventListener(handle);
 	}
 
+	/** Add an eventlistener */
 	public addEventListener(method:TriggerFunction, filter?:EventFilter|EventFilter[]) : object
 	{
 		let handle:object = FormEvents.addListener(this,this,method,filter);

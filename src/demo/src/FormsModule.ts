@@ -42,7 +42,7 @@ import { AppHeader } from './tags/AppHeader';
 import { LinkMapper } from './fields/LinkMapper';
 import { TrueFalseMapper } from './fields/TrueFalseMapper';
 
-import { FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, MouseMap } from 'forms42core';
+import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, MouseMap } from 'forms42core';
 
 @FormsPathMapping(
 	[
@@ -103,13 +103,18 @@ export class FormsModule extends FormsCoreModule
 
 		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
 
+
+		let infomation:HTMLElement = document.querySelector(".infomation");
+
+		infomation.appendChild(KeyMapPage.show());
+
 		this.addEventListener(this.close,{type: EventType.Key, key: keymap.close});
 		this.addEventListener(this.login,{type: EventType.Key, key: keymap.login});
 
 		this.addEventListener(this.showTopMenu,{type: EventType.Key, key: keymap.topmenu});
 		this.addEventListener(this.showLeftMenu,{type: EventType.Key, key: keymap.leftmenu});
 
-		// this.addEventListener(this.rightmenu,{type: EventType.Mouse, mouse: MouseMap.contextmenu},);
+		// this.addEventListener(this.rightmenu,{type: EventType.Mouse, mouse: MouseMap.contextmenu});
 
 		this.addEventListener(this.open,
 		[
@@ -159,7 +164,7 @@ export class FormsModule extends FormsCoreModule
 	public async login() : Promise<boolean>
 	{
 		let usrpwd:Form = await this.showform(UsernamePassword);
-		this.logontrg = this.addFormEventListener(usrpwd,this.onLogon,{type: EventType.OnCloseForm});
+		this.logontrg = this.addFormEventListener(usrpwd,this.connect,{type: EventType.OnCloseForm});
 		return(true);
 	}
 
@@ -186,7 +191,7 @@ export class FormsModule extends FormsCoreModule
 		return(true);
 	}
 
-	private async onLogon(event:FormEvent) : Promise<boolean>
+	private async connect(event:FormEvent) : Promise<boolean>
 	{
 		let form:UsernamePassword = event.form as UsernamePassword;
 		this.removeEventListener(this.logontrg);
@@ -194,7 +199,19 @@ export class FormsModule extends FormsCoreModule
 		if (form.accepted && form.username && form.password)
 		{
 			if (!await FormsModule.DATABASE.connect(form.username,form.password))
-				this.login();
+			{
+				//await FormsModule.DATABASE.sleep(2000);
+
+				let forms:Form[] = this.getRunningForms();
+
+				for (let i = 0; i < forms.length; i++)
+				{
+					if (forms[i] instanceof AlertForm)
+						await forms[i].close(true);
+				}
+
+				await this.login();
+			}
 		}
 
 		return(true);
@@ -213,12 +230,10 @@ export class FormsModule extends FormsCoreModule
 		return(true);
 	}
 
-	private async rightmenu(event: FormEvent) : Promise<boolean>
+	private async rightmenu() : Promise<boolean>
 	{
-
 		let mouseevent: MouseEvent = this.getJSEvent() as MouseEvent;
-
-		new RightClick(mouseevent,event);
+		new RightClick(mouseevent);
 		return(true);
 	}
 }

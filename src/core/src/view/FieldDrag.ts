@@ -36,7 +36,7 @@ export class FieldDrag implements EventListenerObject
 		this.cursor = header.style.cursor;
 		this.instance = this.findInstance(header);
 
-		if (this.instance.row < 0)
+		if (this.instance?.row < 0)
 			this.current = true;
 
 		if (this.instance != null)
@@ -166,8 +166,15 @@ export class FieldDrag implements EventListenerObject
 		let id:string = header.getAttribute("for");
 		if (id == null) return(null);
 
-		let elem:HTMLElement = document.querySelector("#"+id);
-		if (elem == null) return(null);
+		let elem:HTMLElement[] = [];
+
+		document.querySelectorAll("#"+id).forEach((e) =>
+		{
+			if (e instanceof HTMLElement)
+				elem.push(e)
+		})
+
+		if (elem.length == 0) return(null);
 
 		let blocks:Block[] = this.form.getBlocks();
 
@@ -177,8 +184,11 @@ export class FieldDrag implements EventListenerObject
 
 			for (let i = 0; i < instances.length; i++)
 			{
-				if (instances[i].element == elem)
-					return(instances[i])
+				for(let e = 0; e < elem.length; e++)
+				{
+					if (instances[i].element == elem[e])
+						return(instances[i])
+				}
 			}
 		}
 

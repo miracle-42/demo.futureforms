@@ -138,7 +138,7 @@ export class Form
 			{
 				dirty.push(blocks[i]);
 
-				if (!await blocks[i].undo())
+				if (!await blocks[i].undo(false))
 					return(false);
 			}
 		}
@@ -163,7 +163,10 @@ export class Form
 		for (let i = 0; i < dirty.length; i++)
 		{
 			if (!dirty[i].ctrlblk)
-				await dirty[i].executeQuery(dirty[i].startNewQueryChain());
+			{
+				if (!dirty[i].queried) await dirty[i].clear(false);
+				else await dirty[i].executeQuery(dirty[i].startNewQueryChain());
+			}
 		}
 
 		return(true);
@@ -260,7 +263,7 @@ export class Form
 
 		if (running)
 		{
-			let source:string = this.name+(block ? "."+block.name : "")
+			let source:string = this.name+(block ? "."+block.name+"."+block.view.current : "");
 			Alert.fatal("Cannot start transaction "+EventType[event]+" while running "+EventType[running]+" on "+source,"Transaction Violation");
 			return(false);
 		}
@@ -389,6 +392,8 @@ export class Form
 		await this.enterQueryMode(block);
 
 		let inst:FieldInstance = this.view.current;
+
+		inst?.blur(true);
 		inst = block.view.getQBEInstance(inst);
 
 		if (inst) inst.focus();
@@ -399,6 +404,8 @@ export class Form
 
 	public clearBlock(block:Block) : void
 	{
+		block.queried = false;
+
 		block.view.clear(true,true,true);
 		let blocks:Block[] = this.blkcord$.getDetailBlocks(block,true);
 
@@ -441,8 +448,11 @@ export class Form
 		}
 	}
 
-	public cancelQueryMode(block:Block) : void
+	public cancelQueryMode(block:Block|string) : void
 	{
+		if (typeof block === "string")
+			block = this.getBlock(block);
+
 		block.view.cancel();
 
 		let blocks:Block[] = this.blkcord$.getDetailBlocks(block,false);

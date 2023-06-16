@@ -74,12 +74,19 @@ export class QueryTable extends SQLSource implements DataSource
 		this.sql$ = sql;
 		this.pubconn$ = connection;
 		this.conn$ = connection["conn$"];
+
+		this.name = this.constructor.name.toLowerCase();
 	}
 
 	public set sql(sql:string)
 	{
 		this.sql$ = sql;
 		this.described$ = false;
+	}
+
+	public get transactional() : boolean
+	{
+		return(false);
 	}
 
 	public clear() : void

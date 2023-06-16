@@ -22,6 +22,13 @@
         - maven
         - postgresql
 
+    - name: Create dir "{{ install_path }}/core"
+      ansible.builtin.file:
+        path: "{{ install_path }}/core"
+        state: directory
+      tags:
+        - create-dir-install_path_core
+
     - name: Check core is build
       stat:
         path: "{{ install_path }}/core/package.json"
@@ -85,7 +92,7 @@
         path: "{{ install_path }}/demo/data"
         state: directory
       tags:
-        - create-demo.database.js
+        - create-demo-openrestdb
 
     - name: Copy initial data.sql
       ansible.builtin.copy:
@@ -97,35 +104,64 @@
     - name: Check database.js template exists
       stat:
         path: "{{ install_path }}/demo/bin"
-      register: build_demo_database_js_bin
-      tags: build_demo_database_js_bin
+      register: build_demo_openrestdb_bin
+      tags: build_demo_openrestdb_bin
 
-    - name: Copy database.js template
+    - name: Copy openrestdb template
       ansible.builtin.copy:
-        src: "../../src/database.js/template/"
+        src: "../../src/openrestdb/template/"
         dest: "{{ install_path }}/demo"
         mode: preserve
-      when: build_demo_database_js_bin.stat.exists == false
-      tags: copy_database_js_template
+      when: build_demo_openrestdb_bin.stat.exists == false
+      tags: copy_openrestdb_template
 
-    - name: Build Openrestdb bin
+    - name: Check openrestdb.jar exists
+      stat:
+        path: "../../src/openrestdb/target"
+      register: src_openrestdb_target
+      tags: src_openrestdb_target
+
+    - name: Build openrestdb.jar
+      ansible.builtin.command: mvn package
+      args:
+        chdir: "../../src/openrestdb"
+      when: src_openrestdb_target.stat.exists == false
+      tags:
+        - mvn_package
+
+    - name: Check openrestdb.jar exists
+      stat:
+        path: "{{ install_path }}/demo/lib/openrestdb-2.1.jar"
+      register: check_demo_openrestdb_jar
+      tags: check_demo_openrestdb_jar
+
+    - name: Copy openrestdb.jar
       ansible.builtin.copy:
-        src: "../../src/database.js/template/"
-        dest: "{{ install_path }}/openrestdb"
+        src: "../../src/openrestdb/target/openrestdb-2.1.jar"
+        dest: "{{ install_path }}/demo/lib"
         mode: preserve
-      when: build_demo_database_js_bin.stat.exists == false
-      tags: build_bin
+      when: check_demo_openrestdb_jar.stat.exists == false
+      tags: copy_openrestdb_jar
 
     - name: Check demo.js exists
       stat:
         path: "{{ install_path }}/demo/app/demo.js"
-      register: build_demo_demo_js
-      tags: build_demo_demo_js
+      register: build_demo_js
+      tags: build_demo_js
 
     - name: Build Futureforms demo app
       ansible.builtin.command: npm run build
       args:
         chdir: "../../src/demo"
-      when: build_demo_demo_js.stat.exists == false
+      when: build_demo_js.stat.exists == false
       tags:
         - npm_build_demo
+
+    - name: Pack demo archive for deploy
+      community.general.archive:
+        path:
+          - "{{ install_path }}/demo"
+        dest: "{{ install_path }}/demo.tar.gz"
+        format: gz
+      tags:
+        - pack_archive

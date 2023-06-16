@@ -68,7 +68,7 @@
           </includes>
           <archive>
             <manifest>
-              <mainClass>openrestdb.control.Launcher</mainClass>
+              <mainClass>database.rest.control.Launcher</mainClass>
             </manifest>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>

@@ -259,7 +259,7 @@ export class ListOfValues extends Form
 		if (this.props.filterInitialValueFrom)
 		{
 			let init:any = this.form.getValue(this.block,this.props.filterInitialValueFrom);
-			if (init != null)	this.setValue("filter","search",init+"");
+			if (init != null)	this.setValue("filter","criteria",init+"");
 		}
 
 		this.query();

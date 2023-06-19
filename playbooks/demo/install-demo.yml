@@ -1,3 +1,5 @@
+---
+
 - hosts: localhost
 
   vars:
@@ -22,34 +24,32 @@
         - maven
         - postgresql
 
-    - name: Create dir "{{ install_path }}/core"
-      ansible.builtin.file:
-        path: "{{ install_path }}/core"
-        state: directory
-      tags:
-        - create-dir-install_path_core
-
-    - name: Check core is build
-      stat:
-        path: "{{ install_path }}/core/package.json"
-      register: build_core_package_json
-      tags: build_core_package_json
-
     - name: Futureforms core npm install
-      ansible.builtin.command: npm install
+      ansible.builtin.command:
+        cmd: npm install
+        creates: "../../src/core/package-lock.json"
       args:
         chdir: "../../src/core"
-      when: build_core_package_json.stat.exists == false
       tags:
         - npm_install_core
 
-    - name: Build Futureforms core app
-      ansible.builtin.command: npm run build
+    - name: Futureforms demo npm install
+      ansible.builtin.command:
+        cmd: npm install
+        creates: "../../src/demo/package-lock.json"
+      args:
+        chdir: "../../src/demo"
+      tags:
+        - npm_install_demo
+
+    - name: Build Futureforms core
+      ansible.builtin.command:
+        cmd: npm run build
+        creates: "{{ install_path }}/core/package.json"
       args:
         chdir: "../../src/core"
-      when: build_core_package_json.stat.exists == false
       tags:
-        - npm_build_core
+        - build_core
 
     - name: Install Futureforms demo app packages based on package.json using the npm
       community.general.npm:
@@ -80,13 +80,6 @@
       tags:
         - create-hr-db
 
-    - name: Install the postgres hr schema objects
-      ansible.builtin.command: psql -h 127.0.0.1 -U hr -d hr -f "../../src/demo/data/datademo.sql"
-      environment:
-        PGPASSWORD: hr
-      tags:
-        - install-hr-schema-objects
-
     - name: Create dir demo
       ansible.builtin.file:
         path: "{{ install_path }}/demo/data"
@@ -94,12 +87,21 @@
       tags:
         - create-demo-openrestdb
 
-    - name: Copy initial data.sql
+    - name: Copy initial data.sql for archive
       ansible.builtin.copy:
         src: ../../src/demo/data/datademo.sql
         dest: "{{ install_path }}/demo/data/"
       tags:
         - copy-data-sql
+
+    - name: Install the postgres hr schema objects
+      ansible.builtin.shell:
+        cmd: psql -h 127.0.0.1 -U hr -d hr -f "../../src/demo/data/datademo.sql" && touch "{{ install_path }}/demo/dbloaded.true"
+        creates: "{{ install_path }}/demo/dbloaded.true"
+      environment:
+        PGPASSWORD: hr
+      tags:
+        - install-hr-schema-objects
 
     - name: Check database.js template exists
       stat:
@@ -115,19 +117,14 @@
       when: build_demo_openrestdb_bin.stat.exists == false
       tags: copy_openrestdb_template
 
-    - name: Check openrestdb.jar exists
-      stat:
-        path: "../../src/openrestdb/target"
-      register: src_openrestdb_target
-      tags: src_openrestdb_target
-
     - name: Build openrestdb.jar
-      ansible.builtin.command: mvn package
+      ansible.builtin.command:
+        cmd: mvn package
+        creates: "../../src/openrestdb/target" 
       args:
         chdir: "../../src/openrestdb"
-      when: src_openrestdb_target.stat.exists == false
       tags:
-        - mvn_package
+        - build_openrestdb
 
     - name: Check openrestdb.jar exists
       stat:
@@ -143,17 +140,12 @@
       when: check_demo_openrestdb_jar.stat.exists == false
       tags: copy_openrestdb_jar
 
-    - name: Check demo.js exists
-      stat:
-        path: "{{ install_path }}/demo/app/demo.js"
-      register: build_demo_js
-      tags: build_demo_js
-
     - name: Build Futureforms demo app
-      ansible.builtin.command: npm run build
+      ansible.builtin.command:
+        cmd: npm run build
+        creates: "{{ install_path }}/demo/app/demo.js"
       args:
         chdir: "../../src/demo"
-      when: build_demo_js.stat.exists == false
       tags:
         - npm_build_demo
 
@@ -165,3 +157,5 @@
         format: gz
       tags:
         - pack_archive
+
+# vim: tabstop=2 expandtab :

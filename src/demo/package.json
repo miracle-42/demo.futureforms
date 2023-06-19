@@ -6,7 +6,7 @@
   "scripts": {
     "test": "cd ../../build/demo/app/ && ls",
     "server": "live-server --port=5500 --open=./../../build/demo/app/index.html &",
-    "build": "webpack --mode production && cp index.html *.css ../../build/demo/app/ && cp -R images ../../build/demo/app/"
+    "build": "webpack --mode production && cp -a index.html *.css ../../build/demo/app/ && cp -a images ../../build/demo/app/"
   },
   "keywords": [],
   "author": "Alex Høffner",

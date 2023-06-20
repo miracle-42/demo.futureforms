@@ -44,6 +44,16 @@ export class Equals implements Filter
 		this.constraint$ = null;
 	}
 
+	public get column() : string
+	{
+		return(this.column$);
+	}
+
+	public set column(column:string)
+	{
+		this.column$ = column;
+	}
+
 	public clone(): Equals
 	{
 		let clone:Equals = Reflect.construct(this.constructor,[this.column$]);

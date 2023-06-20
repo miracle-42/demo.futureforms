@@ -252,6 +252,9 @@ export class SQLRestBuilder
 		let dirty:string[] = record.getDirty();
 		let filters:FilterStructure = new FilterStructure();
 
+		if (dirty.length == 0)
+			return(null);
+
 		let cnames:string[] = [];
 		columns.forEach((col) => cnames.push(col.toLowerCase()));
 

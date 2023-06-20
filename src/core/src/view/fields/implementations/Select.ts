@@ -39,7 +39,7 @@ export class Select implements FieldImplementation, EventListenerObject
 	private multiple:boolean = false;
 	private element:HTMLSelectElement = null;
 	private datatype$:DataType = DataType.string;
-    private event:BrowserEvent = BrowserEvent.get();
+   private event:BrowserEvent = BrowserEvent.get();
 
 	public get datatype() : DataType
 	{

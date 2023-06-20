@@ -3,6 +3,7 @@
 	margin: 0;
 	height: 100%;
 	overflow: hidden;
+	font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 body
@@ -41,7 +42,7 @@ div[name="close"]:hover,
 	display: inline-grid;
 	grid-auto-flow: column;
 	background-color: #36393e;
-	grid-template-columns: 40px calc(100% - 80px) 40px;
+	grid-template-columns: 40px 1fr 50px;
 }
 
 .form-area
@@ -50,8 +51,7 @@ div[name="close"]:hover,
 	background-size: cover;
 	backface-visibility: hidden;
 	background-position: bottom;
-	/*background-image:linear-gradient(to right bottom, rgba(97, 112, 227, 0.8),rgba(100, 101, 179, 0.8)) , url(https://nextmapping.com/wp-content/uploads/2019/10/FutureisnowIstockphoto.jpg);
-	*/
+	background-image:linear-gradient(to right bottom, rgba(97, 112, 227, 0.8),rgba(100, 101, 179, 0.8)) , url(images/FutureisnowIstockphoto.jpg);
 }
 
 .canvas
@@ -118,10 +118,20 @@ tr td span:hover
 	box-shadow: 0 5px 30px rgba(0, 0, 0, .30);
 }
 
+.page-footer
+{
+	width:100%;
+	height: 100%;
+	display:flex;
+	background: #1b1c1e;
+	border-top: solid 1px white;
+	box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
 
 .menu-left
 {
-	width:30px;
+	width:28px;
+	padding:0px;
 	height: 100%;
 	color:white;
 	transition: 0.5s;
@@ -134,6 +144,7 @@ tr td span:hover
 	margin-top:7px;
 	display: block;
 	cursor: pointer;
+	font-weight: 400;
 	text-align: left;
 	border-radius: 0;
 	text-decoration: none;
@@ -141,66 +152,42 @@ tr td span:hover
 	transition: all 5s ease left;
 }
 
-.page-footer
+.left-menu-container menu[name="left-menu"]
 {
 	width:100%;
-	height: 100%;
-	display:flex;
-	background: #1b1c1e;
-	border-top: solid 1px white;
-	box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-}
-
-.menu-item
-{
 	margin-top:8px;
+	padding:0px;
+	display:table;
+	font-size:15px;
+	margin-top:0px;
+	margin-left:5px;
+	transition: 0.3s;
+	list-style: none;
 	transition: 0.3s;
 }
 
-.left-menu-container .menu-item
+.left-menu-container menu[name="left-menu"] a
 {
 	width:100%;
-}
-
-.left-menu-container .menu-item a
-{
-	width:100%;
-	margin-left:15px;
 	padding-left:5px;
 	display:table-cell;
 	height: fit-content;
 	border-left: 3px solid #36393e;
 }
 
-.link-item
+
+.left-menu-container menu[name="left-menu"] li a
 {
-	display: block;
-	margin-top: 15px;
+	width:200px;
+	padding:5px 3px;
 }
 
-.link-item
-{
-	display:flex;
-	user-select: none;
-}
-
-.left-menu-container .menu-items
-{
-	width: 100%;
-	display:table;
-	font-size:15px;
-	margin-left:5px;
-	transition: 0.3s;
-}
-
-.left-menu-container .menu-item .menu-items a
+.left-menu-container li[type="link"]
 {
 	width:100%;
-	height: 22px;
-	margin-top:-3px;
 }
 
-.left-menu-container .menu-item:before
+.left-menu-container menu[name="left-menu"] li[type="menu"]:before
 {
 	color: white;
 	font-size: 20px;
@@ -212,21 +199,21 @@ tr td span:hover
 	display:table-cell;
 }
 
-.left-menu-container .menu-item .menu-item
+.left-menu-container menu[name="left-menu"] menu[name="left-menu"]
 {
 	margin-left:17px;
 }
-.left-menu-container  .menu-item:not(:first-child)::before
+
+.left-menu-container  .menu[name="left-menu"]:not(:first-child)::before
 {
 	margin-left: 10px;
 }
 
-.left-menu-container .menu-item a:hover
+.left-menu-container menu[name="left-menu"] a:hover
 {
 	background-color:#424549;
 	border-left: 3px solid #6060F0;
 }
-
 
 th label[draggable="true"]
 {
@@ -609,31 +596,36 @@ div[name="date-picker"]
 
 .topbar
 {
-	color: white;
+	height: 100%;
 	display:flex;
 	font-size:18px;
+	color: white;
 	cursor: default;
 	user-select: none;
-	align-items: center;
 	justify-content: center;
-
 }
 
 .topbar .link-item,
-.topbar .menu-item
+.topbar menu[name="top-menu"]
 {
+	gap:10px;
 	margin:0;
 	font-size:13px;
 	padding:0 13px;
 	cursor: default;
 	font-weight: bold;
 	position: relative;
+	list-style: none;
 	display:inline-flex;
 	align-items: center;
 	background-color: transparent;
 }
-
-.topbar .menu-items .menu-items .link-item .hint-text
+.topbar menu[name="top-menu"] li
+{
+	display:flex;
+	position: relative;
+}
+.topbar menu[name="top-menu"] li[type="menu"] li[type="link"] div
 {
 	width:30px;
 	right: -40px;
@@ -644,7 +636,7 @@ div[name="date-picker"]
 	background-color: black;
 }
 
-.topbar .menu-items .menu-items .link-item .hint-text:after
+.topbar menu[name="top-menu"] li[type="menu"] li[type="link"] div:after
 {
 	top: 30%;
 	right: 100%;
@@ -657,40 +649,24 @@ div[name="date-picker"]
 	border-color: transparent black transparent transparent;
 }
 
-.topbar .menu-items .menu-items .link-item:hover .hint-text
+.topbar menu[name="top-menu"] li[type="menu"] li[type="link"]:hover div
 {
 	visibility: visible;
 }
 
-.topbar .menu-item a:not(.disabled)
+.topbar menu[name="top-menu"] a:not([disabled])
 {
 	cursor: pointer;
 }
 
-.topbar .menu-item::after
-{
-	height: 5px;
-	display: flex;
-	content: "\2304";
-	margin-top: -3px;
-	margin-left: 2px;
-	align-items: center;
-}
-
-.topbar .menu-open::after
-{
-	margin-top:4px;
-	transform: rotate(180deg);
-}
-
-.topbar .menu-item .menu-items
+.topbar menu[name="top-menu"] menu[name="top-menu"]
 {
 	top: 27px;
 	left: 50%;
 	height: 100%;
 	z-index:9999;
+	padding:0px;
 	display: table;
-	cursor: pointer;
 	min-width: 110px;
 	position: absolute;
 	background-color: #36393e;
@@ -698,12 +674,12 @@ div[name="date-picker"]
 	box-shadow: 0 2px 10px #666;
 }
 
-.disabled
+[disabled]
 {
 	color:#83868c;
 }
 
-.topbar .menu-items .menu-items .link-item
+.topbar menu[name="top-menu"] li li
 {
 	margin:0;
 	padding:0;
@@ -716,12 +692,12 @@ div[name="date-picker"]
 
 }
 
-.topbar .menu-items .menu-items .link-item:hover a:not(.disabled)
+.topbar menu[name="top-menu"] li li:hover a:not([disabled])
 {
 	background-color: #6060F0;
 }
 
-.topbar .menu-items .menu-items .link-item a
+.topbar menu[name="top-menu"] li li a
 {
 	width:100%;
 	height:100%;
@@ -814,10 +790,10 @@ div[name="loginimage"]
 	border-radius: 50px;
 	margin: 0 auto 10px auto;
 	background-size: contain;
-	background-repeat: no-repeat;
-	filter: invert(100%) sepia(1%) saturate(4058%) hue-rotate(223deg) brightness(117%) contrast(100%);
-	background-image: url(https://www.clipartmax.com/png/small/15-153139_big-image-login-icon-with-transparent-background.png);
 	background-color: #36393e;
+	background-repeat: no-repeat;
+	background-image: url(../images/login.jpg);
+	filter: invert(100%) sepia(1%) saturate(4058%) hue-rotate(223deg) brightness(117%) contrast(100%);
 }
 
 button
@@ -1001,47 +977,60 @@ div[name="buttonarea"]
    display:none;
 	z-index: 9999;
    position: absolute;
-   border-radius: 10px;
-   background-color: white;
-   box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+   background-color: rgb(228, 228, 228);
+	box-shadow: 3px 6px 9px 0px rgba(0,0,0,0.4);
 }
 
-.rightmenu .menu-items
+.rightmenu menu[name="right-click"]
 {
+	margin:0px;
+	padding:0px;
 	display:flex;
+	max-width:100%;
 	flex-wrap: wrap;
-	padding: 10px 12px;
+	list-style: none;
+	background-color: rgb(228, 228, 228);
 }
 
-.rightmenu .menu-item
+.rightmenu menu[name="right-click"] li[type="menu"]
 {
 	width:100%;
-   height: 25px;
+	margin:0px;
+   height: 28px;
    display:flex;
    font-size: 15px;
 	cursor: default;
 	user-select: none;
-	margin-bottom: 2px;
+	position: relative;
 	white-space: nowrap;
    align-items: center;
-   padding: 0 5px 0 10px;
+}
+
+.rightmenu menu[name="right-click"] li[type="menu"] a
+{
+	width:100%;
+	height: 100%;
+	display:flex;
+	padding: 0px 10px;
+	align-items: center;
 	justify-content: space-between;
 }
-.rightmenu .menu-item:not(.disabled):after
+
+.rightmenu menu[name="right-click"] li[type="menu"]:not([disabled]):after
 {
 	background: #f2f2f2;
 }
 
-.rightmenu .menu-item.disabled::after
+.rightmenu menu[name="right-click"] li[type="menu"] a[disabled]::after
 {
-	width: 8px;
-	height: 20px;
+	width: 10px;
+	height: 10px;
 	font-size: 10px;
 	content: '\01F6AB';
 	filter: saturate(0%) grayscale(100%) brightness(69%) contrast(1000%);
 }
 
-.rightmenu .menu-item:not(.disabled):after
+.rightmenu menu[name="right-click"] li[type="menu"] a:not([disabled]):not([command]):after
 {
 	width: 5px;
 	height: 5px;
@@ -1051,12 +1040,46 @@ div[name="buttonarea"]
 	border-right: 2px solid black;
 } 
 
-.rightmenu .menu-items .menu-items
+.rightmenu menu[name="right-click"] li:hover > a:not([disabled])
 {
-	left:100px;
+	background: #d3d3d3;
+}
+
+.rightmenu menu[name="right-click"] li[type="menu"] menu[name="right-click"]
+{
+	top:0px;
+	left:148px;
+	width:150px;
+	display:flex;
+	flex-wrap: wrap;
 	position: absolute;
-	border-radius: 10px;
-	background-color: white;
+	background-color: rgb(228, 228, 228);
+	box-shadow: 3px 6px 9px 0px rgba(0,0,0,0.4);
+}
+
+
+.rightmenu menu[name="right-click"] li[type="menu"] menu[name="right-click"] li
+{
+	width:100%;
+	margin:0px;
+   height: 28px;
+   display:flex;
+   font-size: 15px;
+	cursor: default;
+	user-select: none;
+	position: relative;
+	white-space: nowrap;
+   align-items: center;
+}
+
+.rightmenu menu[name="right-click"] li[type="menu"] menu[name="right-click"] li a
+{
+	width:100%;
+	height: 100%;
+	display:flex;
+	align-items: center;
+	padding: 0 5px 0 10px;
+	justify-content: space-between;
 }
 
 .page-footer-icon
@@ -1069,4 +1092,59 @@ div[name="buttonarea"]
 .page-footer-pos:hover .footer-tooltiptext-top
 {
 	visibility: visible !important;
+}
+
+.infomation
+{
+	width:auto;
+	height: 100%;
+	display:flex;
+	margin-right: 5px;
+	position: relative;
+	align-items: center;
+}
+
+.infomation:hover .infommationKeyMap
+{
+	display:table;
+}
+
+.infomation	.img
+{
+	width:30px;
+	height: 30px;
+	margin-top:5px;
+	cursor: default;
+	background-size: 25px;
+	background-repeat: no-repeat;
+	background-image: url(../../images/info.png);
+	filter: invert(100%) sepia(6%) saturate(0%) hue-rotate(3deg) brightness(108%) contrast(105%);
+}
+.infomation	.infommationKeyMap
+{
+	top:100%;
+	right:-10px;
+	width:300px;
+	color:black;
+	display:none;
+	z-index: 9999;
+	margin-top:0px;
+	list-style: none;
+	position: absolute;
+	transition: ease 0.3 all;
+	background-color:white;
+	box-shadow:  0 2px 10px #666;
+}
+.infomation	li
+{
+	display:grid;
+	flex-wrap: nowrap;
+	padding: 4px 6px;
+	border-bottom: solid #dedede 1px;
+	grid-template-columns: 150px 1fr;
+}
+
+.infomation	li:last-child
+{
+	border-bottom: none;
 }

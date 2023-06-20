@@ -6,6 +6,13 @@
     - download_path: ../../download
 
   tasks:
+    - name: Remove old binaries
+      ansible.builtin.file:
+        path: "{{ download_path }}/*.zip"
+        state: absent
+      tags:
+        - rm_old_binaries
+
     - name: Install packages
       ansible.builtin.package:
         name: "{{ item }}"
@@ -77,3 +84,5 @@
         format: zip
       tags:
         - zip_bin
+
+# vim: tabstop=2 expandtab :

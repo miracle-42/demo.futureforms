@@ -23,10 +23,13 @@ import { TriggerFunction } from './TriggerFunction.js';
 import { FormEvents } from '../control/events/FormEvents.js';
 import { EventFilter } from '../control/events/EventFilter.js';
 
+/**
+ * Implements addEventListener. Meant for extending custom classes that needs event listeners
+ */
 export class EventListener
 {
-	public addEventListener(method:TriggerFunction, filter?:EventFilter|EventFilter[]) : void
+	public addEventListener(method:TriggerFunction, filter?:EventFilter|EventFilter[]) : object
 	{
-		FormEvents.addListener(null,this,method,filter);
+		return(FormEvents.addListener(null,this,method,filter));
 	}
 }

@@ -33,22 +33,8 @@ export class Countries extends DatabaseTable
 		this.rowlocking = LockMode.Pessimistic;
 	}
 
-	public static async getFoo(id2:string) : Promise<string>
-	{
-		return(null);
-	}
 	public static async getName(code:string) : Promise<string>
 	{
-		/**
-		 * Returns the full name of the country
-		 * 
-		 * @remarks
-		 * This part of the country table demo.
-		 * 
-		 * @param code - Two letter country code
-		 * 
-		 * @returns The country name string
-		 */
 		let row:any[] = null;
 		let stmt:SQLStatement = new SQLStatement(FormsModule.DATABASE);
 

@@ -63,9 +63,24 @@ export class SubQuery implements Filter
 			this.bindval$ += "."+columns[i];
 	}
 
+	public get column() : string
+	{
+		return(this.columns$[0]);
+	}
+
+	public set column(column:string)
+	{
+		this.columns$ = [column];
+	}
+
 	public get columns() : string[]
 	{
 		return(this.columns$);
+	}
+
+	public set columns(columns:string[])
+	{
+		this.columns$ = columns;
 	}
 
 	public get subquery() : string

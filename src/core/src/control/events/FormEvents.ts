@@ -21,11 +21,11 @@
 
 import { KeyMap } from "./KeyMap.js";
 import { MouseMap } from "./MouseMap.js";
-import { EventGroup, EventType } from "./EventType.js";
 import { Form } from "../../public/Form.js";
 import { EventFilter } from "./EventFilter.js";
 import { Alert } from "../../application/Alert.js";
 import { EventListener } from "./EventListener.js";
+import { EventGroup, EventType } from "./EventType.js";
 import { FormEvent as Interface } from "./FormEvent.js";
 import { Framework } from "../../application/Framework.js";
 import { Logger, Type } from "../../application/Logger.js";
@@ -306,7 +306,7 @@ export class FormEvents
 				done.add(lsnr.id);
 
 				Logger.log(Type.eventlisteners,"fieldlevel lsnr: "+lsnr);
-				if (!(await FormEvents.execute(event.type,lsnr,event)))
+				if (!(await FormEvents.execute(Level.Field,event.type,lsnr,event)))
 				{
 					Logger.log(Type.eventlisteners,"fieldlevel "+lsnr+" returned false");
 					return(false);
@@ -329,7 +329,7 @@ export class FormEvents
 				done.add(lsnr.id);
 
 				Logger.log(Type.eventlisteners,"blocklevel "+lsnr);
-				if (!(await FormEvents.execute(event.type,lsnr,event)))
+				if (!(await FormEvents.execute(Level.Block,event.type,lsnr,event)))
 				{
 					Logger.log(Type.eventlisteners,"blocklevel "+lsnr+" returned false");
 					return(false);
@@ -352,7 +352,7 @@ export class FormEvents
 				done.add(lsnr.id);
 
 				Logger.log(Type.eventlisteners,"formlevel "+lsnr);
-				if (!(await FormEvents.execute(event.type,lsnr,event)))
+				if (!(await FormEvents.execute(Level.Form,event.type,lsnr,event)))
 				{
 					Logger.log(Type.eventlisteners,"formlevel "+lsnr+" returned false");
 					return(false);
@@ -375,7 +375,7 @@ export class FormEvents
 				done.add(lsnr.id);
 
 				Logger.log(Type.eventlisteners,"applevel "+lsnr);
-				if (!(await FormEvents.execute(event.type,lsnr,event)))
+				if (!(await FormEvents.execute(Level.Application,event.type,lsnr,event)))
 				{
 					Logger.log(Type.eventlisteners," applevel "+lsnr+" returned false");
 					return(false);
@@ -395,7 +395,7 @@ export class FormEvents
 				done.add(lsnr.id);
 
 				Logger.log(Type.eventlisteners,"alltypes "+lsnr);
-				if (!(await FormEvents.execute(event.type,lsnr,event)))
+				if (!(await FormEvents.execute(Level.All,event.type,lsnr,event)))
 				{
 					Logger.log(Type.eventlisteners," alltypes "+lsnr+" returned false");
 					return(false);
@@ -420,10 +420,10 @@ export class FormEvents
 	}
 
 
-	private static async execute(type:EventType,lsnr:EventListener, event:FormEvent) : Promise<boolean>
+	private static async execute(level:Level, type:EventType,lsnr:EventListener, event:FormEvent) : Promise<boolean>
 	{
 		let cont:boolean = true;
-		Logger.log(Type.eventlisteners,EventType[type]+" Invoking eventhandler: "+lsnr);
+		Logger.log(Type.eventlisteners,"Level: "+Level[level]+" "+EventType[type]+" Invoking eventhandler: "+lsnr);
 
 		let ekey:KeyMap = event.key;
 		let lkey:KeyMap = lsnr.filter?.key;
@@ -527,4 +527,13 @@ export class FormEvents
 
 		listeners.push(lsnr);
 	}
+}
+
+enum Level
+{
+	All,
+	Form,
+	Field,
+	Block,
+	Application,
 }

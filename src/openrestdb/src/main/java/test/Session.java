@@ -28,8 +28,8 @@ import java.io.OutputStream;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
-import openrestdb.client.SocketReader;
-import openrestdb.security.FakeTrustManager;
+import database.rest.client.SocketReader;
+import database.rest.security.FakeTrustManager;
 
 
 public class Session

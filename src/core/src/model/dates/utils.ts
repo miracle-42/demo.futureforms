@@ -76,6 +76,9 @@ export class utils
 
     public static format(date:Date, format?:string) : string
     {
+		  if (date == null)
+		  	return(null);
+
         if (format == null)
 			format = utils.full();
 

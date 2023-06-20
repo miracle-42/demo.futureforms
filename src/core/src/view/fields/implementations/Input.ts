@@ -215,7 +215,10 @@ export class Input implements FieldImplementation, EventListenerObject
 				value = new Date(+value);
 
 			if (value instanceof Date)
-				value = dates.format(value);
+			{
+				try {value = dates.format(value);}
+				catch (error) {value = null;}
+			}
 		}
 
 		if (this.datatype$ == DataType.integer || this.datatype$ == DataType.decimal)
@@ -438,7 +441,12 @@ export class Input implements FieldImplementation, EventListenerObject
 			bubble = true;
 			this.initial = this.getIntermediateValue();
 
-			if (this.pattern != null) this.initial = this.pattern.getValue();
+			if (this.pattern != null)
+			{
+				this.initial = this.pattern.getValue();
+				this.setElementValue(this.initial);
+				this.setPosition(0);
+			}
 
 			if (this.placeholder != null)
 				this.element.removeAttribute("placeholder");
@@ -1005,6 +1013,10 @@ export class Input implements FieldImplementation, EventListenerObject
 				let fld:string = input.substring(part.pos,part.pos+part.length);
 
 				fld = fld.trim();
+
+				if (part.type == DatePart.Year && fld.length == 2)
+					fld = today.substring(part.pos,part.pos+2) + fld;
+
 				while(fld.length < part.length) fld = "0"+fld;
 				input = input.substring(0,part.pos) + fld + input.substring(part.pos+part.length);
 			}
@@ -1012,8 +1024,8 @@ export class Input implements FieldImplementation, EventListenerObject
 			if (empty)
 			{
 				input = input.substring(0,part.pos) +
-						today.substring(part.pos,part.pos+part.length) +
-						input.substring(part.pos+part.length);
+				today.substring(part.pos,part.pos+part.length) +
+				input.substring(part.pos+part.length);
 
 			}
 		})
@@ -1032,7 +1044,7 @@ export class Input implements FieldImplementation, EventListenerObject
 		switch(token.type)
 		{
 			case DatePart.Day 		: maxval = 31; break;
-			case DatePart.Month 	: maxval = 12; break;
+			case DatePart.Month 		: maxval = 12; break;
 			case DatePart.Hour 		: maxval = 23; break;
 			case DatePart.Minute 	: maxval = 59; break;
 			case DatePart.Second 	: maxval = 59; break;

@@ -5,10 +5,10 @@
 		<div class="needle red"></div>
 		<table>
 			<tr>
-				<th onclick="this.sort('country_id')" >Code</th>
+				<th>Code</th>
 				<th>Country</th>
 			</tr>
-			<tr class="row" foreach=" row in 1..4 ">
+			<tr class="row" foreach="row in 1..5">
 				<td><input name="country_id" from="countries" row="$row" size="4" upper required></td>
 				<td><input name="country_name" from="countries" row="$row" initcap required advquery="false"></td>
 			</tr>

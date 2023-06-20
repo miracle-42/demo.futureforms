@@ -86,6 +86,12 @@ export class DataSourceWrapper
 		}
 	}
 
+	public get transactional() : boolean
+	{
+		if (this.source?.transactional) return(true);
+		return(false);
+	}
+
 	public async clear(flush:boolean) : Promise<boolean>
 	{
 		this.hwm$ = 0;
@@ -95,7 +101,7 @@ export class DataSourceWrapper
 		if (!flush)
 		{
 			this.source.clear();
-			this.block.view.setStatus();
+			this.block.view.setAttributes();
 			return(true);
 		}
 
@@ -110,7 +116,7 @@ export class DataSourceWrapper
 		this.cache$.forEach((rec) =>
 		{rec.state = RecordState.Consistent;})
 
-		this.block.view.setStatus();
+		this.block.view.setAttributes();
 	}
 
 	public getDirtyCount() : number
@@ -161,11 +167,8 @@ export class DataSourceWrapper
 			{
 				for (let i = 0; i < this.cache$.length; i++)
 				{
-					if (this.cache$[i].state != RecordState.Insert)
-					{
-						if (!await this.lock(this.cache$[i],true))
-							this.cache$[i].failed = true;
-					}
+					if (!await this.lock(this.cache$[i],true))
+						this.cache$[i].failed = true;
 				}
 			}
 
@@ -186,7 +189,7 @@ export class DataSourceWrapper
 					if (succces)
 					{
 						records[i].state = RecordState.Inserted;
-						this.block.view.setStatus(records[i]);
+						this.block.view.setAttributes(records[i]);
 						records[i].setClean(false);
 					}
 				}
@@ -212,7 +215,7 @@ export class DataSourceWrapper
 					if (succces)
 					{
 						records[i].state = RecordState.Updated;
-						this.block.view.setStatus(records[i]);
+						this.block.view.setAttributes(records[i]);
 						records[i].setClean(false);
 					}
 				}
@@ -227,7 +230,7 @@ export class DataSourceWrapper
 					if (succces)
 					{
 						records[i].state = RecordState.Deleted;
-						this.block.view.setStatus(records[i]);
+						this.block.view.setAttributes(records[i]);
 						records[i].setClean(false);
 					}
 				}
@@ -317,7 +320,7 @@ export class DataSourceWrapper
 		{
 			record.clear();
 			record.state = RecordState.New;
-			this.block.view.setStatus(record);
+			this.block.view.setAttributes(record);
 			return;
 		}
 
@@ -328,7 +331,7 @@ export class DataSourceWrapper
 			record.state = RecordState.Consistent;
 
 		await this.block.onFetch(record);
-		this.block.view.setStatus(record);
+		this.block.view.setAttributes(record);
 	}
 
 	public async modified(record:Record, deleted:boolean) : Promise<boolean>
@@ -351,7 +354,7 @@ export class DataSourceWrapper
 			if (success)
 			{
 				record.state = RecordState.Delete;
-				this.block.view.setStatus(record);
+				this.block.view.setAttributes(record);
 			}
 		}
 		else if (record.dirty)
@@ -367,7 +370,7 @@ export class DataSourceWrapper
 					if (success)
 					{
 						record.state = RecordState.Insert;
-						this.block.view.setStatus(record);
+						this.block.view.setAttributes(record);
 					}
 				break;
 
@@ -385,7 +388,7 @@ export class DataSourceWrapper
 					if (success)
 					{
 						record.state = RecordState.Update;
-						this.block.view.setStatus(record);
+						this.block.view.setAttributes(record);
 					}
 				break;
 			}

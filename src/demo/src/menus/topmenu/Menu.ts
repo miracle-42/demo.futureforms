@@ -29,7 +29,7 @@ export class Menu extends MenuComponent
 
 	constructor()
 	{
-		super(new Commands());
+		super("top-menu",new Commands());
 		this.options.skiproot = true;
 
 		this.menuelem = document.getElementById("topbar");

@@ -27,10 +27,10 @@ import { Internals } from "../../application/properties/Internals.js";
 
 export class Alert extends Form
 {
+	private grap:number = 10;
 	public static WIDTH:number = 300;
 	public static HEIGHT:number = null;
 	private closeButton:HTMLElement = null;
-	private static zindex$:number = 2147483646;
 
 	public static BlurStyle:string =
 	`
@@ -56,6 +56,7 @@ export class Alert extends Form
 
 	private async done() : Promise<boolean>
 	{
+		this.grap = -1;
 		return(this.close());
 	}
 
@@ -90,9 +91,15 @@ export class Alert extends Form
 		return(false);
 	}
 
+	// Make sure we get focus
 	public override async focus(): Promise<boolean>
 	{
+		this.grap--;
 		this.closeButton.focus();
+
+		if (this.grap > 0) setTimeout(() =>
+			{this.focus()}, 5);
+
 		return(true);
 	}
 
@@ -103,8 +110,8 @@ export class Alert extends Form
 		`
 		<div name="popup-body">
 			<div name="msg" from="alert"></div>
-
 		</div>
+		
 		<div name="lowerright">
 			<div name="buttonarea">
 				<button name="close" onClick="this.close()">Ok</button>

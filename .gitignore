@@ -1,7 +1,7 @@
 node_modules
 .DS_Store
 build
-src/openrestapi/target
+src/openrestdb/target
 
 # Compiled class file
 *.class
@@ -23,8 +23,9 @@ src/openrestapi/target
 *.zip
 *.tar.gz
 *.rar
-*.js
+#*.js
 *.d.ts
+package-lock.json
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

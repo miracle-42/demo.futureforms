@@ -53,10 +53,14 @@ export class QueryEditor extends Form
 
 		this.addEventListener(this.navigate,
 		[
+			{type: EventType.Key, key: KeyMap.pageup},
+			{type: EventType.Key, key: KeyMap.pagedown},
 			{type: EventType.Key, key: KeyMap.nextfield},
 			{type: EventType.Key, key: KeyMap.prevfield},
 			{type: EventType.Key, key: KeyMap.nextblock},
-			{type: EventType.Key, key: KeyMap.prevblock}
+			{type: EventType.Key, key: KeyMap.prevblock},
+			{type: EventType.Key, key: KeyMap.prevrecord},
+			{type: EventType.Key, key: KeyMap.nextrecord},
 		]);
 	}
 
@@ -80,7 +84,7 @@ export class QueryEditor extends Form
 		switch(this.type)
 		{
 			case "x" :
-				filter = Filters.Null(field);
+				filter = Filters.IsNull(field);
 				break;
 
 			case "<" :
@@ -90,7 +94,7 @@ export class QueryEditor extends Form
 				if (value != null)
 				{
 					form.setValue(block,field,value);
-					filter = Filters.LT(field,incl);
+					filter = Filters.LessThan(field,incl);
 					filter.constraint = value;
 				}
 				break;
@@ -102,7 +106,7 @@ export class QueryEditor extends Form
 				if (value != null)
 				{
 					form.setValue(block,field,value);
-					filter = Filters.GT(field,incl);
+					filter = Filters.GreaterThan(field,incl);
 					filter.constraint = value;
 				}
 				break;
@@ -195,49 +199,62 @@ export class QueryEditor extends Form
 	{
 		if (this.type == "..")
 		{
-			if (event.block == "options")
+			if (event.block == this.options.name)
 			{
-				this.values.goField("value");
-				return(false);
+				if (event.key == KeyMap.nextfield)
+				{
+					this.values.goField("value");
+					return(false);
+				}
+
+				if (event.key == KeyMap.nextrecord)
+				{
+					this.values.goField("value");
+					return(false);
+				}
 			}
 			else
 			{
-				let goopt:boolean = false;
-
-				if (event.key == KeyMap.prevfield && this.values.record == 0) goopt = true;
-				if (event.key == KeyMap.nextblock || event.key == KeyMap.prevblock) goopt = true;
-
-				if (goopt)
+				if (event.key == KeyMap.nextfield)
 				{
-					this.options.goField("options");
-					return(false);
+					await this.validate();
+
+					if (this.values.getValue("value") != null)
+					{
+						this.values.nextrecord();
+						return(false);
+					}
 				}
 
 				if (event.key == KeyMap.prevfield)
 				{
-					this.values.prevrecord();
-					return(false);
-				}
-
-				if (event.key == KeyMap.nextfield)
-				{
-					if (this.values.getValue("value"))
+					if (this.values.record > 0)
 					{
-						this.values.nextrecord();
+						this.values.prevrecord();
+						return(false);
 					}
 					else
 					{
 						this.options.goField("options");
+						return(false);
 					}
+				}
 
-					return(false);
+				if (event.key == KeyMap.prevrecord)
+				{
+					if (this.values.record == 0)
+					{
+						this.options.goField("options");
+						return(false);
+					}
+				}
+
+				if (event.key == KeyMap.nextrecord)
+				{
+					if (this.values.getValue("value") == null)
+						return(false);
 				}
 			}
-		}
-		else
-		{
-			if (event.key == KeyMap.nextblock || event.key == KeyMap.prevblock)
-				return(false);
 		}
 
 		return(true);

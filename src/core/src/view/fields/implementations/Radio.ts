@@ -108,7 +108,7 @@ export class Radio implements FieldImplementation, EventListenerObject
 
 		if (this.datatype$ == DataType.boolean)
 		{
-				value = ((""+value).toLowerCase() == "true");
+			value = ((""+value).toLowerCase() == "true");
 		}
 
 		if (DataType[this.datatype$].startsWith("date"))

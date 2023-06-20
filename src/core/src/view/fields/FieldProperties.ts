@@ -126,6 +126,12 @@ export class FieldProperties extends BasicProperties
 		return(this);
 	}
 
+	public setDisabled(flag:boolean) : FieldProperties
+	{
+		this.setEnabled(!flag);
+		return(this);
+	}
+
 	public setReadOnly(flag:boolean) : FieldProperties
 	{
 		this.readonly = flag;

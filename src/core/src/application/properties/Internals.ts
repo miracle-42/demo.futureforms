@@ -26,7 +26,7 @@ export class Internals
 		<div name="popup" class="canvas-handle">
 			<div name="popup-header" class="canvas-handle">
 				<span name="title"></span>
-				<div name="close-button" onclick="this.close()">x</div>
+				<div name="close-button" onclick="this.close(true)">x</div>
 			</div>
 		</div>
 	`;
@@ -131,13 +131,13 @@ export class Internals
 
 		if (Internals.PopupStyleDiv) divs.forEach((div) => div.style.cssText = Internals.PopupStyleDiv);
 		if (Internals.PopupStyleLabel) labels.forEach((label) => label.style.cssText = Internals.PopupStyleLabel);
-		
+
 		if (body && Internals.PopupStyle) body.style.cssText = Internals.PopupStyle;
 		if (close && Internals.PopupCloseButton) close.style.cssText = Internals.PopupCloseButton;
 		if (header && Internals.PopupHeaderStyle) header.style.cssText = Internals.PopupHeaderStyle;
 		if (footer && Internals.PopupFooterStyle) footer.style.cssText = Internals.PopupFooterStyle;
-		
-		
+
+
 		if (login && Internals.PopupStyleLogin) login.style.cssText = Internals.PopupStyleLogin;
 		if (lowerright && Internals.PopupStyleLowerRight) lowerright.style.cssText = Internals.PopupStyleLowerRight;
 		if (buttonarea && Internals.PopupStyleButtonArea) buttonarea.style.cssText = Internals.PopupStyleButtonArea;
@@ -168,7 +168,7 @@ export class Internals
 		if (width)
 		{
 			view.style.maxWidth = width + "px";
-			view.style.minWidth = (width / 1.5 ) + "px"; 
+			view.style.minWidth = (width / 1.5 ) + "px";
 		}
 
 		if (height)

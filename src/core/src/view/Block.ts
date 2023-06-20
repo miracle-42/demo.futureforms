@@ -47,6 +47,7 @@ export class Block
 	private form$:Form = null;
 	private name$:string = null;
 	private model$:ModelBlock = null;
+	private finalized$:boolean = false;
 	private fieldnames$:string[] = null;
 	private curinst$:FieldInstance = null;
 	private rows$:Map<number,Row> = new Map<number,Row>();
@@ -112,11 +113,12 @@ export class Block
 		this.current?.blur(ignore);
 	}
 
-	public focus(ignore?:boolean) : void
+	public async focus(ignore?:boolean) : Promise<boolean>
 	{
-		if (this.current)
+		if (this.curinst$)
 		{
-			this.current.focus(ignore);
+			this.curinst$.focus(ignore);
+			return(true);
 		}
 		else
 		{
@@ -136,9 +138,26 @@ export class Block
 
 				if (cf + rf > 0)
 					console.log("No available fields in "+this.name+" in state "+RecordState[state]);
+
+				return(false);
 			}
 
-			inst?.focus();
+			if (this.curinst$)
+			{
+				if (!await this.curinst$.field.validate(this.current))
+					return(false);
+
+				if (!await this.form.leave(this.curinst$))
+					return(false);
+
+				this.curinst$.blur(true);
+			}
+
+			if (!await this.form.enter(inst))
+				return(false);
+
+			inst?.focus(true);
+			return(true);
 		}
 	}
 
@@ -156,7 +175,7 @@ export class Block
 		this.getCurrentFields(field).forEach((fld) => fld.setInstanceValidity(flag));
 	}
 
-	public goField(field:string, clazz?:string) : void
+	public async goField(field:string, clazz?:string) : Promise<boolean>
 	{
 		field = field?.toLowerCase();
 		clazz = clazz?.toLowerCase();
@@ -183,10 +202,27 @@ export class Block
 			if (rf == null) rf = 0;
 
 			if (cf + rf > 0)
-				console.log("No available fields named '"+field+"' in block '"+this.name+"' in state "+RecordState[state])
+				console.log("No available fields named '"+field+"' in block '"+this.name+"' in state "+RecordState[state]);
+
+			return(false);
 		}
 
-		inst?.focus();
+		if (this.current)
+		{
+			if (!await this.current.field.validate(this.current))
+				return(false);
+
+			if (!await this.form.leave(this.current))
+				return(false);
+
+			this.current.blur(true);
+		}
+
+		if (!await this.form.enter(inst))
+			return(false);
+
+		inst.focus();
+		return(true);
 	}
 
 	public empty(rownum?:number) : boolean
@@ -735,7 +771,7 @@ export class Block
 		return(this.model.getRecord(row-this.row));
 	}
 
-	public setStatus(record?:Record) : void
+	public setAttributes(record?:Record) : void
 	{
 		if (record == null)
 		{
@@ -744,7 +780,7 @@ export class Block
 			for (let i = 0; i < this.rows; i++)
 			{
 				let rec:Record = this.model.getRecord(i + offset);
-				if (rec) this.setStatus(rec);
+				if (rec) this.setAttributes(rec);
 			}
 		}
 
@@ -754,9 +790,18 @@ export class Block
 			return;
 
 		row.setState(this.convert(record.state));
+		this.applyRecordProperties(record,true);
 
 		if (row.rownum == this.row)
-			this.getRow(-1)?.setState(this.convert(record.state));
+		{
+			row = this.getRow(-1);
+
+			if (row)
+			{
+				row.setState(this.convert(record.state));
+				this.applyRecordProperties(record,false);
+			}
+		}
 	}
 
 	public display(rownum:number, record:Record) : void
@@ -809,19 +854,25 @@ export class Block
 		}
 	}
 
-	public refresh(record:Record) : void
+	public async refresh(record:Record) : Promise<boolean>
 	{
 		let row:Row = this.displayed(record);
-
 		if (row == null) return;
+
+		row.validated = true;
 		this.display(row.rownum,record);
 
 		if (row.rownum == this.row)
 		{
 			this.displaycurrent();
-			this.model.queryDetails(true);
+
+			if (!await this.model.queryDetails(true))
+				return(false);
+
 			this.setIndicators(null,this.row);
 		}
+
+		return(true);
 	}
 
 	public swapInstances(inst1:FieldInstance, inst2:FieldInstance) : void
@@ -923,7 +974,7 @@ export class Block
 				next.ignore = "focus";
 			}
 
-			if (!await this.form.LeaveField(inst))
+			if (!await this.form.leaveField(inst))
 				return(next);
 
 			if (!await this.form.leaveRecord(this))
@@ -954,7 +1005,7 @@ export class Block
 			if (this.getRow(this.row+scroll).status == Status.na)
 				return(inst);
 
-			if (!await this.form.LeaveField(inst))
+			if (!await this.form.leaveField(inst))
 				return(next);
 
 			if (!await this.form.leaveRecord(this))
@@ -1235,6 +1286,7 @@ export class Block
 			this.fieldinfo$.set(name,new FieldInfo(type,query,derived))
 		});
 
+		this.finalized$ = true;
 		this.model$ = FormBacking.getModelForm(this.form.parent).getBlock(this.name);
 	}
 
@@ -1261,7 +1313,32 @@ export class Block
 		for (let i = 0; i < instances.length; i++)
 		{
 			if (!this.fieldinfo.get(instances[i].name)?.derived)
+			{
+				let update:boolean = this.finalized$;
+				if (this.model.querymode) update = false;
+				if (this.getRow(instances[i].row).status != Status.update) update = false;
+
 				instances[i].updateProperties.readonly = true;
+				if (update) instances[i].applyProperties(instances[i].updateProperties);
+			}
+		}
+	}
+
+	public enableUpdate() : void
+	{
+		let instances:FieldInstance[] = this.getFieldInstances(true);
+
+		for (let i = 0; i < instances.length; i++)
+		{
+			if (!this.fieldinfo.get(instances[i].name)?.derived)
+			{
+				let update:boolean = this.finalized$;
+				if (this.model.querymode) update = false;
+				if (this.getRow(instances[i].row).status != Status.update) update = false;
+
+				instances[i].updateProperties.readonly = false;
+				if (update) instances[i].applyProperties(instances[i].updateProperties);
+			}
 		}
 	}
 
@@ -1284,6 +1361,7 @@ export class Block
 			case RecordState.Delete 		: return(Status.delete);
 			case RecordState.Inserted 		: return(Status.update);
 			case RecordState.Update 		: return(Status.update);
+			case RecordState.Updated 		: return(Status.update);
 			case RecordState.Consistent 	: return(Status.update);
 			case RecordState.QueryFilter 	: return(Status.qbe);
 		}

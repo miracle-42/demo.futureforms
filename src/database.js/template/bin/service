@@ -1,2 +1,0 @@
-#!/bin/sh
-java -cp $(dirname "$0")/../lib/database.js-2.1.jar database.js.control.Service

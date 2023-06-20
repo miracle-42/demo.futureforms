@@ -42,6 +42,7 @@ export interface DataSource
 	insertallowed:boolean;
 	updateallowed:boolean;
 	deleteallowed:boolean;
+	transactional:boolean;
 
 	clear() : void;
 	clone() : DataSource;

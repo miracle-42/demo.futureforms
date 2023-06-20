@@ -44,7 +44,6 @@ export enum EventType
 	OnCloseForm,
 
 	PostViewInit,
-	PostFormFocus,
 	PostCloseForm,
 
 	PreForm,
@@ -92,7 +91,6 @@ export class EventGroup
 		EventType.PreForm,
 		EventType.PostForm,
 		EventType.PostViewInit,
-		EventType.PostFormFocus,
 		EventType.PostCloseForm,
 	]);
 

@@ -44,6 +44,16 @@ export class NoneOf implements Filter
 		this.constraint$ = null;
 	}
 
+	public get column() : string
+	{
+		return(this.column$);
+	}
+
+	public set column(column:string)
+	{
+		this.column$ = column;
+	}
+
 	public clone(): NoneOf
 	{
 		let clone:NoneOf = Reflect.construct(this.constructor,[this.column$]);

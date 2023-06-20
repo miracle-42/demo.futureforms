@@ -427,7 +427,6 @@ export class DatePicker extends Form
 class AnyDate implements DateConstraint
 {
 	message: string;
-	dateclazz: string;
 
 	valid(_date: Date): boolean
 	{

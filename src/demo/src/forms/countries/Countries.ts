@@ -23,26 +23,15 @@ import content from './Countries.html';
 
 import { datasource } from "forms42core";
 import { BaseForm } from "../../BaseForm";
-import { Sorter } from '../../utils/Sorter';
-//import { Countries as CountryBlock } from "../../blocks/Countries";
 import { CountryTable } from "./CountryTable";
 
 @datasource("Countries",CountryTable)
 
 export class Countries extends BaseForm
 {
-	private sorter:Sorter = null;
-	//private cnt:CountryBlock = new CountryBlock(this,"Countries");
-
 	constructor()
 	{
 		super(content);
 		this.title = "Countries";
-	//	this.sorter = new Sorter(this.cnt,"country_id");
-	}
-
-	public sort(field:string) : void
-	{
-		this.sorter.column = field;
 	}
 }

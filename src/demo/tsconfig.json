@@ -6,6 +6,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "moduleResolution":"Node",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "outDir": "./dist",
   }
 }

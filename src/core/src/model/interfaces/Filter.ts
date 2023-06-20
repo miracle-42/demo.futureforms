@@ -29,6 +29,7 @@ export interface Filter
 	asSQL() : string;
 	clone() : Filter;
 
+	column:string;
 	constraint:any|any[];
 
 	getBindValue() : BindValue;
@@ -39,7 +40,7 @@ export interface Filter
 
 	getDataType() : string;
 	setDataType(type:DataType) : Filter;
-	
+
 	setConstraint(value:any|any[]) : Filter;
 
 	evaluate(record:Record) : Promise<boolean>;

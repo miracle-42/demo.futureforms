@@ -50,9 +50,6 @@ export class BlockCoordinator
 
 		for (let i = 0; i < masters.length; i++)
 		{
-			if (masters[i].empty)
-				return(false);
-
 			if (masters[i].querymode)
 			{
 				let rel:Relation = this.findRelation(masters[i].name,block.name);
@@ -61,6 +58,10 @@ export class BlockCoordinator
 
 				if (master?.querymode && !rel.orphanQueries)
 					return(false);
+			}
+			else if (masters[i].empty)
+			{
+				return(false);
 			}
 		}
 

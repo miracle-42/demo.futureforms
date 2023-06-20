@@ -19,8 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { BindValue, Block, Filter, Filters, FilterStructure, Form, ListOfValues } from "forms42core";
 import { Countries as CountryTable } from "../datasources/database/Countries";
+import { BindValue, Block, Filter, Filters, FilterStructure, Form, ListOfValues } from "forms42core";
 
 export class Countries extends Block
 {

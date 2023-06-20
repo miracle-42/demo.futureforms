@@ -70,7 +70,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 	private datatypes$:Map<string,DataType> =
 		new Map<string,DataType>();
 
-	public constructor(connection:DatabaseConnection, table?:string, columns?:string|string[])
+	public constructor(connection:DatabaseConnection, table:string, columns?:string|string[])
 	{
 		super();
 
@@ -100,6 +100,11 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.table$ = table;
 		this.described$ = false;
 		if (this.name == null) this.name = table;
+	}
+
+	public get transactional() : boolean
+	{
+		return(this.conn$.transactional);
 	}
 
 	public clear() : void
@@ -311,6 +316,12 @@ export class DatabaseTable extends SQLSource implements DataSource
 			if (lv instanceof Date) lv = lv.getTime();
 			if (cv instanceof Date) cv = cv.getTime();
 
+			if (typeof lv === "string")
+				lv = lv?.trim();
+
+			if (typeof cv === "string")
+				cv = cv?.trim();
+
 			if (lv != cv)
 			{
 				console.log(this.columns[i]+" -> '"+lv+"' != '"+cv+"'");
@@ -392,15 +403,19 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 			{
 				processed.push(rec);
+				rec.response = null;
 
 				let columns:string[] = this.mergeColumns(this.columns,this.dmlcols$);
 				sql = SQLRestBuilder.update(this.table$,this.primaryKey,columns,rec,this.updreturncolumns$);
 
-				this.setTypes(sql.bindvalues);
-				response = await this.conn$.update(sql);
+				if (sql != null)
+				{
+					this.setTypes(sql.bindvalues);
+					response = await this.conn$.update(sql);
 
-				this.castResponse(response);
-				rec.response = new DatabaseResponse(response,this.updreturncolumns$);
+					this.castResponse(response);
+					rec.response = new DatabaseResponse(response,this.updreturncolumns$);
+				}
 			}
 		}
 

@@ -67,6 +67,26 @@ export class Contains implements Filter
 		this.constraint$ = null;
 	}
 
+	public get column() : string
+	{
+		return(this.columns$[0]);
+	}
+
+	public set column(column:string)
+	{
+		this.columns$ = [column];
+	}
+
+	public get columns() : string[]
+	{
+		return(this.columns$);
+	}
+
+	public set columns(columns:string[])
+	{
+		this.columns$ = columns;
+	}
+
 	public clone(): Contains
 	{
 		let clone:Contains = Reflect.construct(this.constructor,this.columns$);

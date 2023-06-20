@@ -27,6 +27,7 @@ import { FieldTypes } from "./FieldType.js";
 import { Class } from "../../types/Class.js";
 import { Display } from "./implementations/Display.js";
 import { FieldProperties } from "./FieldProperties.js";
+import { CheckBox } from "./implementations/CheckBox.js";
 import { Properties } from "../../application/Properties.js";
 import { FieldFeatureFactory } from "../FieldFeatureFactory.js";
 import { FieldEventHandler } from "./interfaces/FieldEventHandler.js";
@@ -65,6 +66,8 @@ export class FieldInstance implements FieldEventHandler
 		this.qbeproperties$ = this.properties;
 
 		this.element$ = this.impl.getElement();
+		FieldFeatureFactory.setMode(this,null);
+
 		this.field$.addInstance(this);
 	}
 
@@ -141,7 +144,7 @@ export class FieldInstance implements FieldEventHandler
 		let clazz:Class<FieldImplementation> = FieldTypes.get(props.tag,props.type);
 
 		if (clazz == this.clazz) this.updateField(props);
-		else					 this.changeFieldType(clazz,props);
+		else					       this.changeFieldType(clazz,props);
 	}
 
 	// Properties changed, minor adjustments
@@ -330,13 +333,8 @@ export class FieldInstance implements FieldEventHandler
 		let focus:Element = document.activeElement;
 		let inst:HTMLElement = this.impl.getElement();
 
-		if (focus == inst)
-		{
-			if (ignore)
-				this.ignore = "blur";
-
-			inst.blur();
-		}
+		if (ignore) this.ignore = "blur";
+		if (focus == inst) inst.blur();
 	}
 
 	public focus(ignore?:boolean) : void
@@ -381,7 +379,13 @@ export class FieldInstance implements FieldEventHandler
 		if (this.impl instanceof Display && props.getAttribute("tabindex") == null)
 			return(false);
 
-		return(props.enabled && !props.hidden);
+		if (this.impl instanceof CheckBox && props.readonly)
+			return(false);
+
+		if (props.hidden) return(false);
+		if (!props.enabled) return(false);
+
+		return(true);
 	}
 
 	public editable(status?:Status) : boolean

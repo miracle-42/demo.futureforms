@@ -21,6 +21,10 @@
 
 import { FlightRecorder } from "../application/FlightRecorder.js";
 
+/**
+ * Basic HTTP connection to backend.
+ * This class is meant for extending and does not implement any username/password security.
+ */
 export class Connection
 {
 	private base$:URL = null;
@@ -30,6 +34,7 @@ export class Connection
 	private method$:string = null;
 	private success$:boolean = true;
 
+	/** Create connection. If no url specified, the Origin of the page is used */
 	public constructor(url?:string|URL)
 	{
 		if (url == null)
@@ -51,6 +56,7 @@ export class Connection
 		return(this.usr$);
 	}
 
+	/** Not used in base class */
 	public set username(username:string)
 	{
 		this.usr$ = username;
@@ -61,6 +67,7 @@ export class Connection
 		return(this.pwd$);
 	}
 
+	/** Not used in base class */
 	public set password(password:string)
 	{
 		this.pwd$ = password;
@@ -89,18 +96,27 @@ export class Connection
 		this.base$ = url;
 	}
 
+	/** Not used in base class */
+	public get transactional() : boolean
+	{
+		return(false);
+	}
+
+	/** Perform HTTP GET */
 	public async get(url?:string|URL, raw?:boolean) : Promise<any>
 	{
 		this.method$ = "GET";
 		return(this.invoke(url,null,raw));
 	}
 
+	/** Perform HTTP POST */
 	public async post(url?:string|URL, payload?:string|any, raw?:boolean) : Promise<any>
 	{
 		this.method$ = "POST";
 		return(this.invoke(url,payload,raw));
 	}
 
+	/** Perform HTTP PATCH */
 	public async patch(url?:string|URL, payload?:string|any, raw?:boolean) : Promise<any>
 	{
 		this.method$ = "PATCH";

@@ -43,6 +43,6 @@ export enum DataType
 	varchar2,
 
 	text,
-
+	
 	boolean
 }

@@ -23,22 +23,17 @@ import { Alert } from './Alert.js';
 import { Form } from '../public/Form.js';
 import { Class } from '../types/Class.js';
 import { Framework } from './Framework.js';
-import { Properties } from './Properties.js';
 import { Components } from './Components.js';
 import { FormBacking } from './FormBacking.js';
 import { dates } from '../model/dates/dates.js';
-import { Canvas } from './interfaces/Canvas.js';
 import { Form as ViewForm } from '../view/Form.js';
-import { Form as ModelForm } from '../model/Form.js';
 import { Loading } from '../internal/forms/Loading.js';
 import { Form as InternalForm } from '../internal/Form.js';
-import { EventType } from '../control/events/EventType.js';
+import { FormEvents } from '../control/events/FormEvents.js';
 import { TriggerFunction } from '../public/TriggerFunction.js';
 import { EventFilter } from '../control/events/EventFilter.js';
 import { KeyMap, KeyMapping } from '../control/events/KeyMap.js';
-import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { DatabaseConnection } from '../public/DatabaseConnection.js';
-import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
 import { ApplicationHandler } from '../control/events/ApplicationHandler.js';
 
 export class FormsModule
@@ -51,6 +46,11 @@ export class FormsModule
 		if (FormsModule.instance == null)
 			FormsModule.instance = new FormsModule();
 		return(FormsModule.instance);
+	}
+
+	public static sleep(ms:number) : Promise<boolean>
+	{
+		return(new Promise(resolve => setTimeout(resolve,ms)));
 	}
 
 	constructor()
@@ -186,38 +186,7 @@ export class FormsModule
 
 	public async showform(form:Class<Form|InternalForm>|string, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
 	{
-		if (typeof form === "string")
-		{
-			let path:string = form;
-			form = form.toLowerCase();
-			form = this.getComponent(form);
-			if (form == null) throw "@Application: No components mapped to path '"+path+"'";
-		}
-
-		if (container == null)
-			container = this.getRootElement();
-
-		if (!(form.prototype instanceof Form) && !(form.prototype instanceof InternalForm))
-			throw "@Application: Component mapped to '"+form+"' is not a form";
-
-		let factory:ComponentFactory = Properties.FactoryImplementation;
-		let canvasimpl:Class<Canvas> = Properties.CanvasImplementationClass;
-
-		let canvas:Canvas = new canvasimpl();
-		let instance:Form = await factory.createForm(form,parameters);
-		await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance));
-
-		canvas.setComponent(instance);
-		container.appendChild(canvas.getView());
-
-		FormBacking.getViewForm(instance).canvas = canvas;
-		let mform:ModelForm = FormBacking.getModelForm(instance);
-		await mform.wait4EventTransaction(EventType.PostViewInit,null);
-
-		if (await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance)))
-			instance.focus();
-
-		return(instance);
+		return(FormBacking.showform(form,null,parameters,container));
 	}
 
 	public hideLoading(thread:number) : void

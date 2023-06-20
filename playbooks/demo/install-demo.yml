@@ -155,6 +155,7 @@
           - "{{ install_path }}/demo"
         dest: "{{ install_path }}/demo.tar.gz"
         format: gz
+        exclude_path: [ "{{ install_path }}/demo/dbloaded.true" ]
       tags:
         - pack_archive
 

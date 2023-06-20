@@ -1,5 +1,7 @@
 # FutureForms
 
+*Release 0.1*
+
 FutureForms Javascript REST API library
 
 FutureForms is a Typescript library for fast and easy development of data entry forms.

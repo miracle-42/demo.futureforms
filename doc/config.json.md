@@ -1,4 +1,4 @@
-# Openrestapi configuration
+# Openrestdb configuration
 
 These paramaters is set in `conf/config.json`.
 

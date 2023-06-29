@@ -4,8 +4,8 @@
 
   vars:
     - install_path: ../../build
-    - app_number: 1 # only 0-9
-    - app_name: "{{ app_number }}-login"
+    - app_number: 0 # only 0-9
+    - app_name: "{{ app_number }}-emplty"
     - app_path: "{{ install_path }}/{{ app_name }}"
     - core_jason: "../../src/core/package-lock.json"
 

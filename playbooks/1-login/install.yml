@@ -165,8 +165,8 @@
     - name: Fix up instance number
       ansible.builtin.replace: 
         path: "{{ app_path }}/conf/config.json"
-        regexp: "dbjs[0-9]+"
-        replace: "dbjs{{ app_number }}"
+        regexp: "\"instance\":.+"
+        replace: "\"instance\": \"openrestdb-{{ app_name }}\","
       tags:
         - fix_instance_number
 

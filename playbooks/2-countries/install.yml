@@ -7,34 +7,22 @@
     - app_number: 2 # only 0-9
     - app_name: "{{ app_number }}-countries"
     - app_path: "{{ install_path }}/{{ app_name }}"
+    - core_jason: "../../src/core/package-lock.json"
 
   tasks:
-    - name: Install packages
-      ansible.builtin.package:
-        name: "{{ item }}"
-      become: true
-      become_method: sudo
+    - name: Check core jason file exist
+      stat:
+        path: "{{ core_jason }}"
+      register: file_stat
       tags:
-        - install_package
-      loop:
-        - sysstat
-        - git
-        - ansible
-        - python3-psycopg2
-        - npm
-        - node-typescript
-        - openjdk-19-jre
-        - maven
-        - postgresql
+        - check_core_jason_file
 
-    - name: Futureforms core npm install
-      ansible.builtin.command:
-        cmd: npm install
-        creates: "../../src/core/package-lock.json"
-      args:
-        chdir: "../../src/core"
+    - name: Stop playbook if file is missing
+      fail:
+        msg: "File is missing: {{ core_jason }}"
+      when: not file_stat.stat.exists
       tags:
-        - npm_install_core
+        - exit_if_check_core_jason_file_is_missing
 
     - name: "Futureforms {{ app_name }} npm install"
       ansible.builtin.command:
@@ -59,57 +47,19 @@
         path: "../../src/{{ app_name }}"
         state: present
       tags:
-        - npm_install_demo
-
-    - name: Create the postgres database user hr
-      community.postgresql.postgresql_user:
-        name: hr
-        password: hr
-        state: present
-      become: true
-      become_method: sudo
-      become_user: postgres
-      tags:
-        - create-hr-user
-
-    - name: Create the postgres database hr
-      community.postgresql.postgresql_db:
-        name: hr
-        owner: hr
-        state: present
-      become: true
-      become_method: sudo
-      become_user: postgres
-      tags:
-        - create-hr-db
+        - npm_install_2_countries
 
     - name: "Create dir {{ app_path }}"
       ansible.builtin.file:
         path: "{{ app_path }}/data"
         state: directory
       tags:
-        - create-demo-openrestdb
-
-    - name: Copy initial data.sql for archive
-      ansible.builtin.copy:
-        src: ../../src/demo/data/datademo.sql
-        dest: "{{ app_path }}/data/"
-      tags:
-        - copy-data-sql
-
-    - name: Install the postgres hr schema objects
-      ansible.builtin.shell:
-        cmd: psql -h 127.0.0.1 -U hr -d hr -f "../../src/demo/data/datademo.sql" && touch "{{ app_path }}/dbloaded.true"
-        creates: "{{ app_path }}/dbloaded.true"
-      environment:
-        PGPASSWORD: hr
-      tags:
-        - install-hr-schema-objects
+        - create-dir-openrestdb
 
     - name: Check database.js template exists
       stat:
         path: "{{ app_path }}/bin"
-      register: build_demo_openrestdb_bin
+      register: build_demo_openrestdb_bin      
       tags: build_demo_openrestdb_bin
 
     - name: Copy openrestdb template
@@ -162,20 +112,18 @@
       tags:
         - pack_archive
 
-    - name: Fix up instance number
-      ansible.builtin.replace: 
-        path: "{{ app_path }}/conf/config.json"
-        regexp: "dbjs[0-9]+"
-        replace: "dbjs{{ app_number }}"
-      tags:
-        - fix_instance_number
-
     - name: Fix up port number
-      ansible.builtin.replace: 
+      ansible.builtin.replace:
         path: "{{ app_path }}/conf/config.json"
         regexp: "900([1-3])"
         replace: "90{{ app_number }}\\1"
       tags:
         - fix_port_number
-
-# vim: tabstop=2 expandtab :
+        
+    - name: Fix up instance name
+      ansible.builtin.replace:
+        path: "{{ app_path }}/conf/config.json"
+        regexp: "\"instance\":.+"
+        replace: "\"instance\": \"openrestdb-{{ app_name }}\","
+      tags:
+        - fix_instance_name

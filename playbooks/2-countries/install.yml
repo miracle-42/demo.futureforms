@@ -7,22 +7,22 @@
     - app_number: 2 # only 0-9
     - app_name: "{{ app_number }}-countries"
     - app_path: "{{ install_path }}/{{ app_name }}"
-    - core_jason: "../../src/core/package-lock.json"
+    - core_json: "../../build/core/index.js"
 
   tasks:
     - name: Check core jason file exist
       stat:
-        path: "{{ core_jason }}"
+        path: "{{ core_json }}"
       register: file_stat
       tags:
-        - check_core_jason_file
+        - check_core_json_file
 
-    - name: Stop playbook if file is missing
+    - name: Error if FutureForms core is not builded
       fail:
-        msg: "File is missing: {{ core_jason }}"
+        msg: "File is missing: {{ core_json }}"
       when: not file_stat.stat.exists
       tags:
-        - exit_if_check_core_jason_file_is_missing
+        - exit_if_check_core_json_file_is_missing
 
     - name: Build Futureforms core
       ansible.builtin.command:

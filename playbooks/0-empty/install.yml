@@ -90,11 +90,13 @@
 
     - name: "Pack {{ app_path }}.tar.gz archive for deploy"
       community.general.archive:
-        path:
-          - "{{ app_path }}"
+        path: "{{ app_path }}"
         dest: "{{ app_path }}.tar.gz"
         format: gz
-        exclude_path: [ "{{ app_path }}/dbloaded.true" ]
+        exclude_path: [
+          "{{ app_path }}/dbloaded.true",
+          "{{ app_path }}/tmp",
+        ]
       tags:
         - pack_archive
 

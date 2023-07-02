@@ -5,12 +5,12 @@
   <artifactId>authenticator.js</artifactId>
   <version>2.1</version>
   <description>Project for Authenticator</description>
-  
+
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
-  
+
   <dependencies>
     <dependency>
         <groupId>org.json</groupId>
@@ -27,7 +27,7 @@
           <include>*</include>
         </includes>
       </resource>
-      
+
       <resource>
         <directory>src/main/resources/</directory>
         <includes>
@@ -44,7 +44,7 @@
         <configuration>
           <release>14</release>
         </configuration>
-      </plugin>          
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -53,17 +53,17 @@
         <configuration>
           <includes>
             <include>**/sso/*</include>
-            <include>**/openrestdb/admin/*.class</include>
-            <include>**/openrestdb/client/*.class</include>
-            <include>**/openrestdb/config/Paths*.class</include>
-            <include>**/openrestdb/config/SSOConfig.class</include>
-            <include>**/openrestdb/logger/Formatter.class</include>
-            <include>**/openrestdb/security/Keystore.class</include>
-            <include>**/openrestdb/security/PKIContext.class</include>
+            <include>**/database/rest/admin/*.class</include>
+            <include>**/database/rest/client/*.class</include>
+            <include>**/database/rest/config/Paths*.class</include>
+            <include>**/database/rest/config/SSOConfig.class</include>
+            <include>**/database/rest/logger/Formatter.class</include>
+            <include>**/database/rest/security/Keystore.class</include>
+            <include>**/database/rest/security/PKIContext.class</include>
           </includes>
           <archive>
             <manifest>
-              <mainClass>openrestdb.sso.Authenticater</mainClass>
+              <mainClass>database.rest.sso.Authenticater</mainClass>
               <addClasspath>true</addClasspath>
               <classpathPrefix>./json</classpathPrefix>
             </manifest>
@@ -71,6 +71,6 @@
           </archive>
         </configuration>
       </plugin>
-    </plugins>    
+    </plugins>
   </build>
 </project>

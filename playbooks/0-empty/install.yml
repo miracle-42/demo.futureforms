@@ -1,0 +1,117 @@
+---
+
+- hosts: localhost
+
+  vars:
+    - install_path: ../../build
+    - app_number: 0 # only 0-9
+    - app_name: "{{ app_number }}-empty"
+    - app_path: "{{ install_path }}/{{ app_name }}"
+    - core_json: "../../build/core/index.js"
+
+  tasks:
+    - name: Check core jason file exist
+      stat:
+        path: "{{ core_json }}"
+      register: file_stat
+      tags:
+        - check_core_json_file
+
+    - name: Error if FutureForms core is not builded
+      fail:
+        msg: "File is missing: {{ core_json }}"
+      when: not file_stat.stat.exists
+      tags:
+        - exit_if_check_core_json_file_is_missing
+
+    - name: Build Futureforms core
+      ansible.builtin.command:
+        cmd: npm run build
+        creates: "{{ install_path }}/core/package.json"
+      args:
+        chdir: "../../src/core"
+      tags:
+        - build_core
+
+    - name: "Install Futureforms {{ app_name }} app packages based on package.json using the npm"
+      community.general.npm:
+        path: "../../src/{{ app_name }}"
+        state: present
+      tags:
+        - npm_install_app
+
+    - name: "Create dir {{ app_path }}"
+      ansible.builtin.file:
+        path: "{{ app_path }}/data"
+        state: directory
+      tags:
+        - create-dir-openrestdb
+
+    - name: "Copy openrestdb template to {{ app_path }}"
+      ansible.builtin.copy:
+        src: "../../src/openrestdb/template/"
+        dest: "{{ app_path }}"
+        mode: preserve
+      tags:
+        - copy_openrestdb_template
+
+    - name: Build openrestdb.jar
+      ansible.builtin.command:
+        cmd: mvn package
+        creates: "../../src/openrestdb/target"
+      args:
+        chdir: "../../src/openrestdb"
+      tags:
+        - build_openrestdb
+
+    - name: Check openrestdb.jar exists
+      stat:
+        path: "{{ app_path }}/lib/openrestdb-2.1.jar"
+      register: check_app_openrestdb_jar
+      tags:
+        - check_app_openrestdb_jar
+
+    - name: Copy openrestdb.jar
+      ansible.builtin.copy:
+        src: "../../src/openrestdb/target/openrestdb-2.1.jar"
+        dest: "{{ app_path }}/lib"
+        mode: preserve
+      when: check_app_openrestdb_jar.stat.exists == false
+      tags: copy_openrestdb_jar
+
+    - name: "Build Futureforms {{ app_name }} app"
+      ansible.builtin.command:
+        cmd: npm run build
+        creates: "{{ app_path }}/app/app.js"
+      args:
+        chdir: "../../src/{{ app_name }}"
+      tags:
+        - npm_build_app
+
+    - name: "Pack {{ app_path }}.tar.gz archive for deploy"
+      community.general.archive:
+        path: "{{ app_path }}"
+        dest: "{{ app_path }}.tar.gz"
+        format: gz
+        exclude_path: [
+          "{{ app_path }}/dbloaded.true",
+          "{{ app_path }}/tmp",
+        ]
+      tags:
+        - pack_archive
+
+    - name: Fix up port number
+      ansible.builtin.replace:
+        path: "{{ app_path }}/conf/config.json"
+        regexp: "900([1-3])"
+        replace: "90{{ app_number }}\\1"
+      tags:
+        - fix_port_number
+
+    - name: Fix up instance name
+      ansible.builtin.replace:
+        path: "{{ app_path }}/conf/config.json"
+        regexp: "\"instance\":.+"
+        replace: "\"instance\": \"openrestdb-{{ app_name }}\","
+      tags:
+        - fix_instance_name

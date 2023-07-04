@@ -7,31 +7,22 @@
     - app_number: 1 # only 0-9
     - app_name: "{{ app_number }}-login"
     - app_path: "{{ install_path }}/{{ app_name }}"
-    - core_jason: "../../src/core/package-lock.json"
+    - core_json: "../../build/core/index.js"
 
   tasks:
     - name: Check core jason file exist
       stat:
-        path: "{{ core_jason }}"
+        path: "{{ core_json }}"
       register: file_stat
       tags:
-        - check_core_jason_file
+        - check_core_json_file
 
-    - name: Stop playbook if file is missing
+    - name: Error if FutureForms core is not builded
       fail:
-        msg: "File is missing: {{ core_jason }}"
+        msg: "File is missing: {{ core_json }}"
       when: not file_stat.stat.exists
       tags:
-        - exit_if_check_core_jason_file_is_missing
-
-    - name: "Futureforms {{ app_name }} npm install"
-      ansible.builtin.command:
-        cmd: npm install
-        creates: "../../src/{{ app_name }}/package-lock.json"
-      args:
-        chdir: "../../src/{{ app_name }}"
-      tags:
-        - npm_install_demo
+        - exit_if_check_core_json_file_is_missing
 
     - name: Build Futureforms core
       ansible.builtin.command:
@@ -42,12 +33,12 @@
       tags:
         - build_core
 
-    - name: Install Futureforms demo app packages based on package.json using the npm
+    - name: "Install Futureforms {{ app_name }} app packages based on package.json using the npm"
       community.general.npm:
         path: "../../src/{{ app_name }}"
         state: present
       tags:
-        - npm_install_2_countries
+        - npm_install_app
 
     - name: "Create dir {{ app_path }}"
       ansible.builtin.file:
@@ -56,24 +47,18 @@
       tags:
         - create-dir-openrestdb
 
-    - name: Check database.js template exists
-      stat:
-        path: "{{ app_path }}/bin"
-      register: build_demo_openrestdb_bin      
-      tags: build_demo_openrestdb_bin
-
-    - name: Copy openrestdb template
+    - name: "Copy openrestdb template to {{ app_path }}"
       ansible.builtin.copy:
         src: "../../src/openrestdb/template/"
         dest: "{{ app_path }}"
         mode: preserve
-      when: build_demo_openrestdb_bin.stat.exists == false
-      tags: copy_openrestdb_template
+      tags:
+        - copy_openrestdb_template
 
     - name: Build openrestdb.jar
       ansible.builtin.command:
         cmd: mvn package
-        creates: "../../src/openrestdb/target" 
+        creates: "../../src/openrestdb/target"
       args:
         chdir: "../../src/openrestdb"
       tags:
@@ -82,33 +67,36 @@
     - name: Check openrestdb.jar exists
       stat:
         path: "{{ app_path }}/lib/openrestdb-2.1.jar"
-      register: check_demo_openrestdb_jar
-      tags: check_demo_openrestdb_jar
+      register: check_app_openrestdb_jar
+      tags:
+        - check_app_openrestdb_jar
 
     - name: Copy openrestdb.jar
       ansible.builtin.copy:
         src: "../../src/openrestdb/target/openrestdb-2.1.jar"
         dest: "{{ app_path }}/lib"
         mode: preserve
-      when: check_demo_openrestdb_jar.stat.exists == false
+      when: check_app_openrestdb_jar.stat.exists == false
       tags: copy_openrestdb_jar
 
-    - name: Build Futureforms demo app
+    - name: "Build Futureforms {{ app_name }} app"
       ansible.builtin.command:
         cmd: npm run build
         creates: "{{ app_path }}/app/app.js"
       args:
         chdir: "../../src/{{ app_name }}"
       tags:
-        - npm_build_demo
+        - npm_build_app
 
-    - name: Pack demo archive for deploy
+    - name: "Pack {{ app_path }}.tar.gz archive for deploy"
       community.general.archive:
-        path:
-          - "{{ app_path }}"
+        path: "{{ app_path }}"
         dest: "{{ app_path }}.tar.gz"
         format: gz
-        exclude_path: [ "{{ app_path }}/dbloaded.true" ]
+        exclude_path: [
+          "{{ app_path }}/dbloaded.true",
+          "{{ app_path }}/tmp",
+        ]
       tags:
         - pack_archive
 
@@ -119,7 +107,7 @@
         replace: "90{{ app_number }}\\1"
       tags:
         - fix_port_number
-        
+
     - name: Fix up instance name
       ansible.builtin.replace:
         path: "{{ app_path }}/conf/config.json"

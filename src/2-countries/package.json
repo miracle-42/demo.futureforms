@@ -4,9 +4,9 @@
   "type": "module",
   "description": "Test suite for forms42core",
   "scripts": {
-    "test": "cd ../../build/2-countries/app/ && ls",
-    "server": "live-server --port=5500 --open=./../../build/2-countries/app/index.html &",
-    "build": "webpack --mode production && cp -a index.html *.css ../../build/2-countries/app/ && cp -a images ../../build/2-countries/app/"
+    "test": "cd dist && ls",
+    "server": "live-server --port=5500 --open=./dist/index.html &",
+    "build": "webpack --mode production && cp index.html *.css dist && cp -a images dist/"
   },
   "keywords": [],
   "author": "Alex Høffner",

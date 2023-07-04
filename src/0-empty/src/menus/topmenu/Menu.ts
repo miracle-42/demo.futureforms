@@ -38,90 +38,15 @@ export class Menu extends MenuComponent
       this.show();
 	}
 
-	@formevent({type: EventType.Connect})
-	public async onConnect() : Promise<boolean>
-	{
-		let entry:MenuEntry = null;
-
-		entry = await this.findEntry("/topbar/connection/connect");
-		if (entry) entry.disabled = true;
-
-		entry = await this.findEntry("/topbar/connection/disconnect");
-		if (entry) entry.disabled = false;
-
-		if (FormsModule.get().getRunningForms().length > 0)
-		{
-			entry = await this.findEntry("/topbar/query");
-			if (entry) entry.disabled = false;
-
-			entry = await this.findEntry("/topbar/record");
-			if (entry) entry.disabled = false;
-		}
-
-		this.show();
-		return(true);
-	}
-
-	@formevent({type: EventType.Disconnect})
-	public async onDisConnect() : Promise<boolean>
-	{
-		let entry:MenuEntry = null;
-
-		entry = await this.findEntry("/topbar/connection/disconnect");
-		if (entry) entry.disabled = true;
-
-		entry = await this.findEntry("/topbar/connection/connect");
-		if (entry) entry.disabled = false;
-
-		entry = await this.findEntry("/topbar/query");
-		if (entry) entry.disabled = true;
-
-		entry = await this.findEntry("/topbar/record");
-		if (entry) entry.disabled = true;
-
-		entry = await this.findEntry("/topbar/transaction");
-		if (entry) entry.disabled = true;
-
-		this.show();
-		return(true);
-	}
-
 	@formevent({type: EventType.onNewForm})
 	public async onFormOpen(event:FormEvent) : Promise<boolean>
 	{
 		let entry:MenuEntry = null;
 
-		if (event.form.constructor.name == "UsernamePassword")
-		{
-			entry = await this.findEntry("/topbar/query");
-			if (entry) entry.disabled = true;
-
-			entry = await this.findEntry("/topbar/record");
-			if (entry) entry.disabled = true;
-
-			entry = await this.findEntry("/topbar/transaction");
-			if (entry) entry.disabled = true;
-
-			entry = await this.findEntry("/topbar/connection");
-			if (entry) entry.disabled = true;
-
-			this.show();
-			return(true);
-		}
-
 		if (FormsModule.get().getRunningForms().length == 1)
 		{
 			entry = await this.findEntry("/topbar/form");
 			if (entry) entry.disabled = false;
-
-			if (FormsModule.DATABASE.connected())
-			{
-				entry = await this.findEntry("/topbar/query");
-				if (entry) entry.disabled = false;
-
-				entry = await this.findEntry("/topbar/record");
-				if (entry) entry.disabled = false;
-			}
 
 			this.show();
 		}
@@ -133,12 +58,6 @@ export class Menu extends MenuComponent
 	public async onFormClose(event:FormEvent) : Promise<boolean>
 	{
 		let entry:MenuEntry = null;
-
-		if (event.form.constructor.name == "UsernamePassword")
-		{
-			entry = await this.findEntry("/topbar/connection");
-			if (entry) entry.disabled = false;
-		}
 
 		if (FormsModule.get().getRunningForms().length == 0)
 		{

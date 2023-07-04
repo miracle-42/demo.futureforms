@@ -5,7 +5,7 @@
   vars:
     - install_path: ../../build
     - app_number: 0 # only 0-9
-    - app_name: "{{ app_number }}-emplty"
+    - app_name: "{{ app_number }}-empty"
     - app_path: "{{ install_path }}/{{ app_name }}"
     - core_jason: "../../src/core/package-lock.json"
 
@@ -93,7 +93,7 @@
       when: check_demo_openrestdb_jar.stat.exists == false
       tags: copy_openrestdb_jar
 
-    - name: Build Futureforms demo app
+    - name: Build Futureforms {{app_name}} app
       ansible.builtin.command:
         cmd: npm run build
         creates: "{{ app_path }}/app/app.js"
@@ -116,7 +116,7 @@
       ansible.builtin.replace:
         path: "{{ app_path }}/conf/config.json"
         regexp: "900([1-3])"
-        replace: "90{{ app_number }}\\1"
+        replace: "91{{ app_number }}\\1"
       tags:
         - fix_port_number
         

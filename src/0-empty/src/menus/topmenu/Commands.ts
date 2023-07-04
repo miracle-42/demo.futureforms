@@ -40,7 +40,7 @@ export class Commands extends StaticMenu
 			switch(parts[1])
 			{
 				case "clear" : module.sendkey(KeyMap.enterquery);	break;
-				case "close" : module.close();							break;
+				case "close" : module.close();						break;
 			}
 		}
 
@@ -76,14 +76,6 @@ export class Commands extends StaticMenu
 			}
 		}
 
-		if (parts[0] == "connection")
-		{
-			switch(parts[1])
-			{
-				case "connect" 	: module.login();		break;
-				case "disconnect" : module.logout();	break;
-			}
-		}
 
 		return(true);
 	}
@@ -205,25 +197,7 @@ export class Commands extends StaticMenu
 							command: "transaction/rollback"
 						},
 					]
-				},
-				{
-					id: "connection",
-					display:`Connection`,
-					entries:
-					[
-						{
-								id: "connect",
-								display: "Connect",
-								command: "connection/connect"
-						},
-						{
-								disabled: true,
-								id: "disconnect",
-								display:"Disconnect",
-								command: "connection/disconnect"
-						}
-					]
-        		}
+				}
 			]
 		})
 	}

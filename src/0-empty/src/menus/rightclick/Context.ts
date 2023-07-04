@@ -77,15 +77,6 @@ export class Context extends StaticMenu
 			}
 		}
 
-		if (parts[0] == "connection")
-		{
-			switch(parts[1])
-			{
-				case "connect" 	: module.login();		break;
-				case "disconnect" : module.logout();	break;
-			}
-		}
-
 		return(true);
 	}
 
@@ -193,25 +184,7 @@ export class Context extends StaticMenu
 							command: "transaction/rollback"
 						},
 					]
-				},
-				{
-					id: "connection",
-					display:`Connection`,
-					entries:
-					[
-						{
-								id: "connect",
-								display: "Connect",
-								command: "connection/connect"
-						},
-						{
-								disabled: true,
-								id: "disconnect",
-								display:"Disconnect",
-								command: "connection/disconnect"
-						}
-					]
-        		}
+				}
 			]
 		})
    }

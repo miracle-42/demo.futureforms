@@ -31,7 +31,7 @@ import { Menu as RightClick } from './menus/rightclick/Menu';
 
 import { AppHeader } from './tags/AppHeader';
 
-import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, MouseMap } from 'forms42core';
+import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, FormProperties, UsernamePassword, Form, AlertForm, MouseMap } from 'forms42core';
 
 @FormsPathMapping(
 	[
@@ -46,14 +46,13 @@ export class FormsModule extends FormsCoreModule
 	public topmenu:TopMenu = null;
 	public leftmenu:LeftMenu = null;
 	public list:Minimized = null;
-	public static DATABASE:Connection = null;
 	private countries:KeyMap = new KeyMap({key: 'C', ctrl: true});
 
 	constructor()
 	{
 		super();
 
-		// 1-login cutom tag
+		// 1-empty cutom tag
 		FormProperties.TagLibrary.set("AppHeader",AppHeader);
 
 		this.parse();
@@ -65,18 +64,9 @@ export class FormsModule extends FormsCoreModule
 
 		this.updateKeyMap(keymap);
 
-		Connection.TRXTIMEOUT = 240;
-		Connection.CONNTIMEOUT = 120;
-
-		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
-
-
 		let infomation:HTMLElement = document.querySelector(".infomation");
 
 		infomation.appendChild(KeyMapPage.show());
-
-		this.addEventListener(this.close,{type: EventType.Key, key: keymap.close});
-		this.addEventListener(this.login,{type: EventType.Key, key: keymap.login});
 
 		this.addEventListener(this.showTopMenu,{type: EventType.Key, key: keymap.topmenu});
 		this.addEventListener(this.showLeftMenu,{type: EventType.Key, key: keymap.leftmenu});
@@ -84,58 +74,10 @@ export class FormsModule extends FormsCoreModule
 		this.OpenURLForm();
 	}
 
-	private logontrg:object = null;
-	public async login() : Promise<boolean>
-	{
-		let usrpwd:Form = await this.showform(UsernamePassword);
-		this.logontrg = this.addFormEventListener(usrpwd,this.connect,{type: EventType.OnCloseForm});
-		return(true);
-	}
-
-	public async logout() : Promise<boolean>
-	{
-		if (!FormsModule.DATABASE.connected())
-			return(true);
-
-		let forms:Form[] = this.getRunningForms();
-
-		for (let i = 0; i < forms.length; i++)
-		{
-			if (!await forms[i].clear())
-				return(false);
-		}
-
-		return(FormsModule.DATABASE.disconnect());
-	}
-
 	public async close() : Promise<boolean>
 	{
 		let form:Form = this.getCurrentForm();
 		if (form != null) return(form.close());
-		return(true);
-	}
-
-	private async connect(event:FormEvent) : Promise<boolean>
-	{
-		let form:UsernamePassword = event.form as UsernamePassword;
-		this.removeEventListener(this.logontrg);
-
-		if (form.accepted && form.username && form.password)
-		{
-			if (!await FormsModule.DATABASE.connect(form.username,form.password))
-			{
-				let forms:Form[] = this.getRunningForms();
-
-				for (let i = 0; i < forms.length; i++)
-				{
-					if (forms[i] instanceof AlertForm)
-						await forms[i].close(true);
-				}
-
-				await this.login();
-			}
-		}
-
 		return(true);
 	}
 
@@ -163,7 +105,6 @@ export class FormsModule extends FormsCoreModule
 export class keymap extends KeyMap
 {
 	public static close:KeyMap = new KeyMap({key: 'w', ctrl: true});
-	public static login:KeyMap = new KeyMap({key: 'l', ctrl: true});
 	public static topmenu:KeyMap = new KeyMap({key: 'm', ctrl: true});
 	public static leftmenu:KeyMap = new KeyMap({key: 'f', ctrl: true});
 }

@@ -15,8 +15,6 @@
         - install_package
       loop:
         - sysstat
-        - git
-        - ansible
         - python3-psycopg2
         - npm
         - node-typescript

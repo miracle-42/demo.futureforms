@@ -20,7 +20,7 @@
 */
 
 import { FormList } from './FormList';
-import { MenuComponent } from 'forms42core';
+import { EventType, MenuComponent, MenuEvent } from 'forms42core';
 
 export class Menu extends MenuComponent
 {
@@ -39,24 +39,38 @@ export class Menu extends MenuComponent
 
 		this.menuelem = this.container.appendChild(this.menuelem);
 		this.target = this.menuelem;
+
+		this.addEventListener(this.hideSideBar,{type: EventType.OnMenuBlur})
+		this.addEventListener(this.showSideBar,{type: EventType.OnMenuFocus})
+
 		super.show();
 	}
 
-	public async hide() : Promise<void>
+	public async showSideBar(event:MenuEvent) : Promise<boolean>
 	{
-		super.hide();
+		if (event.menu != this)
+			return(true);
+
+		this.displayed = true;
+		this.container.style.minWidth = "150px";
+		this.container.classList.add("menu-left-open");
+
+		return(true);
+	}
+
+	public async hideSideBar(event:MenuEvent) : Promise<boolean>
+	{
+		if (event.menu != this)
+			return(true);
+
 		this.displayed = false;
 		this.container.style.minWidth = "0px";
 		this.container.classList.remove("menu-left-open");
+
+		return(true);
 	}
 
-	public display() : void
-	{
-		this.container.style.minWidth = "150px";
-		this.container.classList.add("menu-left-open");
-	}
-
-	public togglemenu() : void
+	public async togglemenu() : Promise<boolean>
 	{
 		if (this.displayed)
 		{
@@ -70,5 +84,6 @@ export class Menu extends MenuComponent
 		}
 
 		this.displayed = !this.displayed;
+		return(true);
 	}
 }

@@ -19,6 +19,7 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { BaseForm } from './BaseForm';
 import { Minimized } from './Minimized';
 
 import { FormHeader } from './fragments/FormHeader';
@@ -44,6 +45,8 @@ import { TrueFalseMapper } from './fields/TrueFalseMapper';
 
 import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, MouseMap } from 'forms42core';
 
+import { Lesson01 } from './lesson01/Lesson01';
+
 @FormsPathMapping(
 	[
 		{class: Fields, path: "/forms/fields"},
@@ -54,6 +57,8 @@ import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, F
 		{class: Employees, path: "/forms/employees"},
 		{class: Departments, path: "/forms/departments"},
 		{class: MasterDetail, path: "/forms/masterdetail"},
+
+		{class: Lesson01, path: "lesson01"},
 
 		{class: PhoneBookMembased, path: "/forms/phonebook"},
 
@@ -101,7 +106,7 @@ export class FormsModule extends FormsCoreModule
 		Connection.TRXTIMEOUT = 240;
 		Connection.CONNTIMEOUT = 120;
 
-		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
+		FormsModule.DATABASE = new Connection("http://localhost:9002");
 
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
@@ -200,7 +205,7 @@ export class FormsModule extends FormsCoreModule
 		{
 			if (!await FormsModule.DATABASE.connect(form.username,form.password))
 			{
-				//await FormsModule.DATABASE.sleep(2000);
+				await FormsModule.sleep(2000);
 
 				let forms:Form[] = this.getRunningForms();
 
@@ -210,8 +215,11 @@ export class FormsModule extends FormsCoreModule
 						await forms[i].close(true);
 				}
 
-				await this.login();
+				this.login();
+				return(false);
 			}
+
+			BaseForm.connectNeddle();
 		}
 
 		return(true);
@@ -225,7 +233,6 @@ export class FormsModule extends FormsCoreModule
 
 	public async showLeftMenu() : Promise<boolean>
 	{
-		this.leftmenu.display();
 		this.leftmenu.focus();
 		return(true);
 	}

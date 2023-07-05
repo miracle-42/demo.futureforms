@@ -5,7 +5,7 @@
 
 <div class="form">
 	<div class="block">
-		<div class="needle blue"></div>
+		<div class="needle red"></div>
 		<table>
 			<tr>
 				<th></th>
@@ -16,7 +16,6 @@
 			</tr>
 			<tr class="row" foreach="row in 1..6">
 				<td class="indicator"><span from="Departments" row="$row" type="row-indicator"></span></td>
-
 				<td><input name="department_id" 		from="Departments" row="$row" size="6"  integer></td>
 				<td><input name="department_name" 	from="Departments" row="$row" size="20" initcap></td>
 				<td><input name="manager" 				from="Departments" row="$row" size="20" derived readonly query="false"></td>

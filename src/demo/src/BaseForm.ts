@@ -36,6 +36,7 @@ export class BaseForm extends Form
 
 		this.moveable = true;
 		this.resizable = true;
+		this.navigable = true;
 
 		this.id = "f" + ++BaseForm.forms;
 		this.addEventListener(this.oninit,{type: EventType.PostViewInit});
@@ -49,6 +50,7 @@ export class BaseForm extends Form
 		let posX:number = off*px;
 		let posY:number = off*px + 20;
 
+		BaseForm.connectNeddle();
 		this.getView().style.top = posY + "px";
 		this.getView().style.left = posX + "px";
 
@@ -58,10 +60,15 @@ export class BaseForm extends Form
 
 	public toggle() : void
 	{
+
+		let toggle:HTMLElement = this.getView().querySelector(".toggle");
+
 		if (this.view == null)
 		{
 			this.view = this.getViewPort();
 			let avail:View = this.getParentViewPort();
+
+			toggle.innerHTML = "&#10697;"
 
 			avail.x = 0;
 			avail.y = 0;
@@ -72,6 +79,9 @@ export class BaseForm extends Form
 		}
 		else
 		{
+
+			toggle.innerHTML = "&#8414;"
+
 			this.setViewPort(this.view);
 			this.view = null;
 		}
@@ -90,4 +100,29 @@ export class BaseForm extends Form
 		let header:HTMLElement = this.getView().querySelector("[name='title']");
 		header?.appendChild(document.createTextNode(title));
 	}
+
+	public static async connectNeddle() : Promise<boolean>
+	{
+		let connect:boolean = FormsModule.DATABASE.connected();
+		let needle:NodeListOf<HTMLElement> = document.querySelectorAll(".needle");
+
+		if(needle.length == 0)
+			return(true);
+
+		for (let i = 0; i < needle.length; i++)
+		{
+				if(connect)
+				{
+					needle[i].classList.add("green");
+					needle[i].classList.remove("red");
+				}
+				else
+				{
+					needle[i].classList.add("red");
+					needle[i].classList.remove("green");
+				}
+		}
+		return(true);
+	}
+
 }

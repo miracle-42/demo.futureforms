@@ -64,35 +64,26 @@ export class Menu extends MenuComponent
       let cmWidth:number = this.menuelem.offsetWidth;
       let cmHeight:number = this.menuelem.offsetHeight;
 		
-		// if ( x > (winWidth - cmWidth - shareMenu.offsetWidth))
-		// shareMenu.style.left = "-200px";
-		// else
-		// {
-		// 	shareMenu.style.left = "";
-		// 	shareMenu.style.right = "-200px";
-		// }
-
       x = x > winWidth - cmWidth ? winWidth - cmWidth : x;
       y = y > winHeight - cmHeight ? winHeight - cmHeight : y;
 
       this.menuelem.style.top = y + "px";
       this.menuelem.style.left = x + "px";
       this.menuelem.style.display = "block";
-   }
 
-   public async hide(): Promise<void>
-	{
 		this.body.addEventListener("click", (event:MouseEvent) => {
 
 			let target = event.target as HTMLElement;
-			var parent:Element = target.parentElement.parentElement;
 
-			let menu = document.querySelector("menu[name='right-click']");
-			console.log(parent)
-			console.log(menu)
-			if(menu == parent){}
-			else this.menuelem.style.display ="none"
-		
+			console.log(this.menuelem.contains(target))
+			
+			if(this.menuelem != null)
+			{
+				if(!this.menuelem.contains(target))
+				{
+					this.menuelem.style.display = "none";
+				}
+			}
 		})	
    }
 

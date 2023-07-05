@@ -19,7 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "./FormsModule";
+import { EventType } from "./EventType.js";
+import { MenuComponent } from "../menus/MenuComponent.js";
 
-new FormsModule();
-console.log("0-empty Version 0.1");
+export interface MenuEvent
+{
+	type:EventType;
+	menu:MenuComponent;
+}

@@ -43,6 +43,7 @@ export class Form
 {
 	private block$:Block = null;
 	private viewfrm$:ViewForm = null;
+	private finalized$:boolean = false;
 	private parent$:InterfaceForm = null;
 	private datamodel$:DataModel = new DataModel();
 	private qrymgr$:QueryManager = new QueryManager();
@@ -97,6 +98,11 @@ export class Form
 		}
 
 		return(false);
+	}
+
+	public get finalized() : boolean
+	{
+		return(this.finalized$);
 	}
 
 	public get QueryManager() : QueryManager
@@ -165,7 +171,7 @@ export class Form
 			if (!dirty[i].ctrlblk)
 			{
 				if (!dirty[i].queried) await dirty[i].clear(false);
-				else await dirty[i].executeQuery(dirty[i].startNewQueryChain());
+				else 						  await this.executeQuery(dirty[i],true);
 			}
 		}
 
@@ -327,6 +333,7 @@ export class Form
 		{block.addColumns(this.BlockCoordinator.getLinkedColumns(block))});
 
 		await this.initControlBlocks();
+		this.finalized$ = true;
 	}
 
 	public getQueryMaster() : Block
@@ -467,10 +474,18 @@ export class Form
 	public async queryFieldDetails(block:string,field:string) : Promise<boolean>
 	{
 		let blk:Block = this.getBlock(block);
-		let newid:object = this.QueryManager.startNewChain();
+		let blocks:Block[] = this.blkcord$.getDetailBlocksForField(blk,field);
 
-		this.blkcord$.getDetailBlocksForField(blk,field).
-		forEach((detail) => {detail.executeQuery(newid)})
+		for (let i = 0; i < blocks.length; i++)
+		{
+			this.executeQuery(blocks[i],true);
+
+			let filters:boolean = false;
+			if (!blocks[i].QueryFilter.empty) filters = true;
+			if (!blocks[i].DetailFilter.empty) filters = true;
+
+			this.view.setFilterIndicator(blocks[i],filters);
+		}
 
 		return(true)
 	}

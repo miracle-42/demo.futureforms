@@ -164,15 +164,6 @@ export class Menu extends MenuComponent
 			entry = await this.findEntry("/topbar/form");
 			if (entry) entry.disabled = false;
          
-			if (FormsModule.DATABASE.connected())
-			{
-				entry = await this.findEntry("/topbar/query");
-				if (entry) entry.disabled = false;
-
-				entry = await this.findEntry("/topbar/record");
-				if (entry) entry.disabled = false;
-			}
-
 			this.show();
 		}
 

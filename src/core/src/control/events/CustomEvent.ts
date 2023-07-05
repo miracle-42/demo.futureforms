@@ -19,7 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "./FormsModule";
-
-new FormsModule();
-console.log("0-empty Version 0.1");
+export interface CustomEvent
+{
+	source:any;
+	jsevent:any;
+}

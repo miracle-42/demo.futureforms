@@ -60,7 +60,7 @@ export class DatePicker extends Form
 		this.addEventListener(this.setDate,
 		[
 			{type: EventType.OnEdit, field: "date"},
-			{type: EventType.WhenValidateField, field: "date"}
+			{type: EventType.PostChange, field: "date"}
 		]);
 
 		this.leftArrow = "<";

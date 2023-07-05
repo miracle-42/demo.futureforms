@@ -24,24 +24,26 @@ import { KeyMap } from "../../control/events/KeyMap.js";
 
 export class KeyMapPage
 {
-  private static ul:HTMLElement = null;
+	private static ul:HTMLElement = null;
 
-  public static show() : HTMLElement
-  {
-   this.ul = document.createElement("ul");
-   this.ul.classList.add("infommationKeyMap");
-    KeyMap.list().forEach(([name,desc]) => {
-     let li:HTMLElement = document.createElement("li");
-      li.innerHTML = "<label class='name'>" + name + "</label><label class='desc'>" + desc + "</label>";
-      this.ul.appendChild(li);
-    });
+	public static show() : HTMLElement
+	{
+		this.ul = document.createElement("ul");
+		this.ul.classList.add("InformationKeyMap");
 
-    return this.ul;
-  }
+		KeyMap.list().forEach(([name,desc]) =>
+		{
+			let li:HTMLElement = document.createElement("li");
+			li.innerHTML = "<label class='name'>" + name + "</label><label class='desc'>" + desc + "</label>";
+			this.ul.appendChild(li);
+		});
+
+		return this.ul;
+	}
 
 
-  public static hide()
-  {
-    this.ul.remove();
-  }
+	public static hide()
+	{
+		this.ul.remove();
+	}
 }

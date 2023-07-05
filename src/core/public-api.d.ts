@@ -6,7 +6,6 @@ export { Alert } from './src/application/Alert.js';
 export { RecordState } from './src/model/Record.js';
 export { Connection } from './src/public/Connection.js';
 export { FieldProperties } from './src/public/FieldProperties.js';
-
 export { QueryTable } from './src/database/QueryTable.js';
 export { DatabaseTable } from './src/database/DatabaseTable.js';
 export { ConnectionScope } from './src/database/ConnectionScope.js';
@@ -69,6 +68,8 @@ export { MouseMap } from './src/control/events/MouseMap.js';
 export { KeyCodes } from './src/control/events/KeyCodes.js';
 export { EventType } from './src/control/events/EventType.js';
 export { FormEvent } from './src/control/events/FormEvent.js';
+export { MenuEvent } from './src/control/events/MenuEvent.js';
+export { CustomEvent } from './src/control/events/CustomEvent.js';
 export { EventFilter } from './src/control/events/EventFilter.js';
 export { KeyMap, KeyDefinition } from './src/control/events/KeyMap.js';
 export { EventListenerClass as EventListener } from './src/control/events/EventListenerClass.js';

@@ -214,16 +214,22 @@ export class Block
 		else FormBacking.getModelForm(this.form).queryFieldDetails(this.name,field);
 	}
 
-	/** Navigate to previous row */
+	/** Navigate to previous record */
 	public async prevrecord() : Promise<boolean>
 	{
 		return(FormBacking.getViewBlock(this).prevrecord());
 	}
 
-	/** Navigate to next row */
+	/** Navigate to next record */
 	public async nextrecord() : Promise<boolean>
 	{
 		return(FormBacking.getViewBlock(this).nextrecord());
+	}
+
+	/** Navigate to row and optionally field @param row: the to navigate to*/
+	public async goRow(row:number) : Promise<boolean>
+	{
+		return(FormBacking.getViewBlock(this).goRow(row));
 	}
 
 	/** Navigate to field @param clazz: narrow in field*/

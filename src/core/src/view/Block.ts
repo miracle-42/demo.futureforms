@@ -115,6 +115,17 @@ export class Block
 
 	public async focus(ignore?:boolean) : Promise<boolean>
 	{
+		if (this.form.block != this && this.form.current)
+		{
+			if (!await this.form.current.field.validate(this.form.current))
+				return(false);
+
+			if (!await this.form.leave(this.form.current))
+				return(false);
+
+			this.form.current.blur(true);
+		}
+
 		if (this.curinst$)
 		{
 			this.curinst$.focus(ignore);
@@ -140,17 +151,6 @@ export class Block
 					console.log("No available fields in "+this.name+" in state "+RecordState[state]);
 
 				return(false);
-			}
-
-			if (this.curinst$)
-			{
-				if (!await this.curinst$.field.validate(this.current))
-					return(false);
-
-				if (!await this.form.leave(this.curinst$))
-					return(false);
-
-				this.curinst$.blur(true);
 			}
 
 			if (!await this.form.enter(inst))
@@ -207,15 +207,28 @@ export class Block
 			return(false);
 		}
 
-		if (this.current)
+		if (this.form.block != this && this.form.current)
 		{
-			if (!await this.current.field.validate(this.current))
+			if (!await this.form.current.field.validate(this.form.current))
 				return(false);
 
-			if (!await this.form.leave(this.current))
+			if (!await this.form.leave(this.form.current))
 				return(false);
 
-			this.current.blur(true);
+			this.form.current.blur(true);
+		}
+
+		else
+
+		if (this.curinst$)
+		{
+			if (!await this.curinst$.field.validate(this.curinst$))
+				return(false);
+
+			if (!await this.form.leave(this.curinst$))
+				return(false);
+
+			this.curinst$.blur(true);
 		}
 
 		if (!await this.form.enter(inst))
@@ -481,6 +494,9 @@ export class Block
 
 	public async validateField(inst:FieldInstance, value?:any) : Promise<boolean>
 	{
+		if (this.model.getValue(inst.name) == inst.getValue())
+			return(true);
+
 		await this.setEventTransaction(EventType.WhenValidateField);
 		let success:boolean = await this.fireFieldEvent(EventType.WhenValidateField,inst);
 		this.endEventTransaction(EventType.WhenValidateField,success);
@@ -496,6 +512,9 @@ export class Block
 				else success = await this.model.form.queryFieldDetails(this.name,inst.name);
 			}
 		}
+
+		if (success)
+			success = await this.fireFieldEvent(EventType.PostChange,inst);
 
 		return(success);
 	}
@@ -593,6 +612,50 @@ export class Block
 		this.endEventTransaction(EventType.OnEdit,success);
 
 		return(success);
+	}
+
+	public async goRow(row:number) : Promise<boolean>
+	{
+		if (row > this.rows)
+			return(false);
+
+		if (this.getRow(row).status == Status.na)
+			return(false);
+
+		if (this.form.block != this && this.form.current)
+		{
+			if (!await this.form.validate())
+				return(false);
+
+			if (!await this.form.leave(this.form.current))
+				return(false);
+
+			this.form.current.blur(true);
+		}
+
+		else
+
+		if (this.curinst$)
+		{
+			if (!await this.getCurrentRow().validate())
+				return(false);
+
+			if (!await this.form.leave(this.curinst$))
+				return(false);
+
+			this.curinst$.blur(true);
+		}
+
+		let idx:number = this.getCurrentRow().getFieldIndex(this.current);
+		let inst:FieldInstance = this.getRow(row)?.getFieldByIndex(idx);
+
+		if (inst)
+		{
+			inst.focus();
+			return(true);
+		}
+
+		return(false);
 	}
 
 	public async prevrecord() : Promise<boolean>

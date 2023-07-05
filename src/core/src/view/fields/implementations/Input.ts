@@ -675,7 +675,7 @@ export class Input implements FieldImplementation, EventListenerObject
 				if (this.event.key >= '0' && this.event.key <= '9')
 					pass = true;
 
-				if (this.event.key == "-" && !this.getElementValue().includes("-"))
+				if (this.event.key == "-" && !this.getElementValue().includes("-") && pos == 0)
 					pass = true;
 
 				if (this.maxlen != null && this.getElementValue().length >= this.maxlen)
@@ -723,7 +723,7 @@ export class Input implements FieldImplementation, EventListenerObject
 				if (this.event.key == "." && !this.getElementValue().includes("."))
 					pass = true;
 
-				if (this.event.key == "-" && !this.getElementValue().includes("-"))
+				if (this.event.key == "-" && !this.getElementValue().includes("-") && pos == 0)
 						pass = true;
 
 				if (this.maxlen != null && this.getElementValue().length >= this.maxlen)

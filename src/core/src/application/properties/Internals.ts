@@ -49,11 +49,12 @@ export class Internals
 	`
 		gap:2px;
 		display:grid;
-		overflow: hidden;
+		hyphens:auto;
 		padding:10px 20px;
 		align-items: center;
 		align-content: center;
 		justify-content: center;
+		overflow-wrap: break-word;
 	`;
 
 	public static PopupStyleDiv =

@@ -39,6 +39,7 @@ export class Connection extends BaseConnection
 	private modified$:Date = null;
 	private secret$:string = null;
 	private keepalive$:number = 20;
+	private running$:boolean = false;
 	private tmowarn$:boolean = false;
 	private scope$:ConnectionScope = ConnectionScope.transactional;
 
@@ -96,6 +97,11 @@ export class Connection extends BaseConnection
 		return(this.modified$ != null);
 	}
 
+	public hasKeepAlive() : boolean
+	{
+		return(this.running$);
+	}
+
 	public async connect(username?:string, password?:string) : Promise<boolean>
 	{
 		this.touched$ = null;
@@ -148,7 +154,9 @@ export class Connection extends BaseConnection
 		this.keepalive$ = (+response.timeout * 4/5)*1000;
 		await FormEvents.raise(FormEvent.AppEvent(EventType.Connect));
 
-		this.keepalive();
+		if (!this.running$)
+			this.keepalive();
+
 		return(true);
 	}
 
@@ -623,18 +631,33 @@ export class Connection extends BaseConnection
 
 	private async keepalive() : Promise<void>
 	{
+		this.running$ = true;
 		await FormsModule.sleep(this.keepalive$);
 
 		if (!this.connected())
+		{
+			this.running$ = false;
 			return;
+		}
 
+		let conn:string = this.conn$;
 		let response:any = await this.post(this.conn$+"/ping",{keepalive: true});
+
+		if (this.conn$ != conn)
+		{
+			this.touched$ = null;
+			this.modified$ = null;
+			this.tmowarn$ = false;
+			this.keepalive();
+			return;
+		}
 
 		if (!response.success)
 		{
 			this.conn$ = null;
 			Alert.warning(response.message,"Database Connection");
 			await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
+			this.running$ = false;
 			return(response);
 		}
 

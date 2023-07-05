@@ -28,6 +28,13 @@ import { EventFilter } from '../control/events/EventFilter.js';
  */
 export class EventListener
 {
+	/** Remove an eventlistener. This should also be done before setView is called */
+	public removeEventListener(handle:object) : void
+	{
+		FormEvents.removeListener(handle);
+	}
+
+	/** Add an eventlistener */
 	public addEventListener(method:TriggerFunction, filter?:EventFilter|EventFilter[]) : object
 	{
 		return(FormEvents.addListener(null,this,method,filter));

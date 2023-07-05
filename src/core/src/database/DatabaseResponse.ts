@@ -52,16 +52,22 @@ export class DatabaseResponse
 		column = column?.toLowerCase();
 		let row:any = this.response$.rows[0];
 
+		if (!this.converted$ && this.columns$.length == 0)
+		{
+			Object.keys(row).forEach((col) =>
+			this.columns$.push(col.toLowerCase()));
+		}
+
 		if (!Array.isArray(row) && !this.converted$)
 		{
 			let flat:any[] = [];
 			Object.values(row).forEach((val) => flat.push(val));
 
 			row = flat;
-			this.converted$ = true;
 			this.response$.rows[0] = flat;
 		}
 
+		this.converted$ = true;
 		return(row[this.columns$.indexOf(column)]);
 	}
 }

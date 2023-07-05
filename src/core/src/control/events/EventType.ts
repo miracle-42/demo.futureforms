@@ -40,6 +40,9 @@ export enum EventType
 	Connect,
 	Disconnect,
 
+	OnMenuBlur,
+	OnMenuFocus,
+
 	onNewForm,
 	OnCloseForm,
 
@@ -60,6 +63,7 @@ export enum EventType
 
 	PreField,
 	PostField,
+	PostChange,
 
 	OnEdit,
 	WhenValidateField,

@@ -19,11 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormEvent } from "../control/events/FormEvent.js";
-import { MenuEvent } from "../control/events/MenuEvent.js";
-import { CustomEvent } from "../control/events/CustomEvent.js";
+import { EventType } from "./EventType.js";
+import { MenuComponent } from "../menus/MenuComponent.js";
 
-export interface TriggerFunction
+export interface MenuEvent
 {
-    (event?:FormEvent|MenuEvent|CustomEvent) : Promise<boolean>;
+	type:EventType;
+	menu:MenuComponent;
 }

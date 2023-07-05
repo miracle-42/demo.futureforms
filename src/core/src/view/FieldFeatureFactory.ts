@@ -213,7 +213,7 @@ export class FieldFeatureFactory
 			if (props.getAttribute("type")?.toLowerCase() == "radio")
 				tag.setAttribute("value",props.value);
 
-			if (props.getValidValues().size > 0)
+			if (props.getValidValues().size > 0 && !(tag instanceof HTMLSelectElement))
 				FieldFeatureFactory.createDataList(inst,props);
 		}
 
@@ -280,56 +280,52 @@ export class FieldFeatureFactory
 	public static createDataList(inst:FieldInstance, props:FieldProperties) : void
 	{
 		let tag:HTMLElement = inst.element;
-		let type:string = props.getAttribute("type");
 
-		if (tag instanceof HTMLInputElement && (type == null || type == "text"))
+		let datalist:HTMLDataListElement = null;
+		let list:string = props.getAttribute("list");
+
+		if (list == null)
+			list = inst.defaultProperties.getAttribute("values");
+
+		if (list == null)
 		{
-			let datalist:HTMLDataListElement = null;
-			let list:string = props.getAttribute("list");
-
-			if (list == null)
-				list = inst.defaultProperties.getAttribute("values");
-
-			if (list == null)
-			{
-				list = "list"+(FieldFeatureFactory.lists++);
-				props.setAttribute("list",list);
-				tag.setAttribute("list",list);
-				inst.defaultProperties.setAttribute("values",list);
-			}
-
-			list = list.toLowerCase();
-			let candidates:HTMLCollectionOf<Element> = inst.form.getView().getElementsByTagName("list");
-
-			for (let i = 0; i < candidates.length; i++)
-			{
-				if (candidates.item(i).id?.toLowerCase() == list.toLowerCase())
-				{
-					datalist = candidates.item(i) as HTMLDataListElement;
-					break;
-				}
-			}
-
-			if (datalist == null)
-			{
-				datalist = document.createElement("datalist");
-				tag.appendChild(datalist);
-				datalist.id = list;
-			}
-
-			while(datalist.options.length > 0)
-				datalist.options.item(0).remove();
-
-			props.getValidValues().forEach((value) =>
-			{
-				if (value.length > 0)
-				{
-					let option:HTMLOptionElement = new Option();
-					option.value = value;
-					datalist.appendChild(option);
-				}
-			})
+			list = "list"+(FieldFeatureFactory.lists++);
+			props.setAttribute("list",list);
+			tag.setAttribute("list",list);
+			inst.defaultProperties.setAttribute("values",list);
 		}
+
+		list = list.toLowerCase();
+		let candidates:HTMLCollectionOf<Element> = inst.form.getView().getElementsByTagName("list");
+
+		for (let i = 0; i < candidates.length; i++)
+		{
+			if (candidates.item(i).id?.toLowerCase() == list.toLowerCase())
+			{
+				datalist = candidates.item(i) as HTMLDataListElement;
+				break;
+			}
+		}
+
+		if (datalist == null)
+		{
+			datalist = document.createElement("datalist");
+			tag.appendChild(datalist);
+			datalist.id = list;
+		}
+
+		while(datalist.options.length > 0)
+			datalist.options.item(0).remove();
+
+		props.getValidValues().forEach((value) =>
+		{
+			if (value.length > 0)
+			{
+				let option:HTMLOptionElement = new Option();
+				option.value = value;
+				datalist.appendChild(option);
+			}
+		})
 	}
 
 	public static setReadOnlyState(tag:HTMLElement, props:FieldProperties, flag:boolean) : void

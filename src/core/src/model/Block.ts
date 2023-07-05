@@ -383,6 +383,9 @@ export class Block
 			else success = await this.form.queryFieldDetails(this.name,field);
 		}
 
+		if (success)
+			success = await this.fire(EventType.PostChange,field);
+
 		return(success);
 	}
 
@@ -987,6 +990,9 @@ export class Block
 			return(true);
 
 		if (this.view.empty())
+			return(true);
+
+		if (!this.form.finalized)
 			return(true);
 
 		let qryid:object = this.getQueryID();

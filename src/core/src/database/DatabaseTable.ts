@@ -113,6 +113,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (this.cursor$ && !this.cursor$.eof)
 			this.conn$.close(this.cursor$);
+
+		this.cursor$ = null;
 	}
 
 	public clone() : DatabaseTable
@@ -357,7 +359,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.warning("Not connected","Database Connection");
+			Alert.fatal("Not connected","Database Connection");
 			return([]);
 		}
 
@@ -486,7 +488,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.warning("Not connected","Database Connection");
+			Alert.fatal("Not connected","Database Connection");
 			return(null);
 		}
 
@@ -534,7 +536,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.warning("Not connected","Database Connection");
+			Alert.fatal("Not connected","Database Connection");
 			return(false);
 		}
 

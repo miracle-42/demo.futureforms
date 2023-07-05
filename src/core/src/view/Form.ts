@@ -197,13 +197,11 @@ export class Form implements EventListenerObject
 
 	public async focus() : Promise<boolean>
 	{
-		let elem:HTMLElement = null;
+		let inst:FieldInstance = this.curinst$;
+		if (!inst && this.blocks$.size > 0) inst = this.blocks$.values().next().value.current;
 
-		if (this.curinst$) elem = this.curinst$.element;
-		else if (this.blocks$.size > 0) elem = this.blocks$.values().next().value.current.element;
-
-		if (!elem) return(false);
-		elem.focus();
+		if (!inst) return(false);
+		inst.focus();
 	}
 
 	public dragfields(header:HTMLElement) : void
@@ -416,6 +414,7 @@ export class Form implements EventListenerObject
 			}
 		}
 
+		nxtblock.current = inst;
 		FormBacking.setCurrentForm(this);
 		nxtblock.setCurrentRow(inst.row,true);
 

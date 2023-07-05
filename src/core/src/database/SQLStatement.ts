@@ -25,6 +25,7 @@ import { DataType } from "./DataType.js";
 import { BindValue } from "./BindValue.js";
 import { Connection } from "./Connection.js";
 import { Alert } from "../application/Alert.js";
+import { DatabaseResponse } from "./DatabaseResponse.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 
 export class SQLStatement
@@ -40,6 +41,8 @@ export class SQLStatement
 	private records$:any[][] = null;
 	private conn$:Connection = null;
 	private columns$:string[] = null;
+	private returning$:boolean = false;
+	private retvals:DatabaseResponse = null;
 	private bindvalues$:Map<string,BindValue> = new Map<string,BindValue>();
 
 	public constructor(connection:DatabaseConnection)
@@ -73,6 +76,16 @@ export class SQLStatement
 		return(this.columns$);
 	}
 
+	public get returnvalues() : boolean
+	{
+		return(this.returning$);
+	}
+
+	public set returnvalues(flag:boolean)
+	{
+		this.returning$ = flag;
+	}
+
 	public get arrayfetch() : number
 	{
 		return(this.arrayfecth$);
@@ -104,11 +117,12 @@ export class SQLStatement
 		let type:string = this.sql$.trim().substring(0,6);
 
 		let sql:SQLRest = new SQLRest();
+		if (this.returning$) sql.returnclause = true;
 
 		sql.stmt = this.sql$;
 		sql.bindvalues = [...this.bindvalues$.values()];
 
-		if (type == "select")
+		if (type == "select" || this.returning$)
 			this.cursor$ = new Cursor();
 
 		switch(type?.toLowerCase())
@@ -136,6 +150,10 @@ export class SQLStatement
 			this.records$ = this.parse(this.response$);
 		}
 
+		if (this.returning$)
+			this.retvals = new DatabaseResponse(this.response$,null);
+
+
 		return(success);
 	}
 
@@ -161,6 +179,19 @@ export class SQLStatement
 
 		this.records$ = this.parse(this.response$);
 		return(this.fetch());
+	}
+
+	public getReturnValue(column:string, type?:DataType|string) : any
+	{
+		let value:any = this.retvals.getValue(column);
+
+		if (type)
+		{
+			if (typeof type != "string") type = DataType[type]; type = type.toLowerCase();
+			if (type == "date" || type == "datetime" || type == "timestamp") value = new Date(value);
+		}
+
+		return(value);
 	}
 
 	public async close() : Promise<boolean>

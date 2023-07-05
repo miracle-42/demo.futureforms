@@ -2,21 +2,22 @@ export { Form } from './src/public/Form.js';
 export { Block } from './src/public/Block.js';
 export { Record } from './src/public/Record.js';
 export { Key } from './src/model/relations/Key.js';
+export { Alert } from './src/application/Alert.js';
 export { RecordState } from './src/model/Record.js';
 export { Connection } from './src/public/Connection.js';
 export { FieldProperties } from './src/public/FieldProperties.js';
-
 export { QueryTable } from './src/database/QueryTable.js';
 export { DatabaseTable } from './src/database/DatabaseTable.js';
 export { ConnectionScope } from './src/database/ConnectionScope.js';
 export { DatabaseConnection } from './src/public/DatabaseConnection.js';
 
-export { DataSource } from './src/model/interfaces/DataSource.js';
 export { MemoryTable } from './src/model/datasources/MemoryTable.js';
+export { DataSource, LockMode } from './src/model/interfaces/DataSource.js';
 
-export { Alert } from './src/internal/forms/Alert.js';
+export { KeyMapPage} from './src/internal/forms/KeyMapPage.js';
 export { DatePicker } from './src/internal/forms/DatePicker.js';
 export { QueryEditor } from './src/internal/forms/QueryEditor.js';
+export { Alert as AlertForm } from './src/internal/forms/Alert.js';
 export { Classes as InternalClasses } from './src/internal/Classes.js';
 export { UsernamePassword } from './src/internal/forms/UsernamePassword.js';
 
@@ -39,15 +40,16 @@ export { Tag as CustomTag } from './src/application/tags/Tag.js';
 export { Filters } from './src/model/filters/Filters.js';
 export { Filter } from './src/model/interfaces/Filter.js';
 export { FilterStructure } from './src/model/FilterStructure.js';
+export { CustomFilter } from './src/model/filters/CustomFilter.js';
 
 export { Like } from './src/model/filters/Like.js';
 export { ILike } from './src/model/filters/ILike.js';
+export { AnyOf } from './src/model/filters/AnyOf.js';
 export { Equals } from './src/model/filters/Equals.js';
-export { AnyOff } from './src/model/filters/AnyOff.js';
+export { IsNull } from './src/model/filters/IsNull.js';
 export { Between } from './src/model/filters/Between.js';
 export { Contains } from './src/model/filters/Contains.js';
 export { LessThan } from './src/model/filters/LessThan.js';
-export { NullFilter } from './src/model/filters/NullFilter.js';
 export { GreaterThan } from './src/model/filters/GreaterThan.js';
 export { DateInterval } from './src/model/filters/DateInterval.js';
 
@@ -66,8 +68,11 @@ export { MouseMap } from './src/control/events/MouseMap.js';
 export { KeyCodes } from './src/control/events/KeyCodes.js';
 export { EventType } from './src/control/events/EventType.js';
 export { FormEvent } from './src/control/events/FormEvent.js';
+export { MenuEvent } from './src/control/events/MenuEvent.js';
+export { CustomEvent } from './src/control/events/CustomEvent.js';
 export { EventFilter } from './src/control/events/EventFilter.js';
 export { KeyMap, KeyDefinition } from './src/control/events/KeyMap.js';
+export { EventListenerClass as EventListener } from './src/control/events/EventListenerClass.js';
 
 export { Class } from './src/types/Class.js';
 export { Column } from './src/application/Column.js';

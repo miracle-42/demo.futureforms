@@ -55,6 +55,9 @@ export class Alert
 		params.set("fatal",fatal);
 		params.set("warning",warning);
 
+		if (fatal)
+			console.error(new Error().stack)
+
 		let curr:Form = FormBacking.getCurrentForm();
 		if (curr) curr.callform(Classes.AlertClass,params);
 		else FormsModule.get().showform(Classes.AlertClass,params);

@@ -29,11 +29,12 @@ import { dates } from '../model/dates/dates.js';
 import { Form as ViewForm } from '../view/Form.js';
 import { Loading } from '../internal/forms/Loading.js';
 import { Form as InternalForm } from '../internal/Form.js';
-import { FormEvents } from '../control/events/FormEvents.js';
+import { EventType } from '../control/events/EventType.js';
 import { TriggerFunction } from '../public/TriggerFunction.js';
 import { EventFilter } from '../control/events/EventFilter.js';
 import { KeyMap, KeyMapping } from '../control/events/KeyMap.js';
 import { DatabaseConnection } from '../public/DatabaseConnection.js';
+import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
 import { ApplicationHandler } from '../control/events/ApplicationHandler.js';
 
 export class FormsModule
@@ -197,6 +198,12 @@ export class FormsModule
 	public showLoading(message:string) : number
 	{
 		return(Loading.show(message));
+	}
+
+	public async raiseCustomEvent(source:any) : Promise<boolean>
+	{
+		let frmevent:FormEvent = FormEvent.AppEvent(EventType.OnMenuBlur,source);
+		return(FormEvents.raise(frmevent));
 	}
 
 	public removeEventListener(id:object) : void

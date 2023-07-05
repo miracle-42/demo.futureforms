@@ -93,6 +93,8 @@ export class QueryTable extends SQLSource implements DataSource
 	{
 		if (this.cursor$ && !this.cursor$.eof)
 			this.conn$.close(this.cursor$);
+
+		this.cursor$ = null;
 	}
 
 	public clone() : QueryTable
@@ -257,7 +259,7 @@ export class QueryTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.warning("Not connected","Database Connection");
+			Alert.fatal("Not connected","Database Connection");
 			return(false);
 		}
 

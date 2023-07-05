@@ -159,4 +159,19 @@
       tags:
         - pack_archive
 
+    - name: Start openrestdb web-server
+      ansible.builtin.command:
+        cmd: ./bin/openrestdb start
+        creates: "{{ install_path }}/demo/logs/inst00/server.log.0"
+      args:
+        chdir: "{{ install_path }}/demo"
+      tags:
+        - start_openrestdb
+
+    - name: Start Firefox web-browser
+      ansible.builtin.command:
+        cmd: firefox http://localhost:9002/
+      tags:
+        - start_firefox
+
 # vim: tabstop=2 expandtab :

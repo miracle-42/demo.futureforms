@@ -161,7 +161,7 @@ public class HTTPServer extends Thread
       return;
     }
 
-    logger.info("Starting HTTPServer("+type+")");
+    logger.info("Starting HTTPServer("+type+":"+port+")");
 
     try
     {

@@ -81,6 +81,7 @@ export class FormsModule extends FormsCoreModule
 	private jobs:KeyMap = new KeyMap({key: 'J', ctrl: true});
 	private fields:KeyMap = new KeyMap({key: 'F', ctrl: true});
 	private countries:KeyMap = new KeyMap({key: 'C', ctrl: true});
+	private lesson01:KeyMap = new KeyMap({key: 'Y', ctrl: true});
 	private locations:KeyMap = new KeyMap({key: 'L', ctrl: true});
 	private phonebook:KeyMap = new KeyMap({key: 'P', ctrl: true});
 	private employees:KeyMap = new KeyMap({key: 'E', ctrl: true});
@@ -126,6 +127,7 @@ export class FormsModule extends FormsCoreModule
 			{type:EventType.Key,key:this.jobs},
 			{type:EventType.Key,key:this.fields},
 			{type:EventType.Key,key:this.countries},
+			{type:EventType.Key,key:this.lesson01},
 			{type:EventType.Key,key:this.locations},
 			{type:EventType.Key,key:this.phonebook},
 			{type:EventType.Key,key:this.employees},
@@ -161,6 +163,9 @@ export class FormsModule extends FormsCoreModule
 
 		if (event.key == this.masterdetail)
 			this.showform(MasterDetail);
+
+		if (event.key == this.lesson01)
+			this.showform(Lesson01);
 
 		return(true);
 	}

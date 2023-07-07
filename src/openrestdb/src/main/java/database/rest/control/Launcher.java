@@ -257,6 +257,14 @@ public class Launcher implements ILauncher
 
     out.println();
 
+    // Instance & Ports
+    out.print("Instance: "+config.instance());
+    out.print(", SSL: "+config.getPorts().ssl);
+    out.print(", Plain: "+config.getPorts().plain);
+    out.print(", Admin: "+config.getPorts().admin);
+    out.println();
+    out.println();
+
     Topology topology = config.getTopology();
     out.println("Cores: "+Topology.cores+", Waiters: "+topology.waiters+", Workers: "+topology.workers);
     out.println();

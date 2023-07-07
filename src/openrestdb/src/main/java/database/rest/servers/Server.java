@@ -176,7 +176,7 @@ public class Server extends Thread
       ProcessMonitor.watchManager();
 
     Thread.sleep(50);
-    logger.info("Instance startet"+System.lineSeparator());
+    logger.info("Instance startet: "+this.config.instance()+System.lineSeparator());
   }
 
 

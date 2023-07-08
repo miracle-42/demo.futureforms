@@ -160,15 +160,15 @@
     - name: Start openrestdb web-server
       ansible.builtin.command:
         cmd: ./bin/openrestdb start
-        creates: "{{ install_path }}/demo/logs/inst00/server.log.0"
+        creates: "{{ install_path }}/demo/logs/inst00/server.log.0.lck"
       args:
         chdir: "{{ install_path }}/demo"
       tags:
         - start_openrestdb
 
     - name: Start Firefox web-browser
-      ansible.builtin.command:
-        cmd: firefox http://localhost:9002/
+      ansible.builtin.shell:
+        cmd: "firefox http://localhost:9002/ > /dev/null 2>&1 &"
       tags:
         - start_firefox
 

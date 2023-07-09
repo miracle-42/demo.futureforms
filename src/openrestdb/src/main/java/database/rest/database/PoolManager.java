@@ -68,8 +68,8 @@ public class PoolManager extends Thread
       if (pp != null) pp.init();
 
       int pidle = (pp == null) ? 3600000 : pp.idle();
-      int aidle = (fp == null) ? 3600000 : fp.idle();
-      int sleep = (pidle < aidle) ? pidle * 1000/4 : aidle * 1000/4;
+      int fidle = (fp == null) ? 3600000 : fp.idle();
+      int sleep = (pidle < fidle) ? pidle * 1000/4 : fidle * 1000/4;
 
       while(true)
       {
@@ -89,8 +89,45 @@ public class PoolManager extends Thread
   }
 
 
-  private void cleanout(Pool pool)
+  public void validate()
   {
+      logger.warning("Validating pool");
+
+      try
+      {
+        Pool pp = config.getDatabase().proxy;
+        Pool fp = config.getDatabase().fixed;
+
+        if (fp != null) checkall(fp);
+        if (pp != null) checkall(pp);
+      }
+      catch (Exception e)
+      {
+        logger.log(Level.SEVERE,e.getMessage(),e);
+      }
+  }
+
+
+  private synchronized void checkall(Pool pool)
+  {
+    ArrayList<Database> conns = pool.connections();
+
+    for (int i = 0; i < conns.size(); i++)
+    {
+      Database conn = conns.get(i);
+
+      if (!conn.validate(false))
+      {
+        logger.fine("connection lost");
+          pool.remove(conn,0);
+      }
+    }
+  }
+
+
+  private synchronized void cleanout(Pool pool)
+  {
+    boolean checkall = false;
     long time = System.currentTimeMillis();
     ArrayList<Database> conns = pool.connections();
 
@@ -101,14 +138,22 @@ public class PoolManager extends Thread
     for (int i = conns.size() - 1; i >= 0 && size > min; i--)
     {
       Database conn = conns.get(i);
-      if (time - conn.touched() > idle)
+      long touched = conn.touched();
+      boolean timedout = (time - touched > idle);
+
+      if (timedout || !conn.validate(false))
       {
         size--;
-        logger.fine("connection: "+conn+" timed out");
-        pool.remove(conn);
+        if (!timedout) checkall = true;
+
+        if (!timedout) logger.fine("connection lost");
+        else           logger.fine("connection: "+conn+" timed out");
+
+        pool.remove(conn,touched);
       }
     }
 
+    if (checkall) checkall(pool);
     logger.finest(pool.toString());
   }
 }

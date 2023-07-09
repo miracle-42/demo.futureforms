@@ -262,9 +262,6 @@ public class Rest
 
       for (int i = 0; i < services.length(); i++)
       {
-        String cont = "\n";
-        if (i < services.length() - 1) cont += ",\n";
-
         JSONObject spload = null;
         JSONObject service = services.getJSONObject(i);
 
@@ -1418,6 +1415,7 @@ public class Rest
 
         releaseAll();
         fatal = session.release(true);
+        rest.server.poolmanager().validate();
       }
 
       return(rest.error(err,fatal));

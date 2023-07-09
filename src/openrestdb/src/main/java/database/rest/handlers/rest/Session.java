@@ -86,7 +86,7 @@ public class Session
     this.username = username;
     this.scope = getScope(scope);
     this.lock = new SessionLock();
-    this.guid = SessionManager.register(config, this);
+    this.guid = SessionManager.register(config,this);
   }
 
 
@@ -144,7 +144,7 @@ public class Session
         }
         else
         {
-          pool.remove(database);
+          pool.remove(database,-1);
         }
 
         SessionManager.remove(guid);

@@ -29,11 +29,11 @@ public enum DatabaseType
   Generic("database.rest.database.impl.Generic");
 
 
-  public final Class clazz;
+  public final Class<?> clazz;
 
   private DatabaseType(String clazz)
   {
-    Class cl = null;
+    Class<?> cl = null;
     try {cl = Class.forName(clazz);}
     catch (Throwable e) {e.printStackTrace();}
     this.clazz = cl;

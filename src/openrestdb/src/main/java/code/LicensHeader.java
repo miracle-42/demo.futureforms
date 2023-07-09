@@ -52,7 +52,7 @@ public class LicensHeader
   {
     next(new File("/Users/alex/Repository/forms42/core/src"));
     next(new File("/Users/alex/Repository/forms42/demo/src"));
-    next(new File("/Users/alex/Repository/DatabaseJS/projects/openrestdb/src"));
+    next(new File("/Users/alex/Repository/OpenRestDB/projects/openrestdb/src"));
   }
 
 

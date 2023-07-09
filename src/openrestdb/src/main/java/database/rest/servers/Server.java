@@ -289,6 +289,12 @@ public class Server extends Thread
   }
 
 
+  public PoolManager poolmanager()
+  {
+    return(pmgr);
+  }
+
+
   public void setManager()
   {
     if (ProcessMonitor.aquireManagerLock())

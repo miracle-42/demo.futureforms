@@ -56,7 +56,6 @@ public class PreAuthTable
   private final int extend;
   private final int offset;
   private final int entries;
-  private final int timeout;
   private final MappedByteBuffer shmmem;
 
   public static final int EXTENDS = 128;
@@ -88,7 +87,6 @@ public class PreAuthTable
     }
 
     this.shmmem = fc.map(FileChannel.MapMode.READ_WRITE,0,EXTENDS*EXTENDSIZE);
-    this.timeout = config.getSSO().timeout;
 
     this.extend = current();
 
@@ -218,19 +216,15 @@ public class PreAuthTable
     private int extend = 0;
     private int offset = 0;
     private int entries = 0;
-    private final int timeout;
     private final PreAuthTable table;
-    private final MappedByteBuffer shmmem;
 
 
     private Reader(PreAuthTable table)
     {
       this.table = table;
-      this.shmmem = table.shmmem;
       this.extend = table.extend;
       this.offset = table.offset;
       this.entries = table.entries;
-      this.timeout = table.timeout * 1000;
     }
 
 
@@ -269,19 +263,15 @@ public class PreAuthTable
     private int extend = 0;
     private int offset = 0;
     private int entries = 0;
-    private final int timeout;
     private final PreAuthTable table;
-    private final MappedByteBuffer shmmem;
 
 
     private Writer(PreAuthTable table)
     {
       this.table = table;
-      this.shmmem = table.shmmem;
       this.extend = table.extend;
       this.offset = table.offset;
       this.entries = table.entries;
-      this.timeout = table.timeout * 1000;
     }
 
 

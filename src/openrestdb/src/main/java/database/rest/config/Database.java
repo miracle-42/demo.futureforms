@@ -105,14 +105,14 @@ public class Database
     if (rewclass == null) this.rewriter = null;
     else
     {
-      Constructor contructor = Class.forName(rewclass).getDeclaredConstructor();
+      Constructor<?> contructor = Class.forName(rewclass).getDeclaredConstructor();
       this.rewriter = (SQLRewriter) contructor.newInstance();
     }
 
     if (valclass == null) this.validator = null;
     else
     {
-      Constructor contructor = Class.forName(valclass).getDeclaredConstructor();
+      Constructor<?> contructor = Class.forName(valclass).getDeclaredConstructor();
       this.validator = (SQLValidator) contructor.newInstance();
     }
 

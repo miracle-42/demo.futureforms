@@ -165,6 +165,12 @@ public abstract class Database
 
   public boolean validate()
   {
+    return(validate(true));
+  }
+
+
+  public boolean validate(boolean log)
+  {
     try
     {
       String sql = getTestSQL();
@@ -183,7 +189,7 @@ public abstract class Database
     }
     catch (Exception e)
     {
-      logger.log(Level.WARNING,e.getMessage(),e);
+      if (log) logger.log(Level.WARNING,e.getMessage(),e);
       return(false);
     }
   }

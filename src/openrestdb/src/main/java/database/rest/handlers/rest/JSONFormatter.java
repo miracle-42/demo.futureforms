@@ -86,7 +86,6 @@ public class JSONFormatter
   }
 
 
-  @SuppressWarnings("unchecked")
   public void add(ArrayList<Object[]> list)
   {
     content.add(list.toArray(new Object[0][]));

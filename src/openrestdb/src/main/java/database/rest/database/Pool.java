@@ -116,19 +116,26 @@ public class Pool
 
     Database database = DatabaseUtils.getInstance();
     database.connect(username,password);
+    database.touch();
 
     return(database);
   }
 
 
-  public synchronized boolean remove(Database database)
+  public synchronized boolean remove(Database database, long touched)
   {
     if (!pool.remove(database))
       return(false);
 
+    if (touched > 0 && touched != database.touched())
+    {
+      this.add(database);
+      return(false);
+    }
+
     size--;
     database.disconnect();
-    logger.fine("Pool["+(proxy ? "proxy" : "anonymous")+"] connection closed");
+    logger.fine("Pool["+(proxy ? "proxy" : "fixed")+"] connection closed");
 
     return(true);
   }
@@ -255,7 +262,7 @@ public class Pool
 
   public String toString()
   {
-    return("Pool["+(proxy ? "proxy" : "anonymous")+"] "+"size: "+size+" free: "+pool.size());
+    return("Pool["+(proxy ? "proxy" : "fixed")+"] "+"size: "+size+" free: "+pool.size());
   }
 
 

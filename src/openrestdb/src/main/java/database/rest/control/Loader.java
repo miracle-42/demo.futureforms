@@ -48,10 +48,10 @@ public class Loader extends ClassLoader
     new HashMap<String,Class<?>>();
 
 
-  public Loader(Class... skip)
+  public Loader(Class<?>... skip)
   {
     super(null);
-    for(Class skc : skip)
+    for(Class<?> skc : skip)
       this.skip.add(skc.getName());
   }
 
@@ -65,13 +65,13 @@ public class Loader extends ClassLoader
   }
 
 
-  public Class<?> getClass(Class clazz) throws Exception
+  public Class<?> getClass(Class<?> clazz) throws Exception
   {
     return(findClass(clazz.getName().replace('.','/')));
   }
 
 
-  public void addClass(Class clazz) throws Exception
+  public void add(Class<?> clazz) throws Exception
   {
     load(clazz);
   }
@@ -114,6 +114,8 @@ public class Loader extends ClassLoader
       }
     }
 
+    jarfile.close();
+
     for (int i = 0; i < 16 && failed.size() > 0; i++)
     {
       for (int j = 0; j < failed.size(); j++)
@@ -139,7 +141,7 @@ public class Loader extends ClassLoader
   }
 
 
-  private void load(Class local) throws Exception
+  private void load(Class<?> local) throws Exception
   {
     String name = local.getName().replace('.','/');
 
@@ -177,7 +179,9 @@ public class Loader extends ClassLoader
       return(clazz);
     }
     catch (Throwable e)
-    {return(null);}
+    {
+      return(null);
+    }
   }
 
 

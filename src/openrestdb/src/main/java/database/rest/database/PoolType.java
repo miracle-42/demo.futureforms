@@ -25,5 +25,5 @@ package database.rest.database;
 public enum PoolType
 {
   Proxy,
-  Anonymous
+  Fixed
 }

@@ -157,7 +157,7 @@ public class Handlers
       }
 
       HandlerProperties properties = new HandlerProperties(prefix,this.methods);
-      Constructor contructor = Class.forName(clazz).getDeclaredConstructor(Config.class,HandlerProperties.class);
+      Constructor<?> contructor = Class.forName(clazz).getDeclaredConstructor(Config.class,HandlerProperties.class);
 
       this.handler = (Handler) contructor.newInstance(config,properties);
     }

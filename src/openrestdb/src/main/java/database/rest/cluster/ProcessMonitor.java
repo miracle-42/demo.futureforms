@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import database.rest.config.Paths;
-import database.rest.config.Config;
 import database.rest.servers.Server;
 import java.nio.channels.FileChannel;
 
@@ -36,7 +35,6 @@ import java.nio.channels.FileChannel;
 public class ProcessMonitor
 {
   private final Server server;
-  private final Config config;
   private final FileChannel channel;
   private static ProcessMonitor mon = null;
 
@@ -52,7 +50,6 @@ public class ProcessMonitor
   ProcessMonitor(Server server) throws Exception
   {
     this.server = server;
-    this.config = server.config();
     File lfile = new File(getFileName());
 
     if (!lfile.exists())

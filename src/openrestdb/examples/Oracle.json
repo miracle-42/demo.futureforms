@@ -1,0 +1,552 @@
+{
+	"info": {
+		"_postman_id": "c0b7c25d-7c73-455c-a771-92482dc32f82",
+		"name": "Oracle",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SSO",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"scope\": \"shared\",\n    \"anonymous\": false,\n    \"auth.method\": \"sso\",\n    \"auth.secret\": \"50822e6ee63d\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9002/connect",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"connect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"scope\": \"transaction\",\n    \"auth.method\": \"OAuth\",\n    \"auth.secret\": \"10c3c323-ae10-4204-85e5-50822e6ee63d\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9002/connect",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"connect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"private\": true,\n    \"username\": \"alex1\",\n    \"scope\": \"transaction\",\n    \"auth.method\": \"token\",\n    \"auth.secret\": \"10c3c323-ae10-4204-85e5-50822e6ee63d\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/connect",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"connect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Database",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"hr\",\n    \"scope\": \"transaction\",\n    \"auth.method\": \"database\",\n    \"auth.secret\": \"hr\"\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:9002/connect",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"connect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sql\":\"select user from dual\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query Emp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rows\": 5,\n    \"skip\": 0,\n    \"compact\": false,\n    \"cursor\":\"employees\",\n    \"dateformat\": \"d-M-YYYY\"\n    ,\n    \"sql\":\"select * from hr.employees where employee_id > :id\",\n    \"bindvalues\":[{\"name\":\"id\",\"type\":\"number\",\"value\":\"50\"}]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query Emp File",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rows\": 5,\n    \"compact\": true,\n    \"cursor\":\"employees\",\n    \"dateformat\": \"UTC\"\n    ,\n    \"sql\":\"@employees.sql\",\n    \"bindvalues\":[{\"name\":\"id\",\"type\":\"number\",\"value\":\"50\"}]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cursor\": \"employees\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec/fetch",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec",
+						"fetch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Insert",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sql\": \"insert into hr.test values (:id,:text) returning id into &newid\",\n    \"bindvalues\":\n    [\n    \t{\"name\":\"id\",\"type\":\"number\",\"value\": 50},\n    \t{\"name\":\"created\",\"type\":\"date\",\"value\": 1641206941768},\n    \t{\"name\":\"text\",\"type\":\"varchar\",\"value\":\"Hello World\"},\n    \t{\"name\":\"newid\",\"type\":\"number\"},\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec?returning=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					],
+					"query": [
+						{
+							"key": "returning",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sql\": \"update hr.test set text = :text where id = :id\",\n    \"bindvalues\":\n    [\n    \t{\"name\":\"id\",\"type\":\"number\",\"value\": 50},\n    \t{\"name\":\"text\",\"type\":\"varchar\",\"value\":\"Hello World II\"}\n    ]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sql\": \"delete from hr.test where id = :id\",\n    \"bindvalues\":[{\"name\":\"id\",\"type\":\"number\",\"value\": 50}]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Function",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sql\": \"value = hr.GetTestFunc(:id)\",\n    \"bindvalues\":\n    [\n    \t{\"name\":\"id\",\"type\":\"number\",\"value\": 50},\n    \t{\"name\":\"value\",\"type\":\"varchar\"}\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Procedure",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sql\": \"hr.CreateTestProc(:id,:text)\",\n    \"bindvalues\":\n    [\n    \t{\"name\":\"id\",\"type\":\"number\",\"value\": 50},\n    \t{\"name\":\"text\",\"type\":\"varchar\",\"value\":\"Hello World II\"}\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Procedure In/Out",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sql\": \"hr.GetTestProc(:id,&text)\",\n    \"bindvalues\":\n    [\n    \t{\"name\":\"id\",\"type\":\"number\",\"value\": 50},\n    \t{\"name\":\"text\",\"type\":\"varchar\"}\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Batch",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"savepoint\": false\n    ,\n    \"batch\":\n    [\n        {\n            \"path\": \"/connect\",\n            \"payload\":\n            {\n                \"username\": \"alex1\",\n                \"scope\": \"none\",\n                \"auth.method\": \"token\",\n                \"auth.secret\": \"11c3c323-ae10-4204-85e5-50822e6ee63e\"\n            }\n        }\n        ,\n        {\n            \"path\": \"/exec\",\n            \"payload\":\n            {\n                \"sql\":\"select user from dual\"\n            }\n        }\n        ,\n        {\n            \"path\": \"/exec\",\n            \"payload\":\n            {\n                \"rows\": 5,\n                \"compact\": true,\n\n                \"sql\":\"select * from hr.employees where employee_id > :id\",\n                \"bindvalues\":[{\"name\":\"id\",\"type\":\"number\",\"value\":50}]\n            }\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Script",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"script\":\n    [\n        {\n            \"path\": \"/connect\",\n            \"payload\":\n            {\n                \"username\": \"alex1\",\n                \"scope\": \"none\",\n                \"auth.method\": \"token\",\n                \"auth.secret\": \"10c3c323-ae10-4204-85e5-50822e6ee63d\"\n            }\n        }\n        ,\n        {\n            \"path\": \"/exec\",\n            \"payload\":\n            {\n                \"rows\": 2,\n                \"compact\": true,\n\n                \"sql\":\"select * from hr.employees where employee_id > :id\",\n                \"bindvalues\":[{\"name\":\"id\",\"type\":\"number\",\"value\":100}]\n            }\n        }\n        ,\n        {\n            \"path\": \"/map\",\n            \"payload\":\n            {\n                \"fname\": \"FIRST_NAME\",\n                \"lname\": \"LAST_NAME[1]\"\n            }\n        }\n        ,\n        {\n            \"path\": \"/exec\",\n            \"payload\":\n            {\n                \"sql\":\"select :fname||' '||:lname name from dual\"\n            }\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/exec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"exec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Commit",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/commit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"commit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rollback",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/rollback",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"rollback"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Disconnect",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/disconnect",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"disconnect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get File",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:9002/files/xxxxxxxxxx/test/test1.txt",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"files",
+						"xxxxxxxxxx",
+						"test",
+						"test1.txt"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"keepalive\": true\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9002/xxxxxxxxxx/ping",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"xxxxxxxxxx",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:9002/status",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9002",
+					"path": [
+						"status"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

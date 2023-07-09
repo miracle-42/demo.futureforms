@@ -1,0 +1,32 @@
+---
+
+- hosts: localhost
+
+  vars:
+    - install_path: ../build
+
+  tasks:
+    - name: Remove build files and directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      tags:
+        - remove-files
+      loop:
+        - "{{ install_path }}"
+        - ../src/core/package-lock.json
+        - ../src/core/node_modules/
+        - ../src/demo/package-lock.json
+        - ../src/demo/node_modules/
+        - ../src/openrestdb/target/
+
+    - name: "Delete all *.d.ts header files in src/"
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+      tags:
+        - delete-d-ts-files
+      loop:
+        - "find ../src/core/src/ -name '*.d.ts' -delete"
+        - "find ../src/demo/src/ -name '*.d.ts' -delete"
+
+# vim: tabstop=2 expandtab :

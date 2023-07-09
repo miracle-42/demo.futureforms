@@ -22,6 +22,16 @@
         - maven
         - postgresql
 
+    - name: Create dir core+demo
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      tags:
+        - create-demo-openrestdb
+      loop:
+        - "{{ install_path }}/core"
+        - "{{ install_path }}/demo/data"
+
     - name: Futureforms core npm install
       ansible.builtin.command:
         cmd: npm install
@@ -77,13 +87,6 @@
       become_user: postgres
       tags:
         - create-hr-db
-
-    - name: Create dir demo
-      ansible.builtin.file:
-        path: "{{ install_path }}/demo/data"
-        state: directory
-      tags:
-        - create-demo-openrestdb
 
     - name: Copy initial data.sql for archive
       ansible.builtin.copy:

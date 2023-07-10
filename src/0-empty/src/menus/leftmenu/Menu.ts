@@ -42,14 +42,6 @@ export class Menu extends MenuComponent
 		super.show();
 	}
 
-	public async hide() : Promise<void>
-	{
-		super.hide();
-		this.displayed = false;
-		this.container.style.minWidth = "0px";
-		this.container.classList.remove("menu-left-open");
-	}
-
 	public display() : void
 	{
 		this.container.style.minWidth = "150px";

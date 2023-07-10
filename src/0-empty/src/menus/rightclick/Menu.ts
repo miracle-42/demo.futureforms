@@ -72,22 +72,6 @@ export class Menu extends MenuComponent
       this.menuelem.style.display = "block";
    }
 
-   public async hide(): Promise<void>
-	{
-		this.body.addEventListener("click", (event:MouseEvent) => {
-
-			let target = event.target as HTMLElement;
-			var parent:Element = target.parentElement.parentElement;
-
-			let menu = document.querySelector("menu[name='right-click']");
-			console.log(parent)
-			console.log(menu)
-			if(menu == parent){}
-			else this.menuelem.style.display ="none"
-		
-		})	
-   }
-
    @formevent({type: EventType.Connect})
 	public async onConnect() : Promise<boolean>
 	{

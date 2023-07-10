@@ -71,6 +71,8 @@ export class FormsModule extends FormsCoreModule
 		Connection.TRXTIMEOUT = 240;
 		Connection.CONNTIMEOUT = 120;
 
+		// Match URI without 'index.html' in the end.
+		// Use first element [0] from match.
 		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
 
 

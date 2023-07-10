@@ -19,8 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "../../FormsModule";
 import { Commands } from './Commands';
+import { FormsModule } from '../../FormsModule';
 import { EventType, FormEvent, formevent, MenuComponent, MenuEntry } from 'forms42core';
 
 export class Menu extends MenuComponent

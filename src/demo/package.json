@@ -2,11 +2,11 @@
   "name": "test",
   "version": "1.0.0",
   "type": "module",
-  "description": "Test suite for forms42core",
+  "description": "Demo suite for forms42core",
   "scripts": {
     "test": "cd dist && ls",
     "server": "live-server --port=5500 --open=./dist/index.html &",
-    "build": "webpack --mode production && cp index.html *.css ../../build/demo/app/ && cp -a images ../../build/demo/app/"
+    "build": "webpack --mode production && cp index.html *.css dist/ && cp -a images dist/ && rm -rf ../../build/demo/tmp/*"
   },
   "keywords": [],
   "author": "Alex Høffner",

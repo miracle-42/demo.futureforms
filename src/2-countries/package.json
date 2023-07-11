@@ -6,7 +6,7 @@
   "scripts": {
     "test": "cd dist && ls",
     "server": "live-server --port=5500 --open=./dist/index.html &",
-    "build": "webpack --mode production && cp index.html *.css dist && cp -a images dist/"
+    "build": "webpack --mode production && cp index.html *.css dist && cp -a images dist/ && rm -rf ../../build/2-countries/tmp/*"
   },
   "keywords": [],
   "author": "Alex Høffner",

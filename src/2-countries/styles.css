@@ -105,7 +105,7 @@ tr td span:hover
 	background: transparent;
 }
 
-.left-menu-container menu[name="left-menu"]
+.left-menu-container .left-menu
 {
 	width:100%;
 	padding:0px;
@@ -392,7 +392,7 @@ div.modal
    	background-size: 20px;
 	transition: all 0.18s ease;
 	background-repeat: no-repeat;
-	background-image: url('images/icons8-info-50.png');
+	background-image: url(images/icons8-info-50.png);
 }
 
 .info .info-dropdown
@@ -661,7 +661,7 @@ div[name="login"]
 	visibility: visible !important;
 }
 
-.infomation	.infommationKeyMap
+.infomation	.InformationKeyMap
 {
 	top:100%;
 	right:-10px;

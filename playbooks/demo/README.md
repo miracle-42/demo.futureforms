@@ -41,7 +41,7 @@ and will take up about 1.1GB disk space.
 Go to the directory and start the webserver:
 
 ```
-cd build/openrestdb.demo/
+cd build/demo/
 bin/openrestdb start
 ```
 

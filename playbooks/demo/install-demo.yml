@@ -169,10 +169,4 @@
       tags:
         - start_openrestdb
 
-    - name: Start Firefox web-browser
-      ansible.builtin.shell:
-        cmd: "firefox http://localhost:9002/ > /dev/null 2>&1 &"
-      tags:
-        - start_firefox
-
 # vim: tabstop=2 expandtab :

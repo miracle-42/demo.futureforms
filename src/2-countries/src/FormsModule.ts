@@ -94,6 +94,9 @@ export class FormsModule extends FormsCoreModule
 		]);
 
 		this.OpenURLForm();
+		//FormsModule.DATABASE.connect("hr","hr");
+		//this.showform(Countries);
+
 	}
 
 	private async open(event:FormEvent) : Promise<boolean>

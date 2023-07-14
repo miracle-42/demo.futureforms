@@ -73,7 +73,7 @@ The empty Countries table is now shown.
 
 ![Countries](img/ffscreenshot_5.png)
 
-Click `Query` and `Execute` in the top menu or press the key `F8`.
+Click "Query -> Execute" in the top menu or press the key `F8`.
 
 ![Execute](img/ffscreenshot_6.png)
 
@@ -113,7 +113,7 @@ Open the form 'Locations' by clicking the
 
 ![Locations](img/ffscreenshot_14.png)
 
-Press F8 (Query, Execute) to load data.
+Press F8 "Query -> Execute" to load data.
 
 ![LocationsData](img/ffscreenshot_15.png)
 

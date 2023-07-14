@@ -52,6 +52,11 @@ Now the frontscreen can be seen.
 
 ![Frontscreen](img/ffscreenshot_1.png)
 
+Mouse over the upper right corner to see the
+keyboard shortcuts.
+
+![Shortcut](img/ffscreenshot_20.png)
+
 Click `Connection` in the menu bar and then `Connect`.
 
 ![Connect](img/ffscreenshot_2.png)
@@ -75,6 +80,80 @@ Click `Query` and `Execute` in the top menu or press the key `F8`.
 Now the table is filled with data from the database.
 
 ![CountryNames](img/ffscreenshot_7.png)
+
+**Make changes** to the data.
+When changes are made,
+one can decide to *undo* (rollback) if it was a mistake,
+or *enter* (commit) if it should be stored in the database.
+
+Add a '1' after 'Denmark' and note the 'Transaction' becomes
+active in the top menu..
+
+![Denmark1](img/ffscreenshot_10.png)
+
+If you don't do anything for 2 minutes then a dialog
+will pop up and warn about it will be rolled back.
+
+![Denmark1RollBack](img/ffscreenshot_11.png)
+
+Now add a '2' to 'Denmark' and click
+"Transaction -> Commit (F10)" in the top menu.
+
+![Denmark2Commit](img/ffscreenshot_12.png)
+
+Add en new record by clicking
+"Record -> Insert -> Below"
+and type 'DE' and 'Germany'.
+Click 'Commit' to save it.
+
+![Germany](img/ffscreenshot_13.png)
+
+Open the form 'Locations' by clicking the
+*burger* menu and 'Locations.
+
+![Locations](img/ffscreenshot_14.png)
+
+Press F8 (Query, Execute) to load data.
+
+![LocationsData](img/ffscreenshot_15.png)
+
+Change to row from 'Finland' to 'Germany'.
+Place the cursor after 'Finland' and open
+the Data Picker by clicking the dotted menu on the right.
+
+![LocationsDataPicker](img/ffscreenshot_16.png)
+
+The Data Picker is pre-filled with the current value.
+Erase the current value.
+
+![LocationsFinland](img/ffscreenshot_17.png)
+
+When the top field is empty type 'd'
+and you will see both 'Germany' and 'Denmark' in the list
+as the two-letter-code 'DE' for Germany starts with a 'd'.
+
+![LocationsD](img/ffscreenshot_18.png)
+
+Select 'Germany' by clicking on it.
+
+![LocationsPickDE](img/ffscreenshot_19.png)
+
+Delete 'Germany' from the Countries list by clicking
+"Record -> Delete" in the top menu.
+Followed by Commit (F10).
+
+![CountriesDelGermany](img/ffscreenshot_21.png)
+
+Update the 'Locations' form by first set focus on it
+and then click "Query -> Execute".
+Note that 'Germany' is missing.
+
+![LocationsNoGermany](img/ffscreenshot_22.png)
+
+Change 'DE' to 'FI' and press 'Enter'.
+Press F10 to save.
+
+![LocationsSelDK](img/ffscreenshot_23.png)
 
 ---
 

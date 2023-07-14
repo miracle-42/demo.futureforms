@@ -108,7 +108,7 @@ Click 'Commit' to save it.
 
 ![Germany](img/ffscreenshot_13.png)
 
-Open the form 'Locations' by clicking the
+Open the 'Locations' form by clicking the
 *burger* menu and 'Locations.
 
 ![Locations](img/ffscreenshot_14.png)
@@ -134,7 +134,7 @@ as the two-letter-code 'DE' for Germany starts with a 'd'.
 
 ![LocationsD](img/ffscreenshot_18.png)
 
-Select 'Germany' by clicking on it.
+Select 'Germany' by double click on it.
 
 ![LocationsPickDE](img/ffscreenshot_19.png)
 

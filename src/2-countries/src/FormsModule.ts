@@ -75,6 +75,9 @@ export class FormsModule extends FormsCoreModule
 		// Use first element [0] from match.
 		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
 
+                // If the the database connection should be connected on load,
+                // with a default public password, uncomment following line:
+                //FormsModule.DATABASE.connect("hr","hr");
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
 
@@ -93,8 +96,13 @@ export class FormsModule extends FormsCoreModule
 			{type:EventType.Key,key:this.countries},
 		]);
 
+		// Open a form on load. Add the form in the URL:
+		// http://localhost:9002/?form=/forms/countries
+		// This functionality is handled by following method:
 		this.OpenURLForm();
-		//FormsModule.DATABASE.connect("hr","hr");
+
+		// If a specific form should be opened on load,
+		// uncomment following line:
 		//this.showform(Countries);
 
 	}

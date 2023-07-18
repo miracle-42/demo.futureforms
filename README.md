@@ -4,19 +4,26 @@
 
 FutureForms Javascript REST API library
 
-FutureForms is a Typescript library for fast and easy development of data entry forms.
+FutureForms is a Typescript library for fast and easy development of data entry forms and lists.
 
 Turn a HTML table into a database view, search and edit form with a few edits.
 
-Go to the [install section](#install-futureforms-featured-demo-and-tutorial-installation) .
+The primary purpose of FutureForms is to handle internal applications on the intranet.
+To list and edit complex relational data structures for the internal organisation.
+
+As database backends FutureForms supports both PostgreSQL and Oracle.
+Static read-only list in Javascript is also supported.
+
+To try out FutureForms go to the
+[install section](#install-futureforms-featured-demo-and-tutorial-installation) .
 
 ## Stack
 
-A normal Full-stack development consist of af front-end, a back-end and a database.
-In FutureForms this is cut down to a front-end, a generic back-end and a database.
+A normal Full-stack development consist of af front-end, a backend and a database.
+In FutureForms this is cut down to a front-end, a generic backend and a database.
 
 Here the sketch shows the Javascript application running in the client browser
-and then sending SQL to the `openrestdb` back-end.
+and then sending SQL to the `openrestdb` backend.
 The `openrestdb` converts the SQL to the appropriate database driver
 and sends the result back to the client.
 
@@ -28,19 +35,22 @@ is in the front-end.
 Eventually some business logic is written in a
 stored procedure in the database.
 
-The back-end (web server) is a generic components so none of the
+The backend (web server) is a generic components so none of the
 application code is written in here.
 
 ![Figure: Compare Business Logic](img/compare-business-logic.svg)
 
 ## Security
 
-FutureForms is primarily ment to be used for intra-net.
+FutureForms is primarily ment to be used for intranet.
 SQL-statements are written in the Javascript application
-and then passed through the back-end directly to the database.
+and then passed through the backend directly to the database.
 
 It is therefore necessary to protect with `GRANT` and other
 security technics.
+
+SQL-statments like `DROP` and `CREATE` can be blacklisted in `openrestdb`
+but it is recommended to only `GRANT` necessary statements in the database itself.
 
 ![Figure: Compare Security](img/compare-security.svg)
 
@@ -113,4 +123,6 @@ If you want to develop yourself you should start from the tutorial list:
 
 * [0-empty](playbooks/0-empty/) minimal FutureForms template
 * [1-login](playbooks/1-login/) simple database login dialog
-* [2-countries](playbooks/2-countries/) one table display
+* [2-countries](playbooks/2-countries/) one table list & edit
+* [3-employees](playbooks/3-employees/) one table list & edit with detailed view
+* [4-masterdetail](playbooks/4-masterdetail/) two table display

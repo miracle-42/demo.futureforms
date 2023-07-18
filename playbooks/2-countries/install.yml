@@ -115,3 +115,11 @@
         replace: "\"instance\": \"openrestdb-{{ app_name }}\","
       tags:
         - fix_instance_name
+
+    - name: "Run the following commands:"
+      ansible.builtin.debug:
+        msg:
+          - "Start web-service by running: ./build/{{ app_name }}/bin/openrestdb start"
+          - "Then open: http://localhost:91{{ app_number }}2/"
+      tags:
+        - msg_start

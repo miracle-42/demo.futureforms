@@ -2,30 +2,38 @@
 
 *Release 0.1*
 
-FutureForms Javascript REST API library
+FutureForms is for *Javascript only* web sites.
 
-FutureForms is a Typescript library for fast and easy development of data entry forms and lists.
+FutureForms is a Javascript REST API library.
+
+FutureForms is a Typescript library for fast and easy development of data entry forms and views.
 
 Turn a HTML table into a database view, search and edit form with a few edits.
 
-The primary purpose of FutureForms is to handle internal applications on the intranet.
+The primary purpose of FutureForms is to be used for internal applications on the intranet.
 To list and edit complex relational data structures for the internal organisation.
 
-As database backends FutureForms supports both PostgreSQL and Oracle.
-Static read-only list in Javascript is also supported.
+Business application vs. Static: FutureForms is primarily made for interactive applications where
+you edit & search for data like Google.
+Static data like Wikipedia & dictionaries is not the primary focus for FutureForms.
+Data entry applications is the main focus.
+
+As database backends FutureForms supports both PostgreSQL and Oracle RDBMS.
+Build in static read-only list in Javascript is also supported.
 
 To try out FutureForms go to the
 [install section](#install-futureforms-featured-demo-and-tutorial-installation) .
 
 ## Stack
 
-A normal Full-stack development consist of af front-end, a backend and a database.
+A normal Full-stack development consist of a front-end, a backend and a database.
 In FutureForms this is cut down to a front-end, a generic backend and a database.
 
 Here the sketch shows the Javascript application running in the client browser
-and then sending SQL to the `openrestdb` backend.
-The `openrestdb` converts the SQL to the appropriate database driver
-and sends the result back to the client.
+and then sending SQL statements encapsulated in JSON to the `openrestdb` backend.
+The `openrestdb` converts the SQL to the appropriate database driver,
+sends the request to the database in the native protocol
+and sends the result back to the client in JSON format.
 
 ![Figure: Building Blocks](img/blocks.svg)
 

@@ -28,6 +28,7 @@ export enum Navigation
 export interface MenuOptions
 {
 	skiproot?:boolean;
+	openroot?:boolean;
 	singlepath?:boolean;
 	openOnHoover?:boolean;
 	navigation?:Navigation;

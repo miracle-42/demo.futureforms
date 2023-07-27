@@ -25,7 +25,7 @@ import { Departments as DepartmentBlock} from "./Departments";
 import { Jobs as JobTable } from '../datasources/database/Jobs';
 import { Employees as EmployeeTable } from "../datasources/database/Employees";
 import { Departments as DepartmentTable } from '../datasources/database/Departments';
-import { BindValue, Block, DatabaseResponse, EventType, FieldProperties, Filter, Filters, FilterStructure, Form, formevent, FormEvent, ListOfValues } from "forms42core";
+import { BindValue, Block, DatabaseResponse, EventType, Filter, Filters, FilterStructure, Form, formevent, FormEvent, ListOfValues } from "forms42core";
 
 export class Employees extends Block
 {
@@ -105,17 +105,11 @@ export class Employees extends Block
 
 		if (salary < limit[0] || salary > limit[1])
 		{
-			let props:FieldProperties = null;
-			this.form.warning("Salary should be between "+limit[0]+" and "+limit[1],"Validation");
+			this.warning("Salary should be between "+limit[0]+" and "+limit[1],"Validate Salary");
 
-			props = this.getRecord().getProperties("last_name");
-			this.getRecord().setProperties(props.setStyle("color","deeppink"),"last_name");
-
-			props = this.getRecord().getProperties("first_name");
-			this.getRecord().setProperties(props.setStyle("color","deeppink"),"first_name");
-
-			props = this.getRecord().getProperties("salary");
-			this.getRecord().setProperties(props.setStyle("color","deeppink"),"salary");
+			this.getRecord().setStyle("salary","color","deeppink");
+			this.getRecord().setStyle("last_name","color","deeppink");
+			this.getRecord().setStyle("first_name","color","deeppink");
 		}
 		else
 		{

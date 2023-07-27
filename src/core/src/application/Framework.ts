@@ -330,9 +330,6 @@ export class Framework
 
 			impl.element.remove();
 
-			if (impl.name == Properties.RootTag)
-				this.root = replace[0];
-
 			for(let r=0; r < replace.length; r++)
 				this.parseDoc(replace[r]);
 		}

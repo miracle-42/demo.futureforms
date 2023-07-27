@@ -32,6 +32,9 @@ import { FormEvent } from "../../control/events/FormEvent.js";
 import { FieldProperties } from "../../public/FieldProperties.js";
 import { Internals } from "../../application/properties/Internals.js";
 
+/**
+ * Form used for creating more advanced query-filters
+ */
 export class QueryEditor extends Form
 {
 	private type:string = null;

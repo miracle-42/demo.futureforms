@@ -468,7 +468,7 @@ export class Form implements EventListenerObject
 		if (!await this.setEventTransaction(EventType.PreForm)) return(false);
 		let success:boolean = await this.fireFormEvent(EventType.PreForm,form.parent);
 		this.model.endEventTransaction(EventType.PreForm,null,success);
-		if (success && form.parent.navigable) this.setURL();
+		if (success && FormsModule.get().showurl) this.setURL();
 		return(success);
 	}
 
@@ -645,6 +645,12 @@ export class Form implements EventListenerObject
 			else if (this.curinst$?.field.block.model.querymode) key = KeyMap.executequery;
 		}
 
+		if (key.key == "enter" && key.shift)
+		{
+			if (inst?.field.row.status == Status.insert)
+				key = KeyMap.insert;
+		}
+
 		let frmevent:FormEvent = FormEvent.KeyEvent(this.parent,inst,key);
 
 		if (!await FormEvents.raise(frmevent))
@@ -722,18 +728,25 @@ export class Form implements EventListenerObject
 			if (key == KeyMap.enterquery)
 			{
 				if (qmode) return(true);
+
+				if (!inst.field.block.model.queryallowed)
+					return(false);
+
 				success = await this.model.enterQuery(inst.field.block.model);
 				return(success);
 			}
 
 			if (key == KeyMap.executequery)
 			{
-				inst.blur(true);
-				success = await this.model.executeQuery(inst.field.block.model);
-				inst.focus(true);
+				if (inst.field.block.model.queryallowed)
+				{
+					inst.blur(true);
 
-				inst.ignore = "blur";
-				return(success);
+					success = await this.model.executeQuery(inst.field.block.model,false,true);
+					inst.focus(true);
+
+					return(success);
+				}
 			}
 
 			if (key == KeyMap.queryeditor)
@@ -1158,7 +1171,7 @@ export class Form implements EventListenerObject
 
 		let map:string = FormsModule.getFormPath(this.parent.name);
 
-		if (map != null && this.parent.navigable)
+		if (map != null && FormsModule.get().showurl)
 		{
 			params.set("form",map)
 			window.history.replaceState('','',path+"?"+params);

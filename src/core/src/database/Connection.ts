@@ -33,6 +33,7 @@ import { FormEvent, FormEvents } from "../control/events/FormEvents.js";
 
 export class Connection extends BaseConnection
 {
+	private locks$:number = 0;
 	private trx$:object = null;
 	private conn$:string = null;
 	private touched$:Date = null;
@@ -60,6 +61,11 @@ export class Connection extends BaseConnection
 	{
 		super(url);
 		Connection.conns$.push(this);
+	}
+
+	public get locks() : number
+	{
+		return(this.locks$);
 	}
 
 	public get scope() : ConnectionScope
@@ -196,6 +202,7 @@ export class Connection extends BaseConnection
 
 		if (response.success)
 		{
+			this.locks$ = 0;
 			this.touched$ = null;
 			this.modified$ = null;
 		}
@@ -226,6 +233,7 @@ export class Connection extends BaseConnection
 
 		if (response.success)
 		{
+			this.locks$ = 0;
 			this.touched$ = null;
 			this.modified$ = null;
 		}
@@ -398,6 +406,7 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
+		this.locks$++;
 		this.tmowarn$ = false;
 		this.touched$ = new Date();
 		this.modified$ = new Date();

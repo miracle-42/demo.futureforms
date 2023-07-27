@@ -28,10 +28,25 @@ import { EventFilter } from '../../control/events/EventFilter.js';
 import { EventListenerClass } from '../../control/events/EventListenerClass.js';
 
 
-export const formevent = (filter:EventFilter|EventFilter[]) =>
+/**
+ *
+ * Annotations provides a short and easy way to inject code.
+ *
+ * The following:
+ *
+ * @formevent({type: EventType.PostChange, block: "ctrl", field: "name"})
+ * public async postchange() : Promise<boolean>
+ *
+ * Will create and inject an event-listener that will invoke the postchange()
+ * when a PostChange event occurs on the name field in the ctrl block.
+ *
+ */
+export const formevent = (filter?:EventFilter|EventFilter[]) =>
 {
 	function define(lsnr:any, method:string)
 	{
+		if (!filter) filter = {};
+
 		if (lsnr instanceof Form)
 		{
 			FormMetaData.get(lsnr,true).formevents.set(method,filter);

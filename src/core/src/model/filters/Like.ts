@@ -24,6 +24,10 @@ import { Filter } from "../interfaces/Filter.js";
 import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The Like filter resembles the like operator in SQL.
+ */
 export class Like implements Filter
 {
 	private column$:string = null;

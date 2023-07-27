@@ -474,6 +474,9 @@ export class Block
 		if (this.querymode)
 			return(false);
 
+		if (!this.source$.insertallowed)
+			return(false);
+
 		if (!this.view.hasInsertableFields())
 		{
 			Alert.warning("'"+this.name+"' has no allowed input fields","Insert Record");
@@ -527,6 +530,9 @@ export class Block
 	public async delete() : Promise<boolean>
 	{
 		if (this.querymode)
+			return(false);
+
+		if (!this.source$.deleteallowed)
 			return(false);
 
 		if (!this.checkEventTransaction(EventType.PreDelete))

@@ -19,6 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Definition of a Menu entry.
+ * If command is defined, then the Menu execute method
+ * is called with this command as the argument
+ */
 export interface MenuEntry
 {
 	id:any;

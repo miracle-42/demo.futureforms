@@ -23,6 +23,12 @@ import { Record } from "./Record.js";
 import { Filter } from "./interfaces/Filter.js";
 import { BindValue } from "../database/BindValue.js";
 
+/**
+ * Filters is a key component when communicating with a backend.
+ *
+ * A FilterStructure is a tree like collection of filters. It embraces
+ * the where-clause in sql.
+ */
 export class FilterStructure
 {
 	public name:string = null;

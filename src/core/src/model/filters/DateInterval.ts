@@ -22,6 +22,12 @@
 import { Between } from "./Between.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The DateInterval filter extends the Between filter and should
+ * be used instead of constructions like trunc(col) = trunc(date)
+ * that in most cases cannot use an index on the column.
+ */
 export class DateInterval extends Between
 {
 	public constructor(column:string)

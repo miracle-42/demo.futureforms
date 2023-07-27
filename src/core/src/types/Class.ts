@@ -19,6 +19,12 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Definition of the type 'Class'
+ * Javascript doesn't have a suitable
+ * definition of a Class, especially since
+ * it is not really Object Oriented
+ */
 export type Class<T> =
 {
     new(...args: any[]) : T;

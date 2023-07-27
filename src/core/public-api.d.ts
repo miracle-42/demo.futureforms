@@ -5,9 +5,9 @@ export { Key } from './src/model/relations/Key.js';
 export { Alert } from './src/application/Alert.js';
 export { RecordState } from './src/model/Record.js';
 export { Connection } from './src/public/Connection.js';
-export { FieldProperties } from './src/public/FieldProperties.js';
 export { QueryTable } from './src/database/QueryTable.js';
 export { DatabaseTable } from './src/database/DatabaseTable.js';
+export { FieldProperties } from './src/public/FieldProperties.js';
 export { ConnectionScope } from './src/database/ConnectionScope.js';
 export { DatabaseConnection } from './src/public/DatabaseConnection.js';
 
@@ -75,7 +75,6 @@ export { KeyMap, KeyDefinition } from './src/control/events/KeyMap.js';
 export { EventListenerClass as EventListener } from './src/control/events/EventListenerClass.js';
 
 export { Class } from './src/types/Class.js';
-export { Column } from './src/application/Column.js';
 export { FormsModule } from './src/application/FormsModule.js';
 export { Canvas, View } from './src/application/interfaces/Canvas';
 export { HTMLFragment as Include } from './src/application/HTMLFragment.js';

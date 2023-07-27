@@ -39,6 +39,7 @@ export class FieldProperties extends BasicProperties
 			FieldFeatureFactory.copyBasic(properties,this);
 	}
 
+	/** Clone the properties */
 	public clone() : FieldProperties
 	{
 		return(new FieldProperties(this));
@@ -58,12 +59,14 @@ export class FieldProperties extends BasicProperties
 		return(this);
 	}
 
+	/** Set enabled flag */
 	public setEnabled(flag:boolean) : FieldProperties
 	{
 		this.enabled = flag;
 		return(this);
 	}
 
+	/** Set readonly flag */
 	public setReadOnly(flag:boolean) : FieldProperties
 	{
 		this.readonly = flag;
@@ -77,79 +80,92 @@ export class FieldProperties extends BasicProperties
 		return(this);
 	}
 
+	/** Set required flag */
 	public setRequired(flag:boolean) : FieldProperties
 	{
 		this.required = flag;
 		return(this);
 	}
 
+	/** Set hidden flag */
 	public setHidden(flag:boolean) : FieldProperties
 	{
 		this.hidden = flag;
 		return(this);
 	}
 
+	/** Set a style */
 	public setStyle(style:string, value:string) : FieldProperties
 	{
 		super.setStyle(style,value);
 		return(this);
 	}
 
+	/** Set all styles */
 	public setStyles(styles:string) : FieldProperties
 	{
 		this.styles = styles;
 		return(this);
 	}
 
+	/** Remove a style */
 	public removeStyle(style:string) : FieldProperties
 	{
 		super.removeStyle(style);
 		return(this);
 	}
 
+	/** Set a class */
 	public setClass(clazz:string) : FieldProperties
 	{
 		super.setClass(clazz);
 		return(this);
 	}
 
+	/** Set all classes */
 	public setClasses(classes:string|string[]) : FieldProperties
 	{
 		super.setClasses(classes);
 		return(this);
 	}
 
+	/** Remove a class */
 	public removeClass(clazz:any) : FieldProperties
 	{
 		super.removeClass(clazz);
 		return(this);
 	}
 
+	/** Set an attribute */
 	public setAttribute(attr:string, value?:any) : FieldProperties
 	{
 		super.setAttribute(attr,value);
 		return(this);
 	}
 
+	/** Set all attributes */
 	public setAttributes(attrs:Map<string,string>) : FieldProperties
 	{
 		super.setAttributes(attrs);
 		return(this);
 	}
 
+	/** Remove an attribute */
 	public removeAttribute(attr:string) : FieldProperties
 	{
 		super.removeAttribute(attr);
 		return(this);
 	}
 
+	/** Set the value attribute */
 	public setValue(value:string) : FieldProperties
 	{
 		this.value = value;
 		return(this);
 	}
 
-    public setValidValues(values: string[] | Set<any> | Map<any,any>) : FieldProperties
+	/** Set a list of valid values */
+	public setValidValues(values: string[] | Set<any> | Map<any,any>) : FieldProperties
 	{
 		this.validValues = values;
 		return(this);

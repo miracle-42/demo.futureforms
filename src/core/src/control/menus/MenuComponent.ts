@@ -27,6 +27,11 @@ import { EventListenerClass } from '../events/EventListenerClass.js';
 import { MenuOptions, Navigation } from './interfaces/MenuOptions.js';
 
 
+/**
+ * The MenuComponent does all the work, it only needs
+ * a Menu implementation and a target element to which
+ * the html should be appended to
+ */
 export class MenuComponent extends EventListenerClass implements EventListenerObject
 {
 	private menu$:Menu = null;
@@ -38,10 +43,11 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 	private options$:MenuOptions = null;
 	private open$:Set<string> = new Set<string>();
 	private entries$:Map<number,Entry> = new Map<number,Entry>();
+	private paths$:Map<string,HTMLElement> = new Map<string,HTMLElement>();
 	private menuentries$:Map<MenuEntry,Entry> = new Map<MenuEntry,Entry>();
 	private elements$:Map<HTMLElement,Entry> = new Map<HTMLElement,Entry>();
 
-	constructor(name:string, menu:Menu, target?:HTMLElement, options?:MenuOptions)
+	constructor(name:string, menu:Menu, options?:MenuOptions, target?:HTMLElement)
 	{
 		super();
 
@@ -54,6 +60,7 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 		document.addEventListener("focus",this,true);
 		document.addEventListener("mouseup",this,true);
 
+		if (this.options$.openroot == null) this.options$.openroot = false;
 		if (this.options$.skiproot == null) this.options$.skiproot = false;
 		if (this.options$.singlepath == null) this.options$.singlepath = true;
 	}
@@ -66,6 +73,15 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 	public get options() : MenuOptions
 	{
 		return(this.options$);
+	}
+
+	public set options(options:MenuOptions)
+	{
+		this.options$ = options;
+		if (this.options$ == null) this.options$ = {};
+		if (this.options$.openroot == null) this.options$.openroot = false;
+		if (this.options$.skiproot == null) this.options$.skiproot = false;
+		if (this.options$.singlepath == null) this.options$.singlepath = true;
 	}
 
 	public get target() : HTMLElement
@@ -107,6 +123,10 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 		{
 			path = "/"+start[0].id;
 			start = await this.menu$.getEntries(path);
+		}
+		else if (this.options$.openroot)
+		{
+			this.open$.add("/"+start[0].id);
 		}
 
 		this.target$.innerHTML = await this.showEntry(null,start,0,path);
@@ -333,8 +353,12 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 
 		if (event.type == "mouseup" && !this.belongs(event.target))
 		{
-			await this.fireBlur();
-			await this.closeMenu();
+			if (this.focused)
+			{
+				await this.fireBlur();
+				await this.closeMenu();
+			}
+
 			return;
 		}
 
@@ -342,8 +366,12 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 		{
 			if (!this.belongs(event.target))
 			{
-				await this.fireBlur();
-				await this.closeMenu();
+				if (this.focused)
+				{
+					await this.fireBlur();
+					await this.closeMenu();
+				}
+
 				return;
 			}
 
@@ -443,7 +471,7 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 				break;
 
 			case "ArrowDown" :
-				elem = this.findNext(elem);
+				elem = this.findNext(elem,false);
 
 				if (elem)
 				{
@@ -459,11 +487,15 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 				break;
 
 			case "ArrowRight" :
-				if (!command && !disabled && !this.open$.has(path))
+				if (!command && !disabled)
 				{
-					await this.toggle(path);
+					if (!this.open$.has(path))
+					{
+						await this.toggle(path);
+						elem = this.paths$.get(path);
+					}
 
-					elem = this.findNext(elem);
+					elem = this.findNext(elem,true);
 
 					if (elem)
 					{
@@ -532,15 +564,21 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 				break;
 
 			case "ArrowDown" :
-				if (!command && !disabled && !this.open$.has(path))
-					await this.toggle(path);
-
-				elem = this.findNext(elem);
-
-				if (elem)
+				if (!command && !disabled)
 				{
-					this.setFocus(elem);
-					this.active$ = elem.tabIndex;
+					if (!this.open$.has(path))
+					{
+						await this.toggle(path);
+						elem = this.paths$.get(path);
+					}
+
+					elem = this.findNext(elem,true);
+
+					if (elem)
+					{
+						this.setFocus(elem);
+						this.active$ = elem.tabIndex;
+					}
 				}
 
 				break;
@@ -557,7 +595,7 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 				break;
 
 			case "ArrowRight" :
-				elem = this.findNext(elem);
+				elem = this.findNext(elem,false);
 
 				if (elem)
 				{
@@ -589,22 +627,29 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 	{
 		let parent:MenuEntry = this.entries$.get(elem.tabIndex)?.parent;
 		let previous:MenuEntry = this.entries$.get(elem.tabIndex)?.prev;
+
+		while(previous && this.menuentries$.get(previous).curr.disabled)
+			previous = this.menuentries$.get(previous).prev;
+
 		let prev:HTMLElement = this.menuentries$.get(previous)?.element;
 
 		if (prev) return(prev);
 		return(this.menuentries$.get(parent)?.element);
 	}
 
-	private findNext(elem:HTMLElement) : HTMLElement
+	private findNext(elem:HTMLElement, child:boolean) : HTMLElement
 	{
 		let path:string = elem.getAttribute("path");
 		let next:MenuEntry = this.entries$.get(elem.tabIndex)?.next;
 
-		if (this.open$.has(path))
+		if ((!next || child) && this.open$.has(path))
 		{
 			let next:HTMLElement = this.findFirstChild(elem);
 			if (next) return(next);
 		}
+
+		while(next && this.menuentries$.get(next).curr.disabled)
+			next = this.menuentries$.get(next).next;
 
 		return(this.menuentries$.get(next)?.element);
 	}
@@ -613,9 +658,9 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 	{
 		let parent:MenuEntry = this.entries$.get(elem.tabIndex)?.curr;
 
-		for (let [key, entry] of this.entries$)
+		for (let [_key, entry] of this.entries$)
 		{
-			if (entry.parent == parent)
+			if (entry.parent == parent && !entry.curr.disabled)
 				return(entry.element);
 		}
 
@@ -627,8 +672,9 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 		if (!this.focused)
 			return(true);
 
+		this.removeFocus();
 		this.focused = !this.focused;
-		let frmevent:FormEvent = FormEvent.AppEvent(EventType.OnMenuBlur,this);
+		let frmevent:FormEvent = FormEvent.AppEvent(EventType.WhenMenuBlur,this);
 		return(FormEvents.raise(frmevent));
 	}
 
@@ -638,7 +684,7 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 			return(true);
 
 		this.focused = !this.focused;
-		let frmevent:FormEvent = FormEvent.AppEvent(EventType.OnMenuFocus,this);
+		let frmevent:FormEvent = FormEvent.AppEvent(EventType.WhenMenuFocus,this);
 		return(FormEvents.raise(frmevent));
 	}
 
@@ -649,11 +695,23 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 
 	private setFocus(elem:HTMLElement) : void
 	{
+		this.removeFocus();
+
+		if (!elem) return;
 		this.getElement(elem).focus();
+		elem.parentElement.classList.add("focus");
+	}
+
+	private removeFocus() : void
+	{
+		this.entries$.get(this.active$)?.element.parentElement.classList.remove("focus");
 	}
 
 	private getElement(elem:HTMLElement) : HTMLAnchorElement
 	{
+		if (!elem)
+			return(null);
+
 		if (elem instanceof HTMLAnchorElement)
 			return(elem);
 
@@ -680,6 +738,7 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 			if (entry)
 			{
 				this.menuentries$.set(entry.curr,entry);
+				this.paths$.set(entry.element.getAttribute("path"),entry.element);
 				entry.children = entry.element.parentElement.querySelectorAll("li")?.length;
 			}
 		})

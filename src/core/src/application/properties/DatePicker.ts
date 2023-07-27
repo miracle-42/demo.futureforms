@@ -19,14 +19,18 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Some styling of the date-picker is necessary but made public through this class.
+ * It is also possible for expert users to replace the date-picker class completely if needed.
+ */
 export class DatePicker
 {
-	public static datePickerStyle:string = 
+	public static datePickerStyle:string =
 	`
 		width: 180px;
 	`;
 
-	public static datePickerDateStyle:string = 
+	public static datePickerDateStyle:string =
 	`
 		margin-top: 10px;
     	display: flex;
@@ -103,7 +107,7 @@ export class DatePicker
 			let arrow:NodeListOf<HTMLElement>= body.querySelectorAll("div[name='prev'],div[name='next']");
 
 			if (body && DatePicker.datePickerStyle) body.style.cssText = DatePicker.datePickerStyle;
-			
+
 			if (date && DatePicker.datePickerStyle) date.style.cssText = DatePicker.datePickerDateStyle;
 			if(mth && DatePicker.datePickerMthTextStyle) mth.style.cssText = DatePicker.datePickerMthTextStyle;
 			if(month && DatePicker.datePickerMonthStyle) month.style.cssText = DatePicker.datePickerMonthStyle;

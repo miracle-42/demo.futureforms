@@ -39,13 +39,14 @@ import { Departments } from './forms/departments/Departments';
 import { MasterDetail } from './forms/masterdetail/MasterDetail';
 import { PhoneBookMembased } from './forms/phonenook/PhoneBookMembased';
 
+import { Lesson01 } from './lessons/lesson01/Lesson01';
+import { Lesson02 } from './lessons/lesson02/Lesson02';
+
 import { AppHeader } from './tags/AppHeader';
 import { LinkMapper } from './fields/LinkMapper';
 import { TrueFalseMapper } from './fields/TrueFalseMapper';
 
 import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, MouseMap } from 'forms42core';
-
-import { Lesson01 } from './lesson01/Lesson01';
 
 @FormsPathMapping(
 	[
@@ -58,9 +59,10 @@ import { Lesson01 } from './lesson01/Lesson01';
 		{class: Departments, path: "/forms/departments"},
 		{class: MasterDetail, path: "/forms/masterdetail"},
 
-		{class: Lesson01, path: "lesson01"},
-
 		{class: PhoneBookMembased, path: "/forms/phonebook"},
+
+		{class: Lesson01, path: "/forms/lesson01"},
+		{class: Lesson02, path: "/forms/lesson02"},
 
 		{class: FormHeader, path: "/html/formheader"},
 		{class: PageHeader, path: "/html/pageheader"},
@@ -81,7 +83,6 @@ export class FormsModule extends FormsCoreModule
 	private jobs:KeyMap = new KeyMap({key: 'J', ctrl: true});
 	private fields:KeyMap = new KeyMap({key: 'F', ctrl: true});
 	private countries:KeyMap = new KeyMap({key: 'C', ctrl: true});
-	private lesson01:KeyMap = new KeyMap({key: 'Y', ctrl: true});
 	private locations:KeyMap = new KeyMap({key: 'L', ctrl: true});
 	private phonebook:KeyMap = new KeyMap({key: 'P', ctrl: true});
 	private employees:KeyMap = new KeyMap({key: 'E', ctrl: true});
@@ -92,8 +93,12 @@ export class FormsModule extends FormsCoreModule
 	{
 		super();
 
-		// Demo cutom tag
+		// Be aware of FormProperties
+		FormProperties.DateFormat = "DD-MM-YYYY";
+
+		// Demo custom tag
 		FormProperties.TagLibrary.set("AppHeader",AppHeader);
+		this.setRootElement(document.body.querySelector("#forms"));
 
 		this.parse();
 		this.list = new Minimized();
@@ -107,12 +112,11 @@ export class FormsModule extends FormsCoreModule
 		Connection.TRXTIMEOUT = 240;
 		Connection.CONNTIMEOUT = 120;
 
-		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
+		FormsModule.DATABASE = new Connection("http://localhost:9002");
 
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
-
-		infomation.appendChild(KeyMapPage.show());
+		infomation.appendChild(KeyMapPage.show(keymap));
 
 		this.addEventListener(this.close,{type: EventType.Key, key: keymap.close});
 		this.addEventListener(this.login,{type: EventType.Key, key: keymap.login});
@@ -127,7 +131,6 @@ export class FormsModule extends FormsCoreModule
 			{type:EventType.Key,key:this.jobs},
 			{type:EventType.Key,key:this.fields},
 			{type:EventType.Key,key:this.countries},
-			{type:EventType.Key,key:this.lesson01},
 			{type:EventType.Key,key:this.locations},
 			{type:EventType.Key,key:this.phonebook},
 			{type:EventType.Key,key:this.employees},
@@ -163,9 +166,6 @@ export class FormsModule extends FormsCoreModule
 
 		if (event.key == this.masterdetail)
 			this.showform(MasterDetail);
-
-		if (event.key == this.lesson01)
-			this.showform(Lesson01);
 
 		return(true);
 	}
@@ -252,8 +252,8 @@ export class FormsModule extends FormsCoreModule
 
 export class keymap extends KeyMap
 {
-	public static close:KeyMap = new KeyMap({key: 'w', ctrl: true});
-	public static login:KeyMap = new KeyMap({key: 'l', ctrl: true});
-	public static topmenu:KeyMap = new KeyMap({key: 'm', ctrl: true});
-	public static leftmenu:KeyMap = new KeyMap({key: 'f', ctrl: true});
+	public static close:KeyMap = new KeyMap({key: 'w', ctrl: true},"close","close window");
+	public static login:KeyMap = new KeyMap({key: 'l', ctrl: true},"login","show login form");
+	public static topmenu:KeyMap = new KeyMap({key: 'm', ctrl: true},"top-menu","go to top menu");
+	public static leftmenu:KeyMap = new KeyMap({key: 'f', ctrl: true},"left-menu","go to left menu");
 }

@@ -51,6 +51,7 @@ export enum DatePart
 	Second
 }
 
+/** Used internally */
 export enum WeekDays
 {
 	Sun,
@@ -62,8 +63,12 @@ export enum WeekDays
 	Sat
 }
 
+/**
+ * Utility class for dealing with days
+ */
 export class dates
 {
+	/** check the format mask */
 	public static validate() : boolean
 	{
 		let valid:boolean = true;
@@ -81,14 +86,17 @@ export class dates
 		return(valid);
 	}
 
+	/** parse a date-string into a Date using a given format. Optionally include the time part */
 	public static parse(datestr:string, format?:string, withtime?:boolean) : Date
-    {
+	{
 		if (withtime == null)
 			withtime = datestr.includes(' ');
 
-        return(utils.parse(datestr,withtime,format));
-    }
+		return(utils.parse(datestr,withtime,format));
+	}
 
+
+	/** Get next 7 days of week */
 	public static getDays(start:WeekDays): Array<String>
 	{
 		let names:string[] = [];
@@ -99,16 +107,19 @@ export class dates
 		return(names);
 	}
 
-    public static format(date:Date, format?:string) : string
-    {
-        return(utils.format(date,format));
-    }
+	/** Format a given date using a format (or default format) */
+	public static format(date:Date, format?:string) : string
+	{
+		return(utils.format(date,format));
+	}
 
-    public static tokenizeDate(date:Date, format?:string) : DateToken[]
-    {
-        return(utils.tokenize(date,format));
-    }
+	/** Tokenize a given date into the DateTokens */
+	public static tokenizeDate(date:Date, format?:string) : DateToken[]
+	{
+		return(utils.tokenize(date,format));
+	}
 
+	/** Get the DatePart of a giveb token i.e. DD, MM, ... */
 	public static getTokenType(token:string) : DatePart
 	{
 		switch(token)
@@ -123,12 +134,13 @@ export class dates
 		}
 	}
 
-    public static tokenizeFormat(format?:string) : FormatToken[]
-    {
+	/** Split a given format into FormatTokens */
+	public static tokenizeFormat(format?:string) : FormatToken[]
+	{
 		let tokens:FormatToken[] = [];
 
-        if (format == null)
-			format = utils.full();
+		if (format == null)
+		format = utils.full();
 
 		let last:number = 0;
 		let start:number = 0;
@@ -170,5 +182,5 @@ export class dates
 		});
 
 		return(tokens);
-    }
+   }
 }

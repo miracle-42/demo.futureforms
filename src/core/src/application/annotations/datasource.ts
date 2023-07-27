@@ -26,6 +26,18 @@ import { Block } from '../../public/Block.js';
 import { FormMetaData } from '../FormMetaData.js';
 import { DataSource } from '../../model/interfaces/DataSource.js';
 
+/**
+ *
+ * Annotations provides a short and easy way to inject code.
+ *
+ * The following:
+ *
+ * @datasource("employees",Employees)
+ *
+ * Will create a datasource 'employees' and a block also called 'employees'.
+ * Bind the block to the datasource and inject it into the form.
+ * 
+ */
 export const datasource = (block:Block|string, source:Class<DataSource>|DataSource) =>
 {
 	function define(form:Class<Form>)

@@ -27,6 +27,10 @@ import { SQLRestBuilder } from "./SQLRestBuilder.js";
 import { Parameter, ParameterType } from "./Parameter.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 
+/**
+ * StoredProcedure is used with OpenRestDB to execute
+ * a stored procedure
+ */
 export class StoredProcedure
 {
 	private name$:string;
@@ -41,6 +45,7 @@ export class StoredProcedure
 	protected retparm$:string = null;
 	protected returntype$:DataType|string = null;
 
+	/** @param connection : A connection to OpenRestDB */
 	public constructor(connection:DatabaseConnection)
 	{
 		if (connection == null)
@@ -52,37 +57,44 @@ export class StoredProcedure
 		this.conn$ = connection["conn$"];
 	}
 
+	/** If the procedure changes any values the backend */
 	public set patch(flag:boolean)
 	{
 		this.patch$ = flag;
 	}
 
+	/** The error message from the backend */
 	public error() : string
 	{
 		return(this.message$);
 	}
 
+	/** The name of the stored procedure */
 	public setName(name:string) : void
 	{
 		this.name$ = name;
 	}
 
+	/** Add call parameter */
 	public addParameter(name:string, value:any, datatype?:DataType|string, paramtype?:ParameterType) : void
 	{
 		let param:Parameter = new Parameter(name,value,datatype,paramtype);
 		this.params$.push(param);
 	}
 
+	/** Get out parameter */
 	public getOutParameter(name:string) : any
 	{
 		return(this.values$.get(name?.toLowerCase()));
 	}
 
+	/** Get out parameter names */
 	public getOutParameterNames() : string[]
 	{
 		return([...this.values$.keys()]);
 	}
 
+	/** Execute the procedure */
 	public async execute() : Promise<boolean>
 	{
 		let value:any = null;

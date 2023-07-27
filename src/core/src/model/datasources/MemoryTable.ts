@@ -44,7 +44,15 @@ export class MemoryTable implements DataSource
 
 	private filter:FilterStructure;
 
-	public constructor(columns?:string|string[], records?:number|any[][])
+/**
+ * Datasource based on data in memory
+ */
+
+/**
+ * @param columns: columns in the table
+ * @param records : number of records or actual data
+ */
+public constructor(columns?:string|string[], records?:number|any[][])
 	{
 		if (columns == null) columns = [];
 		if (records == null) records = [];
@@ -82,16 +90,19 @@ export class MemoryTable implements DataSource
 		});
 	}
 
+	/** Mark all records clean */
 	public clear() : void
 	{
 		this.dirty$ = [];
 	}
 
+	/** Memory source is not transactional */
 	public get transactional() : boolean
 	{
 		return(false);
 	}
 
+	/** Set table data */
 	public setData(data:any[][]) : void
 	{
 		this.records$ = [];
@@ -103,6 +114,7 @@ export class MemoryTable implements DataSource
 		})
 	}
 
+	/** Clones the datasource */
 	public clone(columns?:string|string[]) : MemoryTable
 	{
 		let table:any[][] = [];
@@ -134,22 +146,26 @@ export class MemoryTable implements DataSource
 		return(clone);
 	}
 
+	/** Sorting (works like order by) */
 	public get sorting() : string
 	{
 		return(this.order$);
 	}
 
+	/** Sorting (works like order by) */
 	public set sorting(order:string)
 	{
 		this.order$ = order;
 		this.sorting$ = SortOrder.parse(order);
 	}
 
+	/** The columns used by this datasource */
 	public get columns() : string[]
 	{
 		return(this.columns$);
 	}
 
+	/** Add columns used by this datasource */
 	public addColumns(columns:string|string[]) : MemoryTable
 	{
 		if (!Array.isArray(columns))
@@ -166,6 +182,7 @@ export class MemoryTable implements DataSource
 		return(this);
 	}
 
+	/** Remove columns used by this datasource */
 	public removeColumns(columns:string|string[]) : MemoryTable
 	{
 		if (!Array.isArray(columns))
@@ -186,11 +203,13 @@ export class MemoryTable implements DataSource
 		return(this);
 	}
 
+	/** Return the default filters */
 	public getFilters() : FilterStructure
 	{
 		return(this.limit$);
 	}
 
+	/** Add a default filter */
 	public addFilter(filter:Filter | FilterStructure) : MemoryTable
 	{
 		if (this.limit$ == null)
@@ -208,11 +227,13 @@ export class MemoryTable implements DataSource
 		return(this);
 	}
 
+	/** Not applicable for this type of datasource */
 	public async lock(_record:Record) : Promise<boolean>
 	{
 		return(true);
 	}
 
+	/** Undo changes */
 	public async undo() : Promise<Record[]>
 	{
 		let undo:Record[] = [];
@@ -245,6 +266,7 @@ export class MemoryTable implements DataSource
 		return(undo);
 	}
 
+	/** Flush changes to datasource */
 	public async flush() : Promise<Record[]>
 	{
 		let processed:Record[] = [];
@@ -283,12 +305,14 @@ export class MemoryTable implements DataSource
 		return(processed);
 	}
 
+	/** Re-fetch the given record from memory */
 	public async refresh(record:Record) : Promise<boolean>
 	{
 		record.refresh();
 		return(true);
 	}
 
+	/** Create a record for inserting a row in the table */
 	public async insert(record:Record) : Promise<boolean>
 	{
 		if (!this.dirty$.includes(record))
@@ -296,6 +320,7 @@ export class MemoryTable implements DataSource
 		return(true);
 	}
 
+	/** Mark a record for updating a row in the table */
 	public async update(record:Record) : Promise<boolean>
 	{
 		if (!this.dirty$.includes(record))
@@ -303,6 +328,7 @@ export class MemoryTable implements DataSource
 		return(true);
 	}
 
+	/** Mark a record for deleting a row in the table */
 	public async delete(record:Record) : Promise<boolean>
 	{
 		if (!this.dirty$.includes(record))
@@ -310,6 +336,7 @@ export class MemoryTable implements DataSource
 		return(true);
 	}
 
+	/** Execute the query */
 	public async query(filter?:FilterStructure) : Promise<boolean>
 	{
 		this.pos$ = 0;
@@ -347,6 +374,7 @@ export class MemoryTable implements DataSource
 		return(true);
 	}
 
+	/** Fetch a set of records */
 	public async fetch() : Promise<Record[]>
 	{
 		if (this.pos$ >= this.records$.length)
@@ -369,6 +397,7 @@ export class MemoryTable implements DataSource
 		return([]);
 	}
 
+	/** Cursers is not used with this datasource */
 	public async closeCursor() : Promise<boolean>
 	{
 		return(true);

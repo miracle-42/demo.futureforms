@@ -24,6 +24,10 @@ import { EventFilter } from "./EventFilter.js";
 import { FormMetaData } from "../../application/FormMetaData.js";
 import { TriggerFunction } from "../../public/TriggerFunction.js";
 
+/**
+ * EventListener basic class
+ * Any class can extend this and thereby become an event-listener
+ */
 export class EventListenerClass
 {
 	protected constructor()

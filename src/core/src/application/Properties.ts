@@ -28,7 +28,6 @@ import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { ComponentFactory as FactoryImpl } from './ComponentFactory.js';
 
 import { Tag } from './tags/Tag.js';
-import { Root } from './tags/Root.js';
 import { Include } from './tags/Include.js';
 import { Foreach } from './tags/Foreach.js';
 import { RowIndicator } from './tags/RowIndicator.js';
@@ -48,6 +47,11 @@ export interface ClassNames
 	FilterIndicator:string;
 }
 
+/**
+ * These are global properties used in different parts of the code.
+ * If, for some reason, the tags, style classes etc conflicts with other usage,
+ * anything can be changed.
+ */
 export class Properties
 {
 	public static baseurl:string = "/";
@@ -58,7 +62,6 @@ export class Properties
 	public static BindAttr:string = "from";
 	public static RecordModeAttr:string = "mode";
 
-	public static RootTag:string = "forms";
 	public static IncludeTag:string = "include";
 	public static ForeachTag:string = "foreach";
 
@@ -88,7 +91,6 @@ export class Properties
 	new Map<string,Class<Tag>>
 	(
 			[
-				[Properties.RootTag,Root],
 				[Properties.IncludeTag,Include]
 			]
 	);

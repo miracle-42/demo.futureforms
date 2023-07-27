@@ -23,12 +23,18 @@ import { Logger, Type } from '../Logger.js';
 import { Class } from '../../types/Class.js';
 import { Components } from '../Components.js';
 import { FormsModule } from '../FormsModule.js';
+import { FormBacking } from '../FormBacking.js';
 
 
+/**
+ * The basic class for components
+ * like Forms
+ */
 export interface Component
 {
 	path:string;
 	class:Class<any>;
+	navigable?:boolean;
 }
 
 function isComponent(object: any) : object is Component
@@ -36,6 +42,15 @@ function isComponent(object: any) : object is Component
 	return('path' in object && 'class' in object);
 }
 
+/**
+ *
+ * @param components : A list of components and their mapping
+ *
+ * HTML is pure text and often FutureForms needs to know how to translate
+ * a given path/name into a class. This is done by injecting the class and
+ * a path/name into the FutureForms engine.
+ *
+ */
 export const FormsPathMapping = (components:(Class<any> | Component)[]) =>
 {
 	function define(_comp_:Class<FormsModule>)
@@ -44,14 +59,17 @@ export const FormsPathMapping = (components:(Class<any> | Component)[]) =>
 		{
 			let path:string = null;
 			let clazz:Class<any> = null;
+			let navigable:boolean = true;
 
 			if (isComponent(element))
 			{
 				clazz = (element as Component).class;
 				path = (element as Component).path.toLowerCase();
+				navigable = (element as Component).navigable;
 			}
 			else
 			{
+				navigable = false;
 				clazz = element as Class<any>;
 				path = (element as Class<any>).name.toLowerCase();
 			}
@@ -59,6 +77,7 @@ export const FormsPathMapping = (components:(Class<any> | Component)[]) =>
 			Components.classmap.set(path,clazz);
 			Components.classurl.set(clazz.name.toLowerCase(),path);
 
+			FormBacking.setURLNavigable(path,navigable);
 			Logger.log(Type.classloader,"Loading class: "+clazz.name+" into position: "+path);
 		});
 	 }

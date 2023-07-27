@@ -25,6 +25,13 @@ import { FieldProperties } from "./FieldProperties.js";
 import { Block as ModelBlock } from "../model/Block.js";
 import { Record as Internal, RecordState } from "../model/Record.js";
 
+/**
+ * Public interface to a Record.
+ *
+ * A Record is a collection of name,value pairs
+ *	and represents data from a backend.
+ *
+ */
 export class Record
 {
 	private rec$:Internal = null;
@@ -34,41 +41,49 @@ export class Record
 		this.rec$ = rec;
 	}
 
+	/** The record number */
 	public get recno() : number
 	{
 		return(this.rec$.wrapper.index(this.rec$));
 	}
 
+	/** State of record */
 	public get state() : RecordState
 	{
 		return(this.rec$.state);
 	}
 
+	/** Is record in an inserted state */
 	public get inserted() : boolean
 	{
 		return(this.rec$.inserted);
 	}
 
+	/** Is record in an updated state */
 	public get updated() : boolean
 	{
 		return(this.rec$.updated);
 	}
 
+	/** Is record in an deleted state */
 	public get deleted() : boolean
 	{
 		return(this.rec$.deleted);
 	}
 
+	/** Has the record been synchronized with the backend */
 	public get synchronized() : boolean
 	{
 		return(this.rec$.synched);
 	}
 
+	/** Get the response from the last operation on the backend */
 	public get response() : any
 	{
 		return(this.rec$.response);
 	}
 
+	/** Get the value of a given field */
 	public getValue(field:string) : any
 	{
 		field = field?.toLowerCase();
@@ -89,17 +104,13 @@ export class Record
 		return(this.rec$.getValue(field));
 	}
 
-	/**
-	 * Execute datasource default lock method.
-	 */
+	/** Execute datasource default lock method */
 	public async lock() : Promise<boolean>
 	{
 		return(this.rec$.wrapper?.lock(this.rec$,true));
 	}
 
-	/**
-	 * Mark the record as locked.
-	 */
+	/** Mark the record as locked */
 	public markAsLocked(flag?:boolean) : void
 	{
 		if (flag == null) flag = true;
@@ -164,80 +175,94 @@ export class Record
 		}
 	}
 
+	/** Set readonly state for a given field */
 	public setReadOnly(field:string, flag:boolean) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setReadOnly(flag),field);
 	}
 
+	/** Set enabled state for a given field */
 	public setEnabled(field:string, flag:boolean) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setEnabled(flag),field);
 	}
 
+	/** Set disabled state for a given field */
 	public setDisabled(field:string, flag:boolean) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setEnabled(!flag),field);
 	}
 
+	/** Get the style for a given field and type */
 	public getStyle(field:string, style:string) : string
 	{
 		return(this.getProperties(field).getStyle(style));
 	}
 
+	/** Set a style for a given field */
 	public setStyle(field:string, style:string, value:any) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setStyle(style,value),field);
 	}
 
+	/** Remove a style for a given field */
 	public removeStyle(field:string, style:string) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.removeStyle(style),field);
 	}
 
+	/** Check if a given field has class */
 	public hasClass(field:string, clazz:string) : boolean
 	{
 		return(this.getProperties(field).hasClass(clazz));
 	}
 
+	/** Set a class on a given field */
 	public setClass(field:string, clazz:string) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setClass(clazz),field);
 	}
 
+	/** Remove a class on a given field */
 	public removeClass(field:string, clazz:string) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.removeClass(clazz),field);
 	}
 
+	/** Check if a given field has attribute */
 	public hasAttribute(field:string, attr:string) : boolean
 	{
 		return(this.getProperties(field).hasAttribute(attr));
 	}
 
+	/** Get the value of a given field and attribute */
 	public getAttribute(field:string, attr:string) : string
 	{
 		return(this.getProperties(field).getAttribute(attr));
 	}
 
+	/** Set an attribute on a given field */
 	public setAttribute(field:string, attr:string, value?:any) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setAttribute(attr,value),field);
 	}
 
+	/** Remove an attribute on a given field */
 	public removeAttribute(field:string, attr:string) : void
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.removeAttribute(attr),field);
 	}
 
+	/** Get a copy of all properties for a given field */
 	public getProperties(field?:string, clazz?:string) : FieldProperties
 	{
 		field = field?.toLowerCase();
@@ -245,6 +270,7 @@ export class Record
 		return(new FieldProperties(blk.view.getRecordProperties(this.rec$,field,clazz)));
 	}
 
+	/** Apply properties on a given field. Properties will be cloned */
 	public setProperties(props:FieldProperties, field:string, clazz?:string) : void
 	{
 		field = field?.toLowerCase();
@@ -253,6 +279,7 @@ export class Record
 		blk.view.setRecordProperties(this.rec$,field,clazz,props);
 	}
 
+	/** Clear all custom properties for the given record, field and class */
 	public clearProperties(field:string, clazz?:string) : void
 	{
 		field = field?.toLowerCase();

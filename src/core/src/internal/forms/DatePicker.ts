@@ -33,6 +33,9 @@ import { FieldProperties } from "../../public/FieldProperties.js";
 import { Internals } from "../../application/properties/Internals.js";
 import { DatePicker as Properties } from "../../application/properties/DatePicker.js";
 
+/**
+ * Form emulating a calendar
+ */
 export class DatePicker extends Form
 {
 	public static WeekDayStart:WeekDays = WeekDays.Mon;

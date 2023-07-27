@@ -19,6 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * To implement a custom tag write a class implementing the Tag interface.
+ * Then inject the class together with a tag-name into the FormProperties.TagLibrary.
+ */
 export interface Tag
 {
    parse(component:any, tag:HTMLElement, attr:string) : HTMLElement|HTMLElement[]|string|null;

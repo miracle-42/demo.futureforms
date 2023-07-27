@@ -25,6 +25,12 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ *
+ * The CustomFilter is a 'scaffolding' class only meant for extending
+ * into a functional filter in an easy way.
+ */
 export class CustomFilter implements Filter
 {
 	private column$:string = null;

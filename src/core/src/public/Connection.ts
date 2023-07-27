@@ -46,11 +46,13 @@ export class Connection
 		this.base$ = url;
 	}
 
+	/** The base url for this connection */
 	public get baseURL() : URL
 	{
 		return(this.base$);
 	}
 
+	/** Not used in base class */
 	public get username() : string
 	{
 		return(this.usr$);
@@ -62,6 +64,7 @@ export class Connection
 		this.usr$ = username;
 	}
 
+	/** Not used in base class */
 	public get password() : string
 	{
 		return(this.pwd$);
@@ -73,21 +76,25 @@ export class Connection
 		this.pwd$ = password;
 	}
 
+	/** Whether the last request was successfull */
 	public get success() : boolean
 	{
 		return(this.success$);
 	}
 
+	/** Get the request headers */
 	public get headers() : any
 	{
 		return(this.headers$);
 	}
 
+	/** Set the request headers */
 	public set headers(headers:any)
 	{
 		this.headers$ = headers;
 	}
 
+	/** Set the base url */
 	public set baseURL(url:string|URL)
 	{
 		if (typeof url === "string")

@@ -25,6 +25,10 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The IsNull filter resembles the 'is null' operator in SQL.
+ */
 export class IsNull implements Filter
 {
 	private column$:string = null;

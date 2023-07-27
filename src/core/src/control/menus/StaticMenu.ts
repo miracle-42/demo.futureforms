@@ -23,6 +23,11 @@ import { Menu } from "./interfaces/Menu.js";
 import { MenuEntry } from "./interfaces/MenuEntry.js";
 import { StaticMenuEntry } from "./interfaces/StaticMenuEntry.js";
 
+/**
+ * An easy to use scaffolding of a static Menu.
+ * Just implement the execute method that occurs
+ * when a given menu-entry is choosen.
+ */
 export abstract class StaticMenu implements Menu
 {
 	private root:StaticMenuEntry = null;

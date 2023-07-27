@@ -25,6 +25,10 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The Between filter resembles the between operator in SQL.
+ */
 export class Between implements Filter
 {
 	private incl:boolean = false;

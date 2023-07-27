@@ -47,6 +47,9 @@ export class FormBacking
 	private static prev:Form = null;
 	private static form:Form = null;
 
+	private static nonav:Set<string> =
+		new Set<string>();
+
 	private static vforms:Map<Form,ViewForm> =
 		new Map<Form,ViewForm>();
 
@@ -90,7 +93,9 @@ export class FormBacking
 
 		let canvas:Canvas = new canvasimpl();
 		let instance:Form = await factory.createForm(form,parameters);
-		await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance));
+
+		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance)))
+			return(null);
 
 		canvas.setComponent(instance);
 		container.appendChild(canvas.getView());
@@ -107,7 +112,6 @@ export class FormBacking
 		}
 
 		FormBacking.setCurrentForm(instance);
-		await mform.wait4EventTransaction(EventType.PostViewInit,null);
 
 		if (await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance)))
 			instance.focus();
@@ -204,6 +208,19 @@ export class FormBacking
 		FormBacking.cleanup(form);
 		FormBacking.bdata.delete(form);
 		if (form == FormBacking.form) FormBacking.form = null;
+	}
+
+	public static setURLNavigable(name:string, nav:boolean) : void
+	{
+		name = name?.toLowerCase();
+		if (!nav) 	this.nonav.add(name);
+		else 			this.nonav.delete(name);
+	}
+
+	public static getURLNavigable(name:string) : boolean
+	{
+		name = name?.toLowerCase();
+		return(!this.nonav.has(name));
 	}
 
 	public static cleanup(form:Form) : void

@@ -25,6 +25,10 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The GreaterThan filter resembles the > and >= operator in SQL.
+ */
 export class GreaterThan implements Filter
 {
 	private incl:boolean = false;

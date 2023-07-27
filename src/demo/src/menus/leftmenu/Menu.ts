@@ -30,7 +30,7 @@ export class Menu extends MenuComponent
 
 	constructor()
 	{
-		super("left-menu",new FormList());
+		super("left-menu",new FormList(),{openroot: true});
 
 		this.menuelem = document.createElement("div");
 		this.menuelem.classList.value = "left-menu-container";
@@ -40,8 +40,8 @@ export class Menu extends MenuComponent
 		this.menuelem = this.container.appendChild(this.menuelem);
 		this.target = this.menuelem;
 
-		this.addEventListener(this.hideSideBar,{type: EventType.OnMenuBlur})
-		this.addEventListener(this.showSideBar,{type: EventType.OnMenuFocus})
+		this.addEventListener(this.hideSideBar,{type: EventType.WhenMenuBlur})
+		this.addEventListener(this.showSideBar,{type: EventType.WhenMenuFocus})
 
 		super.show();
 	}

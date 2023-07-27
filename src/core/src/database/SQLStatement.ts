@@ -28,6 +28,10 @@ import { Alert } from "../application/Alert.js";
 import { DatabaseResponse } from "./DatabaseResponse.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 
+/**
+ * SQLStatement is used with OpenRestDB to execute any
+ * sql-statement
+ */
 export class SQLStatement
 {
 	private pos:number = 0;
@@ -45,6 +49,7 @@ export class SQLStatement
 	private retvals:DatabaseResponse = null;
 	private bindvalues$:Map<string,BindValue> = new Map<string,BindValue>();
 
+	/** @param connection : A connection to OpenRestDB */
 	public constructor(connection:DatabaseConnection)
 	{
 		if (connection == null)
@@ -56,61 +61,73 @@ export class SQLStatement
 		this.conn$ = connection["conn$"];
 	}
 
+	/** The sql-statement */
 	public get sql() : string
 	{
 		return(this.sql);
 	}
 
+	/** The sql-statement */
 	public set sql(sql:string)
 	{
 		this.sql$ = sql;
 	}
 
+	/** If the statement changes any values the backend */
 	public set patch(flag:boolean)
 	{
 		this.patch$ = flag;
 	}
 
+	/** The columns involved in a select statement */
 	public get columns() : string[]
 	{
 		return(this.columns$);
 	}
 
+	/** If used with sql-extension 'returning' */
 	public get returnvalues() : boolean
 	{
 		return(this.returning$);
 	}
 
+	/** If used with sql-extension 'returning' */
 	public set returnvalues(flag:boolean)
 	{
 		this.returning$ = flag;
 	}
 
+	/** The number of rows to fetch from a select-statement per call to fetch */
 	public get arrayfetch() : number
 	{
 		return(this.arrayfecth$);
 	}
 
+	/** The number of rows to fetch from a select-statement per call to fetch */
 	public set arrayfetch(size:number)
 	{
 		this.arrayfecth$ = size;
 	}
 
+	/** The error message from the backend */
 	public error() : string
 	{
 		return(this.message$);
 	}
 
+	/** Bind values defined with colon i.e. salary = :salary */
 	public bind(name:string, value:any, type?:DataType|string) : void
 	{
 		this.addBindValue(new BindValue(name,value,type));
 	}
 
+	/** Bind values defined with colon i.e. salary = :salary */
 	public addBindValue(bindvalue:BindValue) : void
 	{
 		this.bindvalues$.set(bindvalue.name?.toLowerCase(),bindvalue);
 	}
 
+	/** Execute the statement */
 	public async execute() : Promise<boolean>
 	{
 		if (this.sql$ == null) return(false);
@@ -157,6 +174,7 @@ export class SQLStatement
 		return(success);
 	}
 
+	/** Fetch rows, if select statement */
 	public async fetch() : Promise<any[]>
 	{
 		if (!this.cursor$)
@@ -181,6 +199,7 @@ export class SQLStatement
 		return(this.fetch());
 	}
 
+	/** Get return value if 'returning' */
 	public getReturnValue(column:string, type?:DataType|string) : any
 	{
 		let value:any = this.retvals.getValue(column);
@@ -194,6 +213,7 @@ export class SQLStatement
 		return(value);
 	}
 
+	/** Close and clean up */
 	public async close() : Promise<boolean>
 	{
 		let response:any = null;

@@ -34,14 +34,6 @@ export class Employees extends DatabaseTable
 		this.sorting = "department_id, last_name, first_name";
 	}
 
-	/**
-	 * Get name of employee.
-	 * @param employee_id.
-	 * @returns Name string.
-	 * @example
-	 * import { Employees } from "../datasources/database/Employees";
-	 * let name:string = await Employees.getName(7);
-	 */
 	public static async getName(employee_id:number) : Promise<string>
 	{
 		let row:any[] = null;

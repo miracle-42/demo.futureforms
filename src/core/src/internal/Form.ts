@@ -56,7 +56,6 @@ import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
 export class Form implements CanvasComponent
 {
 	public moveable:boolean = false;
-	public navigable:boolean = false;
 	public resizable:boolean = false;
 	public initiated:Date = new Date();
 	public parameters:Map<any,any> = new Map<any,any>();
@@ -373,7 +372,8 @@ export class Form implements CanvasComponent
 		if (vform == null)
 			return(true);
 
-		await FormBacking.getModelForm(this).wait4EventTransaction(EventType.OnCloseForm,null);
+		if (!await FormBacking.getModelForm(this).wait4EventTransaction(EventType.OnCloseForm,null))
+			return(false);
 
 		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.OnCloseForm,this)))
 			return(false);

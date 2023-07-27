@@ -44,18 +44,18 @@ export class Minimized implements EventListenerObject
 
         span.id = form.id;
         icon.id = form.id;
-        
+
         label.textContent = form.title;
         icon.textContent = form.title.substring(0,3);
 
-        icon.style.cssText = PageFooterStyle.IconStyle;	
+        icon.style.cssText = PageFooterStyle.IconStyle;
         span.style.cssText = PageFooterStyle.TooltipsStyle
         this.list.style.cssText = PageFooterStyle.ListStyle;
         label.style.cssText = PageFooterStyle.TooltipstextStyle;
-        
+
         span.addEventListener("click",this);
         span.addEventListener("mouseover",this);
-        
+
 
         this.list.appendChild(span);
         this.forms.set(form.id,form);
@@ -65,8 +65,8 @@ export class Minimized implements EventListenerObject
     {
         let entry:HTMLElement = event.target as HTMLElement;
         let label:HTMLLabelElement = entry.children?.item(1) as HTMLLabelElement;
-        
-        if (label == null) 
+
+        if (label == null)
         {
             label = entry.parentElement?.children?.item(1) as HTMLLabelElement;
             if (label == null) return;
@@ -79,8 +79,8 @@ export class Minimized implements EventListenerObject
 
             form.show();
             entry.remove();
-    
-            this.forms.delete(entry.id);    
+
+            this.forms.delete(entry.id);
         }
 
         if (event.type == "mouseover")

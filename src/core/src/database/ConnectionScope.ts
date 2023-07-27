@@ -19,6 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * The scope of the connection
+ * When @transactional connections are dedicated
+ * during a transaction, but otherwise shared when idle
+ */
 export enum ConnectionScope
 {
 	stateless,

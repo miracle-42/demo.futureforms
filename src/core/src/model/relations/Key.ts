@@ -22,6 +22,13 @@
 import { Block } from "../Block.js";
 import { Alert } from "../../application/Alert.js";
 
+/**
+ * A Key is simply a definition stating that
+ * on a given block, one or more fields exists
+ * and can be related to other keys on other blocks.
+ *
+ * Much like primary/foreign keys in databases.
+ */
 export class Key
 {
 	private name$:string = null;

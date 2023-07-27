@@ -27,6 +27,10 @@ import { DatePicker } from './forms/DatePicker.js';
 import { QueryEditor } from './forms/QueryEditor.js';
 import { ListOfValues } from './forms/ListOfValues.js';
 
+/**
+ * Defines which forms to be used internally.
+ * Can be replaced by advanced users.
+ */
 export class Classes
 {
 	private static zindex$:number = 536870911;

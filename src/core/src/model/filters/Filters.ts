@@ -32,6 +32,10 @@ import { SubQuery } from "./SubQuery.js";
 import { GreaterThan } from "./GreaterThan.js";
 import { DateInterval } from "./DateInterval.js";
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * This is just a convinience class gathering all basic filters into one common entry.
+ */
 export class Filters
 {
 	public static Like(column:string) : Like {return(new Like(column))};

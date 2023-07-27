@@ -59,6 +59,12 @@ export class DatabaseConnection
 		this.conn$ = new RestConnection(url);
 	}
 
+	/** Number of row locks */
+	public get locks() : number
+	{
+		return(this.conn$.locks);
+	}
+
 	/** The connection scope */
 	public get scope() : ConnectionScope
 	{

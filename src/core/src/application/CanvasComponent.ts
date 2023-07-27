@@ -26,7 +26,6 @@ export interface CanvasComponent
 	canvas:Canvas;
 
 	moveable:boolean;
-	navigable:boolean;
 	resizable:boolean;
 
 	getView() : HTMLElement;

@@ -588,7 +588,7 @@ export class Block
 	/** Re query the block with current filters */
 	public async reQuery() : Promise<boolean>
 	{
-		return(FormBacking.getModelForm(this.form).executeQuery(this.name,true));
+		return(FormBacking.getModelForm(this.form).executeQuery(this.name,true,true));
 	}
 
 	/** Escape Query By Example mode */
@@ -606,7 +606,7 @@ export class Block
 	/** Execute query on block */
 	public async executeQuery() : Promise<boolean>
 	{
-		return(FormBacking.getModelForm(this.form).executeQuery(this.name,false));
+		return(FormBacking.getModelForm(this.form).executeQuery(this.name,false,true));
 	}
 
 	/** Remove event listener @param handle: the handle returned when applying the event listener */

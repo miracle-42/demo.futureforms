@@ -21,6 +21,18 @@
 
 import { DataType } from "./DataType.js";
 
+/**
+ * Bind values is meant for use with datasources, espicially databases
+ * where they act as a placeholder for a given value. Bind values can be
+ * both as one-way in or two-way in/out.
+ *
+ * When used with OpenRestDB the data type is determined by the table column
+ * it is bound to (initially same as name). However it is not always possible
+ * to determine the datatype based on the datasource.
+ *
+ * In rare cases it is necessary to force or cast the data type to a different
+ * type than the datasource's default data type.
+ */
 export class BindValue
 {
 	private value$:any = null;
@@ -30,6 +42,12 @@ export class BindValue
 	private column$:string = null;
 	private force$:boolean = false;
 
+	/**
+	 *
+	 * @param name  : name
+	 * @param value : value
+	 * @param type  : type, if not automatically detected
+	 */
 	public constructor(name:string, value:any, type?:DataType|string)
 	{
 		if (typeof type != "string")
@@ -41,36 +59,43 @@ export class BindValue
 		this.column = name;
 	}
 
+	/** Name of bind value */
 	public get name() : string
 	{
 		return(this.name$);
 	}
 
+	/** Name of bind value */
 	public set name(name:string)
 	{
 		this.name$ = name;
 	}
 
+	/** Column to bind to */
 	public get column() : string
 	{
 		return(this.column$);
 	}
 
+	/** Column to bind to */
 	public set column(column:string)
 	{
 		this.column$ = column;
 	}
 
+	/** Whether it is used as an out parameter */
 	public get outtype() : boolean
 	{
 		return(this.out$);
 	}
 
+	/** Whether it is used as an out parameter */
 	public set outtype(flag:boolean)
 	{
 		this.out$ = flag;
 	}
 
+	/** The datatype */
 	public get type() : string
 	{
 		if (this.type$ == null)
@@ -79,6 +104,7 @@ export class BindValue
 		return(this.type$);
 	}
 
+	/** The datatype */
 	public set type(type:DataType|string)
 	{
 		if (typeof type != "string")
@@ -87,21 +113,25 @@ export class BindValue
 		this.type$ = type;
 	}
 
+	/** Whether to force/cast the type */
 	public get forceDataType() : boolean
 	{
 		return(this.force$);
 	}
 
+	/** Whether to force/cast the type */
 	public set forceDataType(flag:boolean)
 	{
 		this.force$ = flag;
 	}
 
+	/** The value */
 	public get value() : any
 	{
 		return(this.value$);
 	}
 
+	/** The value */
 	public set value(value:any)
 	{
 		this.value$ = value;

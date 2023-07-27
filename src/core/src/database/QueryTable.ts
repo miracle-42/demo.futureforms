@@ -35,6 +35,9 @@ import { FilterStructure } from "../model/FilterStructure.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 import { DataSource, LockMode } from "../model/interfaces/DataSource.js";
 
+/**
+ * Datasource based on a query using OpenRestDB
+ */
 export class QueryTable extends SQLSource implements DataSource
 {
 	public name:string;
@@ -61,6 +64,7 @@ export class QueryTable extends SQLSource implements DataSource
 	private datatypes$:Map<string,DataType> =
 		new Map<string,DataType>();
 
+	/** @param connection : OpenRestDB connection to a database, @param sql : a query */
 	public constructor(connection:DatabaseConnection, sql?:string)
 	{
 		super();
@@ -78,17 +82,20 @@ export class QueryTable extends SQLSource implements DataSource
 		this.name = this.constructor.name.toLowerCase();
 	}
 
+	/** The query */
 	public set sql(sql:string)
 	{
 		this.sql$ = sql;
 		this.described$ = false;
 	}
 
+	/** Whether the datasource is transactional */
 	public get transactional() : boolean
 	{
 		return(false);
 	}
 
+	/** Closes backend cursor */
 	public clear() : void
 	{
 		if (this.cursor$ && !this.cursor$.eof)
@@ -97,6 +104,7 @@ export class QueryTable extends SQLSource implements DataSource
 		this.cursor$ = null;
 	}
 
+	/** Clones the datasource */
 	public clone() : QueryTable
 	{
 		let clone:QueryTable = new QueryTable(this.pubconn$,this.sql$);
@@ -110,77 +118,74 @@ export class QueryTable extends SQLSource implements DataSource
 		return(clone);
 	}
 
+	/** The order by clause */
 	public get sorting() : string
 	{
 		return(this.order$);
 	}
 
+	/** The order by clause */
 	public set sorting(order:string)
 	{
 		this.order$ = order;
 	}
 
+	/** Get the column names returned from the query */
 	public get columns() : string[]
 	{
 		return(this.columns$);
 	}
 
+	/** Insert is not allowed on this source */
 	public get insertallowed() : boolean
 	{
 		return(false);
 	}
 
+	/** Update is not allowed on this source */
 	public get updateallowed() : boolean
 	{
 		return(false);
 	}
 
+	/** Delete is not allowed on this source */
 	public get deleteallowed() : boolean
 	{
 		return(false);
 	}
 
+	/** When adding filters, start with where or and */
 	public startWithWhere(flag:boolean) : void
 	{
 		this.where$ = flag;
 	}
 
+	/** Force a datatype */
 	public setDataType(column:string,type:DataType) : QueryTable
 	{
 		this.datatypes$.set(column?.toLowerCase(),type);
 		return(this);
 	}
 
+	/** Not possible on this datasource */
 	public addColumns(_columns:string|string[]) : QueryTable
 	{
 		return(this);
 	}
 
-	public removeColumns(columns:string|string[]) : QueryTable
+	/** Not possible on this datasource */
+	public removeColumns(_columns:string|string[]) : QueryTable
 	{
-		if (!Array.isArray(columns))
-			columns = [columns];
-
-		let cols:string[] = [];
-
-		for (let i = 0; i < columns.length; i++)
-			columns[i] = columns[i]?.toLowerCase();
-
-		for (let i = 0; i < this.columns$.length; i++)
-		{
-			if (!columns.includes(this.columns$[i]))
-				cols.push(this.columns$[i]);
-		}
-
-		this.columns$ = cols;
 		return(this);
 	}
 
+	/** Return the default filters */
 	public getFilters() : FilterStructure
 	{
 		return(this.limit$);
 	}
 
+	/** Add a default filter */
 	public addFilter(filter:Filter | FilterStructure) : QueryTable
 	{
 		if (this.limit$ == null)
@@ -198,6 +203,7 @@ export class QueryTable extends SQLSource implements DataSource
 		return(this);
 	}
 
+	/** Add a bindvalue */
 	public addBindValue(bindvalue:BindValue) : void
 	{
 		if (this.bindings$ == null)
@@ -206,51 +212,60 @@ export class QueryTable extends SQLSource implements DataSource
 		this.bindings$.push(bindvalue);
 	}
 
+	/** Not possible on this datasource */
 	public async lock(_record:Record) : Promise<boolean>
 	{
 		Alert.fatal("Cannot lock records on datasource based on a query","Datasource");
 		return(false);
 	}
 
+	/** Not possible on this datasource */
 	public async undo() : Promise<Record[]>
 	{
 		return([]);
 	}
 
+	/** Not possible on this datasource */
 	public async flush() : Promise<Record[]>
 	{
 		return([]);
 	}
 
+	/** Re-fetch the given record from the backend */
 	public async refresh(record:Record) : Promise<boolean>
 	{
 		record.refresh();
 		return(true);
 	}
 
+	/** Not possible on this datasource */
 	public async insert(_record:Record) : Promise<boolean>
 	{
 		Alert.fatal("Cannot insert records into a datasource based on a query","Datasource");
 		return(false);
 	}
 
+	/** Not possible on this datasource */
 	public async update(_record:Record) : Promise<boolean>
 	{
 		Alert.fatal("Cannot update records on a datasource based on a query","Datasource");
 		return(false);
 	}
 
+	/** Not possible on this datasource */
 	public async delete(_record:Record) : Promise<boolean>
 	{
 		Alert.fatal("Cannot delete records on a datasource based on a query","Datasource");
 		return(false);
 	}
 
+	/** Not possible on this datasource */
 	public async getSubQuery(_filter:FilterStructure, _mstcols:string|string[], _detcols:string|string[]) : Promise<SQLRest>
 	{
 		return(null);
 	}
 
+	/** Execute the query */
 	public async query(filter?:FilterStructure) : Promise<boolean>
 	{
 		this.fetched$ = [];
@@ -308,6 +323,7 @@ export class QueryTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Fetch a set of records */
 	public async fetch() : Promise<Record[]>
 	{
 		if (this.cursor$ == null)
@@ -343,6 +359,7 @@ export class QueryTable extends SQLSource implements DataSource
 		return(fetched);
 	}
 
+	/** Close the database cursor */
 	public async closeCursor() : Promise<boolean>
 	{
 		let response:any = null;

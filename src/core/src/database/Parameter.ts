@@ -21,6 +21,10 @@
 
 import { DataType } from "./DataType.js";
 
+/**
+ * Parameter types, mostly used with database
+ * stored proedures/functions
+ */
 export enum ParameterType
 {
 	in,
@@ -28,6 +32,10 @@ export enum ParameterType
 	inout
 }
 
+/**
+ * Parameter, mostly used with database
+ * stored proedures/functions
+ */
 export class Parameter
 {
 	value:any;
@@ -35,6 +43,13 @@ export class Parameter
 	dtype:string;
 	ptype:ParameterType;
 
+	/**
+	 * 
+	 * @param name  : name
+	 * @param value : value
+	 * @param dtype : data type
+	 * @param ptype : parameter type i.e. in, out, in/out
+	 */
 	constructor(name:string, value:any, dtype?:DataType|string, ptype?:ParameterType)
 	{
 		if (typeof dtype != "string")

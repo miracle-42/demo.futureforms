@@ -19,6 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * User defined custom event
+ */
 export interface CustomEvent
 {
 	source:any;

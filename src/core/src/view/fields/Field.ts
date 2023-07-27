@@ -305,6 +305,7 @@ export class Field
 
 		if (brwevent.modified)
 		{
+			let before = this.value$;
 			let value:string = inst.getIntermediateValue();
 
 			this.dirty = true;
@@ -315,10 +316,13 @@ export class Field
 			this.distribute(inst,value,this.dirty);
 			this.block.distribute(this,value,this.dirty);
 
-			success = await this.block.onEdit(inst);
-
-			if (!success)
-				FlightRecorder.add("@field: onEdit "+inst+" failed");
+			if (!await this.block.onEdit(inst))
+			{
+				value = before;
+				inst.setValue(value);
+				this.distribute(inst,value,this.dirty);
+				this.block.distribute(this,value,this.dirty);
+			}
 
 			return;
 		}

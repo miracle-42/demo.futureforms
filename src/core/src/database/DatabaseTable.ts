@@ -35,6 +35,9 @@ import { FilterStructure } from "../model/FilterStructure.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 import { DataSource, LockMode } from "../model/interfaces/DataSource.js";
 
+/**
+ * Datasource based on a table/view using OpenRestDB
+ */
 export class DatabaseTable extends SQLSource implements DataSource
 {
 	public name:string;
@@ -70,6 +73,11 @@ export class DatabaseTable extends SQLSource implements DataSource
 	private datatypes$:Map<string,DataType> =
 		new Map<string,DataType>();
 
+	/**
+	 *  @param connection : OpenRestDB connection to a database
+	 *  @param table : Database table/view
+	 *  @param columns : Columns from the table/view
+	 */
 	public constructor(connection:DatabaseConnection, table:string, columns?:string|string[])
 	{
 		super();
@@ -95,6 +103,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.name = table;
 	}
 
+	/** Set the table/view */
 	public set table(table:string)
 	{
 		this.table$ = table;
@@ -102,11 +111,13 @@ export class DatabaseTable extends SQLSource implements DataSource
 		if (this.name == null) this.name = table;
 	}
 
+	/** Whether the datasource is transactional */
 	public get transactional() : boolean
 	{
 		return(this.conn$.transactional);
 	}
 
+	/** Closes backend cursor */
 	public clear() : void
 	{
 		this.dirty$ = [];
@@ -117,6 +128,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.cursor$ = null;
 	}
 
+	/** Clones the datasource */
 	public clone() : DatabaseTable
 	{
 		let clone:DatabaseTable = new DatabaseTable(this.pubconn$,this.table$);
@@ -131,21 +143,25 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(clone);
 	}
 
+	/** The order by clause */
 	public get sorting() : string
 	{
 		return(this.order$);
 	}
 
+	/** The order by clause */
 	public set sorting(order:string)
 	{
 		this.order$ = order;
 	}
 
+	/** The columns used by this datasource */
 	public get columns() : string[]
 	{
 		return(this.columns$);
 	}
 
+	/** Set the column names involved */
 	public set columns(columns:string|string[])
 	{
 		if (!Array.isArray(columns))
@@ -154,6 +170,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.columns$ = columns;
 	}
 
+	/** Get the primary key defined for this datasource */
 	public get primaryKey() : string[]
 	{
 		if (this.primary$ == null || this.primary$.length == 0)
@@ -165,6 +182,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(this.primary$);
 	}
 
+	/** Set the primary key for this datasource */
 	public set primaryKey(columns:string|string[])
 	{
 		if (!Array.isArray(columns))
@@ -174,17 +192,20 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.primary$ = columns;
 	}
 
+	/** Force a datatype */
 	public setDataType(column:string,type:DataType) : DatabaseTable
 	{
 		this.datatypes$.set(column?.toLowerCase(),type);
 		return(this);
 	}
 
+	/** Get columns defined for 'returning' after insert */
 	public get insertReturnColumns() : string[]
 	{
 		return(this.insreturncolumns$);
 	}
 
+	/** Set columns defined for 'returning' after insert */
 	public set insertReturnColumns(columns:string|string[])
 	{
 		if (!Array.isArray(columns))
@@ -193,11 +214,13 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.insreturncolumns$ = columns;
 	}
 
+	/** Get columns defined for 'returning' after update */
 	public get updateReturnColumns() : string[]
 	{
 		return(this.updreturncolumns$);
 	}
 
+	/** Set columns defined for 'returning' after update */
 	public set updateReturnColumns(columns:string|string[])
 	{
 		if (!Array.isArray(columns))
@@ -206,11 +229,13 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.updreturncolumns$ = columns;
 	}
 
+	/** Get columns defined for 'returning' after delete */
 	public get deleteReturnColumns() : string[]
 	{
 		return(this.delreturncolumns$);
 	}
 
+	/** Set columns defined for 'returning' after delete */
 	public set deleteReturnColumns(columns:string|string[])
 	{
 		if (!Array.isArray(columns))
@@ -219,6 +244,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.delreturncolumns$ = columns;
 	}
 
+	/** Add additional columns participating in insert, update and delete */
 	public addDMLColumns(columns:string|string[]) : void
 	{
 		if (!Array.isArray(columns))
@@ -227,6 +253,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		this.dmlcols$ = this.mergeColumns(this.dmlcols$,columns);
 	}
 
+	/** Add columns participating in all operations on the table/view */
 	public addColumns(columns:string|string[]) : DatabaseTable
 	{
 		if (!Array.isArray(columns))
@@ -236,6 +263,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(this);
 	}
 
+	/** Remove columns participating in all operations on the table/view */
 	public removeColumns(columns:string|string[]) : DatabaseTable
 	{
 		if (!Array.isArray(columns))
@@ -256,11 +284,13 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(this);
 	}
 
+	/** Return the default filters */
 	public getFilters() : FilterStructure
 	{
 		return(this.limit$);
 	}
 
+	/** Add a default filter */
 	public addFilter(filter:Filter | FilterStructure) : DatabaseTable
 	{
 		if (this.limit$ == null)
@@ -278,6 +308,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(this);
 	}
 
+	/** Lock the given record in the database */
 	public async lock(record:Record) : Promise<boolean>
 	{
 		if (record.locked)
@@ -335,6 +366,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Undo not flushed changes */
 	public async undo() : Promise<Record[]>
 	{
 		let undo:Record[] = [];
@@ -348,6 +380,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(undo);
 	}
 
+	/** Flush changes to backend */
 	public async flush() : Promise<Record[]>
 	{
 		let sql:SQLRest = null;
@@ -425,6 +458,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(processed);
 	}
 
+	/** Re-fetch the given record from the backend */
 	public async refresh(record:Record) : Promise<boolean>
 	{
 		if (!await this.describe())
@@ -455,6 +489,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Create a record for inserting a row in the table/view */
 	public async insert(record:Record) : Promise<boolean>
 	{
 		if (!this.dirty$.includes(record))
@@ -462,6 +497,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Mark a record for updating a row in the table/view */
 	public async update(record:Record) : Promise<boolean>
 	{
 		if (!this.dirty$.includes(record))
@@ -469,6 +505,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Mark a record for deleting a row in the table/view */
 	public async delete(record:Record) : Promise<boolean>
 	{
 		if (!this.dirty$.includes(record))
@@ -476,6 +513,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Get the query as a subquery */
 	public async getSubQuery(filter:FilterStructure, mstcols:string|string[], detcols:string|string[]) : Promise<SQLRest>
 	{
 		filter = filter?.clone();
@@ -528,6 +566,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(sql);
 	}
 
+	/** Execute the query */
 	public async query(filter?:FilterStructure) : Promise<boolean>
 	{
 		this.fetched$ = [];
@@ -586,6 +625,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(true);
 	}
 
+	/** Fetch a set of records */
 	public async fetch() : Promise<Record[]>
 	{
 		if (this.cursor$ == null)
@@ -622,6 +662,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		return(fetched);
 	}
 
+	/** Close the database cursor */
 	public async closeCursor() : Promise<boolean>
 	{
 		let response:any = null;

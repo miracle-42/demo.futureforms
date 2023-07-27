@@ -23,6 +23,7 @@ import { Filter } from './Filter.js';
 import { Record } from '../Record.js';
 import { FilterStructure } from '../FilterStructure.js';
 
+/** Lock strategy */
 export enum LockMode
 {
 	None,
@@ -30,6 +31,11 @@ export enum LockMode
 	Pessimistic
 }
 
+/**
+ * Definition of a datasource.
+ * Any class implementing this interface
+ * can be used as a datasource.
+ */
 export interface DataSource
 {
 	name:string;

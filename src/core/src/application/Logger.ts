@@ -31,6 +31,9 @@ export enum Type
 	eventlisteners,
 }
 
+/**
+ * The Logger class is meant for debugging the code.
+ */
 export class Logger
 {
 	public static all:boolean = false;

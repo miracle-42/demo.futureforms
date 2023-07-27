@@ -25,6 +25,10 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The ILike filter resembles the case-insensitive ilike operator in SQL.
+ */
 export class ILike implements Filter
 {
 	private column$:string = null;

@@ -23,6 +23,11 @@ import { KeyCodes } from "./KeyCodes.js";
 import { Class } from "../../types/Class.js";
 import { BrowserEvent } from "./BrowserEvent.js";
 
+
+/**
+ * Map over key events
+ * Can be overridden by application
+ */
 export class KeyMap
 {
 	public static copy:KeyMap = new KeyMap({key: 'c', ctrl: true});
@@ -73,20 +78,23 @@ export class KeyMap
 		return(KeyMap[key]);
 	}
 
-	public static list() : string[][]
+	public static list(map?:Class<any>) : string[][]
 	{
 		let list:string[][] = [];
 
-		Object.keys(KeyMap).forEach((mapped) =>
+		if (!map) map = KeyMap;
+		else list = KeyMap.list();
+
+		Object.keys(map).forEach((mapped) =>
 		{
-			if (KeyMap[mapped] != null && (KeyMap[mapped] instanceof KeyMap))
+			if (map[mapped] != null && (map[mapped] instanceof KeyMap))
 			{
-				if (KeyMap[mapped].name && KeyMap[mapped].desc)
+				if (map[mapped].name && map[mapped].desc)
 				{
 					let key:string[] = [];
-					key.push(KeyMap[mapped].toString());
-					key.push(KeyMap[mapped].name);
-					key.push(KeyMap[mapped].desc);
+					key.push(map[mapped].toString());
+					key.push(map[mapped].name);
+					key.push(map[mapped].desc);
 					list.push(key);
 				}
 			}
@@ -107,6 +115,9 @@ export class KeyMap
 
 	public constructor(def:KeyDefinition, name?:string, desc?:string)
 	{
+		if (def == null)
+			return;
+
 		if (def.shift == null)
 		{
 			if (def.key == def.key.toUpperCase() && def.key != def.key.toLowerCase())
@@ -214,6 +225,9 @@ export class KeyMap
 	}
 }
 
+/**
+ * Data describing a key event
+ */
 export interface KeyDefinition
 {
 	key:string;
@@ -244,7 +258,7 @@ export class KeyMapping
 		{
 			if (map[mapped] != null && (map[mapped] instanceof KeyMap))
 			{
-				let existing:KeyMap = KeyMapping.get(map[mapped].signature);
+				let existing:KeyMap = KeyMapping.get(KeyMap[mapped]?.signature);
 
 				if (existing == null) KeyMapping.add(map[mapped]);
 				else map[mapped] = KeyMapping.get(map[mapped].signature);
@@ -292,6 +306,9 @@ export class KeyMapping
 
 	public static get(signature:string, validated?:boolean) : KeyMap
 	{
+		if (!signature)
+			return(null);
+
 		if (!validated)
 			signature = KeyMapping.complete(signature);
 

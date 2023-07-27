@@ -25,6 +25,10 @@ import { KeyMap } from "../../control/events/KeyMap.js";
 import { EventType } from "../../control/events/EventType.js";
 import { Internals } from "../../application/properties/Internals.js";
 
+/**
+ * A simple utillity form for prompting
+ * for username / password
+ */
 export class UsernamePassword extends Form
 {
     public title:string = null;

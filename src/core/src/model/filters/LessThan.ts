@@ -25,6 +25,10 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The LessThan filter resembles the < and <= operator in SQL.
+ */
 export class LessThan implements Filter
 {
 	private constraint$:any;

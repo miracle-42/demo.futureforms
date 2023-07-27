@@ -23,6 +23,13 @@ import { Block } from "./Block.js";
 import { DataSource } from "./interfaces/DataSource.js";
 import { DataSourceWrapper } from "./DataSourceWrapper.js";
 
+/**
+ * The state of a record.
+ *
+ * Records goes through different states, depending on
+ * the user actions, the datasource and the type of connection.
+ * 
+ */
 export enum RecordState
 {
 	New,

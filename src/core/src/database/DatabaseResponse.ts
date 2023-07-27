@@ -19,6 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * When doing DML on a database table using OpenRestDB the response
+ * from the database is parsed into a DatabaseResponse
+ */
 export class DatabaseResponse
 {
 	private response$:any;
@@ -36,11 +40,13 @@ export class DatabaseResponse
 		}
 	}
 
+	/** Whether the statement failed */
 	public get failed() : boolean
 	{
 		return(!this.response$.success);
 	}
 
+	/** Get the value of a responed column when using 'returning' */
 	public getValue(column:string) : any
 	{
 		if (!this.response$.rows)

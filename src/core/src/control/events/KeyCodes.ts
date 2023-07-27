@@ -19,6 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Utility class for key-codes
+ */
 export class KeyCodes
 {
     static Backspace    : string = 'Backspace'

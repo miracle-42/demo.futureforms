@@ -19,6 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Data class just holding a piece of HTML
+ */
 export class HTMLFragment
 {
 	content:string|Element;

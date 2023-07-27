@@ -21,6 +21,9 @@
 
 import { BrowserEvent } from "./BrowserEvent.js";
 
+/**
+ * Map over mouse events
+ */
 export enum MouseMap
 {
 	drop,

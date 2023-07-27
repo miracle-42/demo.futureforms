@@ -29,6 +29,12 @@ export interface View
 	height  : string|number;
 }
 
+/**
+ * Forms must be placed on a canvas that provides basic
+ * functionality across all types of forms. It is possible
+ * to replace the default implementation of the Canvas, implementing
+ * this interface and injecting the custom Canvas class.
+ */
 export interface Canvas
 {
 	zindex:number;

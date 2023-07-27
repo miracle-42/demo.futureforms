@@ -19,6 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Javascript doesn't have a lot of datatypes which often causes
+ * problems with e.g databases. DataType is used for specifying the
+ * mapping to a data type on the backend.
+ */
 export enum DataType
 {
 	int,
@@ -43,6 +48,6 @@ export enum DataType
 	varchar2,
 
 	text,
-	
+
 	boolean
 }

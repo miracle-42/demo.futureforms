@@ -42,7 +42,7 @@ div[name="close"]:hover,
 	display: inline-grid;
 	grid-auto-flow: column;
 	background-color: #36393e;
-	grid-template-columns: 40px 1fr 50px;
+	grid-template-columns: 40px 1fr 155px;
 }
 
 .form-area
@@ -149,7 +149,6 @@ tr td span:hover
 	border-radius: 0;
 	text-decoration: none;
 	background: transparent;
-	transition: all 5s ease left;
 }
 
 .left-menu-container .left-menu
@@ -202,6 +201,7 @@ tr td span:hover
 .left-menu.level-2
 {
 	margin-left:18px;
+	margin-bottom: 0px;
 }
 
 .left-menu-container .left-menu.level-1
@@ -217,8 +217,7 @@ tr td span:hover
 .left-menu-container .left-menu a:hover,
 .left-menu-container .left-menu a:focus
 {
-	background-color:#424549;
-	border-left: 3px solid #6060F0;
+	background-color:#6060F0;
 }
 
 .left-menu-container .left-menu a:hover:after
@@ -323,7 +322,6 @@ div[name="drag-fields"]
 .heading:hover
 {
 	transform: scale(1.05);
-	box-shadow: 2px 2px 2px rgba(black, 0.2);
 }
 
 .heading:active
@@ -582,7 +580,6 @@ div.modal
    padding:13px;
    position: absolute;
    pointer-events: none;
-   transition: 0.2 ease;
    background-color: white;
 	box-shadow: 0 5px 10px rgba(0,0,0,0.08);
 }
@@ -621,7 +618,6 @@ div[name="date-picker"]
 .topbar .link-item,
 .topbar .top-menu
 {
-	gap:10px;
 	margin:0;
 	font-size:13px;
 	padding:0 13px;
@@ -692,8 +688,7 @@ div[name="date-picker"]
 
 .topbar .top-menu li[type="menu"] li[type="link"] a:hover ~ div,
 .topbar .top-menu li[type="menu"] li[type="menu"] a:hover ~ div,
-.topbar .top-menu li[type="menu"] li[type="link"] a:focus ~ div,
-.topbar .top-menu li[type="menu"] li[type="menu"] a:focus ~ div
+.topbar .top-menu li[type="menu"] li[type="link"] a:focus ~ div
 {
 	visibility: visible;
 }
@@ -735,7 +730,7 @@ div[name="date-picker"]
 
 .topbar .top-menu.level-1
 {
-	top: 27px;
+	top: 100%;
 	left: 50%;
 	height: 100%;
 	z-index:9999;
@@ -772,12 +767,14 @@ div[name="date-picker"]
 	background-color: #6060F0;
 }
 
-
 .topbar .top-menu li li a
 {
+	margin:0;
 	width:100%;
 	height:100%;
-	padding: 10px 15px;
+	padding: 13px 0;
+	align-items: center;
+	justify-content: center;
 }
 
 .top-menu.level-2,
@@ -795,12 +792,6 @@ div[name="date-picker"]
 .top-menu.level-3 li
 {
 	padding:0;
-}
-
-.top-menu.level-2 li a,
-.top-menu.level-3 li a
-{
-	padding:10px 25px !important;
 }
 
 label[for="username"],
@@ -835,19 +826,58 @@ div[name="loginbutton"]
 	gap:5px;
 	display: flex;
 	justify-content: right;
-	margin:15px 20px 20 20px !important;
 }
 
-div[name="msg"],
 div[name="lov"],
 div[name="login"],
 div[name="query"],
+div[name="msg"],
 div[name="date-picker"]
 {
 	margin:0 20px;
 	border-radius: 10px;
 	background-color: white;
+	margin-top:0px !important;
 	padding: 5px 20px 20px 20px;
+}
+
+div[name="popup-alert"]
+{
+	margin:0 20px;
+}
+
+#block.fatal ~ div[name="popup-body"] div[name="popup-alert"],
+#block.warning ~ div[name="popup-body"] div[name="popup-alert"]
+{
+	display:grid;
+	justify-content: end;
+	grid-auto-flow: column;
+	grid-template-columns: 30px 1fr;
+}
+
+#block.fatal ~ div[name="popup-body"] div[name="popup-alert"] div[name="msg"],
+#block.warning ~ div[name="popup-body"] div[name="popup-alert"] div[name="msg"]
+{
+	margin-left:10px !important;
+}
+
+#block  ~ div[name="popup-body"] div[name="alertlogo"]
+{
+	width: 100%;
+	height: 75%;
+	background-size: 30px;	
+	background-repeat: no-repeat;
+	filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(104%) contrast(101%);
+}
+
+#block.fatal  ~ div[name="popup-body"] div[name="alertlogo"]
+{
+	background-image: url(images/fatal.png);
+}
+
+#block.warning  ~ div[name="popup-body"] div[name="alertlogo"]
+{
+	background-image: url(images/warning.png);
 }
 
 .logo
@@ -923,7 +953,7 @@ button:before
 	height: calc(100% + 4px);
 	transition: opacity 0.3s ease-in-out;
 	animation: glowing-button 20s linear infinite;
-  }
+}
 
 @keyframes glowing-button
 {
@@ -941,6 +971,40 @@ button:before
 	}
 }
 
+menu[name="top-menu"] li
+{
+	padding:0;
+	margin:0;
+	height: 100%;
+}
+
+menu[name="top-menu"]  li a
+{
+
+	display:flex;
+	min-width: 110px;
+	align-items: center;
+	justify-content: center;
+}
+
+.infomation a:hover,
+menu[name="top-menu"]  li a:hover:not([disabled]),
+menu[name="top-menu"]  li a:focus:not([disabled])
+{
+	background-color: #6060F0;
+}
+
+.infomation .tutorial
+{
+	height: 100%;
+	display:flex;
+}
+
+.infomation .tutorial a
+{
+	padding: 13px 20px 0 20px;
+}
+
 button::after
 {
 	top: 0;
@@ -952,7 +1016,6 @@ button::after
 	user-select: none;
 	position: absolute;
 	border-radius: 10px;
-	
 	background-color: rgb(72, 72, 72);
 }
 
@@ -1166,6 +1229,7 @@ div[name="buttonarea"]
 
 .infomation
 {
+	gap:30px;
 	width:auto;
 	height: 100%;
 	display:flex;
@@ -1174,9 +1238,17 @@ div[name="buttonarea"]
 	align-items: center;
 }
 
-.infomation:hover .InformationKeyMap
+.infomation .img:hover ~ .InformationKeyMap
 {
 	display:table;
+}
+
+.infomation a
+{
+	color:white;
+	font-size: 13px;
+	font-weight: bold;
+	text-decoration: none;
 }
 
 .infomation	.img
@@ -1190,6 +1262,7 @@ div[name="buttonarea"]
 	background-image: url(images/info.png);
 	filter: invert(100%) sepia(6%) saturate(0%) hue-rotate(3deg) brightness(108%) contrast(105%);
 }
+
 .infomation	.InformationKeyMap
 {
 	top:100%;
@@ -1201,7 +1274,6 @@ div[name="buttonarea"]
 	margin-top:0px;
 	list-style: none;
 	position: absolute;
-	transition: ease 0.3 all;
 	background-color:white;
 	box-shadow:  0 2px 10px #666;
 }
@@ -1218,4 +1290,9 @@ div[name="buttonarea"]
 .infomation	li:last-child
 {
 	border-bottom: none;
+}
+
+div[name="close-button"]
+{
+	line-height: 15px;
 }

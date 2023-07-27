@@ -25,6 +25,10 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The Equals filter resembles the = operator in SQL.
+ */
 export class Equals implements Filter
 {
 	private column$:string = null;

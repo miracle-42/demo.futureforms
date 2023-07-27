@@ -35,27 +35,27 @@
 .topbar
 {
 	display:flex;
-	font-size:18px;
+	font-size:15px;
 	cursor: default;
 	user-select: none;
 	justify-content: center;
 }
 
-.topbar li[type="menu"],
-.topbar menu[name="top-menu"]
+.topbar .top-menu
 {
 	margin:0;
 	gap:10px;
+	display:flex;
 	padding:0 10px;
 	cursor: default;
+	list-style: none;
 	font-weight: bold;
 	position: relative;
-	display:inline-flex;
 	align-items: center;
 	background-color: white;
 }
 
-.topbar menu[name="top-menu"] menu[name="top-menu"]
+.topbar .top-menu .top-menu
 {
 	top: 30px;
 	left: 50%;
@@ -69,16 +69,25 @@
 	transform: translateX(-50%);
 }
 
-.topbar menu[name="top-menu"] menu[name="top-menu"] li[type="link"]
+.topbar .top-menu li
 {
 	display:flex;
+	padding:0 10px;
+	position: relative;
+	align-items: center;
+	justify-content: center;
 }
 
-.topbar menu[name="top-menu"] menu[name="top-menu"] li[type="link"] a
+.topbar .top-menu li div
+{
+	width:50px;
+}
+
+.topbar .top-menu .top-menu li a
 {
 	width:100%;
 	height:100%;
-	padding: 10px 15px;
+	padding: 10px 5px 10px 0px;
 }
 
 .canvas
@@ -106,7 +115,7 @@
 	cursor: pointer;
 	position: relative;
 	display:inline-block;
-   	background-size: 20px;
+   background-size: 20px;
 	transition: all 0.18s ease;
 	background-repeat: no-repeat;
 	background-image: url('images/icons8-info-50.png');
@@ -136,6 +145,12 @@
 	padding: 30px;
 }
 
+.topbar .top-menu li .level-2
+{
+	top:0;
+	left:146%;
+}
+
 .menu-left
 {
 	width:0px;
@@ -153,21 +168,31 @@
 	background: transparent;
 }
 
-.left-menu-container menu[name="left-menu"]
+.left-menu-container .left-menu
 {
 	margin:0;
 	padding: 0;
 	display: block;
 	font-size: 16px;
 	margin-top: 10px;
-	list-style: none;
 }
 
-.left-menu-container li[type="link"],
-.left-menu-container li[type="menu"]
+.left-menu-container li[type="menu"],
+.top-menu .top-menu li[type="menu"]
+{
+	list-style-type: disc;
+}
+
+.left-menu-container .left-menu .left-menu
+{
+	padding-left: 10px;
+}
+
+.left-menu-container li
 {
 	font-size: 16px;
 	margin-top: 5px;
+	list-style: none;
 	user-select: none;
 }
 
@@ -201,21 +226,12 @@ input[disabled=disabled]
 	font-style: italic;
 }
 
-.topbar
-{
-	display:flex;
-	font-size:18px;
-	cursor: default;
-	user-select: none;
-	justify-content: center;
-}
-
 .page-footer-pos:hover .footer-tooltiptext-top
 {
 	visibility: visible !important;
 }
 
-.infomation	.infommationKeyMap
+.infomation	.InformationKeyMap
 {
 	display:none;
 }

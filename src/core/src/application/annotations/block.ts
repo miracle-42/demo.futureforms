@@ -23,6 +23,17 @@ import { Logger, Type } from '../Logger.js';
 import { Form } from '../../public/Form.js';
 import { FormMetaData } from '../FormMetaData.js';
 
+/**
+ *
+ * Annotations provides a short and easy way to inject code.
+ *
+ * The following:
+ *
+ * @block("employee")
+ * private emp:Block;
+ *
+ * Will create and inject a block into the variable emp
+ */
 export const block = (block:string) =>
 {
 	function define(form:Form, attr:string)

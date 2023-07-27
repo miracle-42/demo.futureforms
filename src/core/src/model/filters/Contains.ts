@@ -25,6 +25,12 @@ import { DataType } from "../../database/DataType.js";
 import { BindValue } from "../../database/BindValue.js";
 
 
+/**
+ * Filters is a key component when communicating with a backend.
+ * The Contains filter is meant for text-queries. Contains is not
+ * part of standard SQL and should be extended when used on a database
+ * datasource
+ */
 export class Contains implements Filter
 {
 	private columns$:string[] = [];

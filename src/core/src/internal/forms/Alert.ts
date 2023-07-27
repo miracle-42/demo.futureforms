@@ -108,8 +108,12 @@ export class Alert extends Form
 
 		Internals.header +
 		`
+		
 		<div name="popup-body">
-			<div name="msg" from="alert"></div>
+			<div name="popup-alert">
+				<div name="alertlogo"></div>
+				<div name="msg" from="alert"></div>
+			</div>
 		</div>
 		
 		<div name="lowerright">

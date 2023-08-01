@@ -1,6 +1,6 @@
 # FutureForms
 
-*Release 0.1*
+*Release 0.2*
 
 FutureForms is *Javascript only* web sites with database.
 

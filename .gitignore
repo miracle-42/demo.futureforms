@@ -26,6 +26,7 @@ src/openrestdb/target
 #*.js
 *.d.ts
 !html.d.ts
+!util/set-version.sh
 package-lock.json
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml

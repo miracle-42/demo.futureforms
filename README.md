@@ -2,7 +2,7 @@
 
 *Release 0.1*
 
-FutureForms is for *Javascript only* web sites.
+FutureForms is *Javascript only* web sites with database.
 
 FutureForms is a Javascript REST API library.
 
@@ -14,12 +14,13 @@ The primary purpose of FutureForms is to be used for internal applications on th
 To list and edit complex relational data structures for the internal organisation.
 
 Business application vs. Static: FutureForms is primarily made for interactive applications where
-you edit & search for data like Google.
-Static data like Wikipedia & dictionaries is not the primary focus for FutureForms.
+you edit & search for data like Google, webmail or games.
+Static data like newspapers, Wikipedia & dictionaries is not the primary focus for FutureForms.
 Data entry applications is the main focus.
 
 As database backends FutureForms supports both PostgreSQL and Oracle RDBMS.
-Build in static read-only list in Javascript is also supported.
+Build in static read-only list in Javascript is also supported,
+when data seldomly changes.
 
 To try out FutureForms go to the
 [install section](#install-futureforms-featured-demo-and-tutorial-installation) .

@@ -2,25 +2,26 @@
 
 *Release 0.2*
 
-FutureForms is *Javascript only* web sites with database.
+FutureForms is an Open-Source object-oriented set of Components, used for
+fast and easy development of data entry and update applications. 
 
-FutureForms is a Javascript REST API library.
+FutureForms is a Typescript library, it is easy to extend and customized.
+It ensures total segregation of duties Typescript/HTML/CSS/SQL, it
+supports continuous integration, and it can scale. 
 
-FutureForms is a Typescript library for fast and easy development of data entry forms and views.
+Interactive vs static business application: FutureForms is primarily made
+for interactive applications where you insert, edit and search data in
+relational databases.  
 
-Turn a HTML table into a database view, search and edit form with a few edits.
+FutureForms supports both PostgreSQL and Oracle as database backends.
+If you have data that rarely changes, static read-only list in Javascript
+is also supported. 
 
-The primary purpose of FutureForms is to be used for internal applications on the intranet.
-To list and edit complex relational data structures for the internal organisation.
+Exposes database as REST (no code). The focus on SQL in order to
+facilitate extreme flexibility, is taking into account that all security
+related issues must be handled at SQL level. 
 
-Business application vs. Static: FutureForms is primarily made for interactive applications where
-you edit & search for data like Google, webmail or games.
-Static data like newspapers, Wikipedia & dictionaries is not the primary focus for FutureForms.
-Data entry applications is the main focus.
-
-As database backends FutureForms supports both PostgreSQL and Oracle RDBMS.
-Build in static read-only list in Javascript is also supported,
-when data seldomly changes.
+FutureForms is developed for internal applications on the intranet.
 
 To try out FutureForms go to the
 [install section](#install-futureforms-featured-demo-and-tutorial-installation) .

@@ -150,15 +150,15 @@
       tags:
         - npm_build_demo
 
-    - name: Pack demo archive for deploy
-      community.general.archive:
-        path:
-          - "{{ install_path }}/demo"
-        dest: "{{ install_path }}/demo.tar.gz"
-        format: gz
-        exclude_path: [ "{{ install_path }}/demo/dbloaded.true" ]
-      tags:
-        - pack_archive
+#    - name: Pack demo archive for deploy
+#      community.general.archive:
+#        path:
+#          - "{{ install_path }}/demo"
+#        dest: "{{ install_path }}/demo.tar.gz"
+#        format: gz
+#        exclude_path: [ "{{ install_path }}/demo/dbloaded.true" ]
+#      tags:
+#        - pack_archive
 
     - name: Start openrestdb web-server
       ansible.builtin.command:

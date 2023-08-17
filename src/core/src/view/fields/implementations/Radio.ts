@@ -202,6 +202,9 @@ export class Radio implements FieldImplementation, EventListenerObject
       let bubble:boolean = false;
 		this.event.setEvent(event);
 
+		if (this.event.type == "skip")
+			return;
+
 		if (this.event.type == "wait")
 			await this.event.wait();
 

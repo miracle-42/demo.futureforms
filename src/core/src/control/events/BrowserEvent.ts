@@ -122,6 +122,9 @@ export class BrowserEvent
 		if (!bubble && event["stopPropagation"])
 			event.stopPropagation();
 
+		// Checkboxes and radio fires click on change
+		if (this.type == "change") this.wait$ = false;
+
 		if (!this.isKeyEvent) this.reset();
 		else                  this.KeyEvent();
 
@@ -447,10 +450,8 @@ export class BrowserEvent
 
 	public async wait() : Promise<void>
 	{
-		this.type = "click";
-
-		await new Promise(resolve => setTimeout(resolve,BrowserEvent.DBLClickDetection));
-		while(this.type == "mousedown") await new Promise(resolve => setTimeout(resolve,10));
+		for (let i = 0; i < 10 && this.wait$; i++)
+			await new Promise(resolve => setTimeout(resolve,BrowserEvent.DBLClickDetection/10));
 
 		this.wait$ = false;
 		this.type = this.event.type;
@@ -460,15 +461,22 @@ export class BrowserEvent
 	{
 		this.reset();
 
-		if (this.event.type == "click" || this.event.type == "dblclick")
+		if (this.event.type == "click")
 		{
-			if (this.waiting)
+			if (this.wait$)
 				return;
 
 			this.type = "wait";
 			this.wait$ = true;
 
-			setTimeout(() => {this.wait$ = false}, BrowserEvent.DBLClickDetection);
+			setTimeout(() => {this.wait$ = false},
+			  BrowserEvent.DBLClickDetection);
+		}
+
+		if (this.event.type == "dblclick")
+		{
+			this.type = "skip";
+			this.wait$ = false;
 		}
 
 		if (this.type == "contextmenu")

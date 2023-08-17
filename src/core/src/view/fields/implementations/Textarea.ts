@@ -138,8 +138,11 @@ export class Textarea implements FieldImplementation, EventListenerObject
 
 	public async handleEvent(event:Event) : Promise<void>
 	{
-        let bubble:boolean = false;
+		let bubble:boolean = false;
 		this.event.setEvent(event);
+
+		if (this.event.type == "skip")
+			return;
 
 		if (this.event.type == "wait")
 			await this.event.wait();

@@ -57,6 +57,9 @@ export class ApplicationHandler implements EventListenerObject
       let bubble:boolean = false;
 		this.event.setEvent(event);
 
+		if (this.event.type == "skip")
+			return;
+
 		if (this.event.type == "wait")
 			await this.event.wait();
 

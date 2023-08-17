@@ -344,6 +344,9 @@ export class Input implements FieldImplementation, EventListenerObject
 		let bubble:boolean = false;
 		this.event.modified = false;
 
+		if (this.event.type == "skip")
+			return;
+
 		if (this.event.type == "wait")
 			await this.event.wait();
 

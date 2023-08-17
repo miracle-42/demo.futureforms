@@ -1031,6 +1031,8 @@ export class Form implements EventListenerObject
 		if (this.event.type == "focus")
 			await this.onCanvasFocus();
 
+		if (this.event.type == "skip")
+			return;
 
 		if (this.event.type == "wait")
 			await this.event.wait();

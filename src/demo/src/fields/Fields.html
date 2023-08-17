@@ -1,7 +1,5 @@
 <include src="/html/formheader"></include>
 
-<button onclick="this.test()">Test</button>
-
 <div  style="width: 1000px;"></div>
 <div class="form" style="display:flex; flex-wrap: wrap;">
 	<div class="block" >
@@ -34,7 +32,7 @@
 
 		<fieldset class="fieldset">
 			<legend>Date</legend>
-			<div class="column"  title="Press F9 to get date picker">
+			<div class="column" title="Press F9 for datepicker + Press ctrl-space for current date" >
 				<span>Date</span>:<input name="date" from="fields" date>
 				<span>DateTime</span>:<input name="datetime" from="fields" datetime>
 			</div>
@@ -43,11 +41,11 @@
 		<fieldset class="fieldset">
 			<legend>Radio and Checkbox</legend>
 			<div class="column" style="display:flex;">
-				<div class="radio_button"  style="display:inline-flex;height: 30px;">
-					<input name="nordics" from="fields" size="4" upper>
+				<div class="radio_button"  style="display:flex;height: 20px; margin-top: 17px; margin-right: 5px;">
+					<input name="nordics" from="fields" size="2" upper>
 				</div>
 
-				<div class="radio_button" style="display:inline-flex">
+				<div class="radio_button" style="display:flex">
 
 					<p>DK:<input type="checkbox" name="nordics" from="fields" value="DK" class="radio"></p>
 
@@ -63,7 +61,7 @@
 		<fieldset class="fieldset">
 			<legend>Formatted Input (Chess Move)</legend>
 			<div class="column">
-				<span>Piece</span> :
+				<span>Piece</span>:
 				<select style="margin: 0px 10px" name="piece" from="fields" size="1">
 
 					<option value="King">King</option>
@@ -77,6 +75,13 @@
 				<span>Move</span>:
 				<input style="margin: 0px 10px" name="move" from="fields" format="{[A-H]}{[1-8]} -> {[A-H]}{[1-8]}" placeholder="C2 -> C3">
 				<span style="width:80px">[A-H][1-8]</span>
+			</div>
+			<div class="column">
+				<span>Move one</span>:
+				<input name="moveone" from="fields" size="8">
+
+				<span>Move two</span>:
+				<input name="movetwo" from="fields" size="8">
 			</div>
 		</fieldset>
 
@@ -104,16 +109,16 @@
 
 				<span>Code</span> : <input name="single" from="fields" size="4" upper>
 			</div>
-			<div class="column" style="margin-top: 20px;">
+			<div class="column" style="margin-top: 20px;" title="Press ctrl click for multiple choices">
 				<span>Multiple :</span>
 
-				<select style="width: 100px;" name="multi" from="fields" size="5" multiple>
+				<select style="width: 100px;" name="multi" from="fields" size="5"  multiple>
 					<option value="DK">Denmark</option>
 					<option value="SE">Sweden</option>
 					<option value="NO">Norway</option>
 					<option value="FI">Finland</option>
 				</select>
-				<span> Code</span> :<input name="multi" from="fields" size="8" upper>
+				<span> Code</span> :<textarea name="multi" from="fields" style="height: 30px; width: 120px;" upper>
 			</div>
 		</fieldset>
 

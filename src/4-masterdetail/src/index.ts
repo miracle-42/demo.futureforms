@@ -22,4 +22,4 @@
 import { FormsModule } from './FormsModule';
 
 new FormsModule();
-console.log("4-masterdetail Version 0.2");
+console.log("4-masterdetail Version 0.3");

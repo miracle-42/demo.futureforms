@@ -1,0 +1,69 @@
+Field:
+
+<tag name="column" from="datasource"></tag>
+
+Custom tags:
+
+include  			: include html
+
+
+Custom types for "from=" :
+
+row-indicator		: set class row-indicator for current row
+filter-indicator	: set class filter-indicator for blocks with search-constraints
+
+
+
+Custom attributes:
+
+foreach  : loop
+
+
+hidden   : used in navigation
+required : used when validating
+readonly : also works with select, radio and checkbox
+disabled : used in navigation
+
+row      : binds to displayed row
+query    : whether to be used with QBE
+insert	: open for input in insert mode
+derived  : no binding to datasource
+advquery : allow advanced query
+mapper   : use two-way mapper on values
+
+date     : custom date-field
+datetime : custom datetime-field
+
+integer  : allow only integer values
+decimal  : allow only decimal values
+boolean  : allow only boolean values
+
+upper    : uppercase, can be done in css as well
+lower    : lowercase, can be done in css as well
+initcap  : initcap like in names Alex Høffner
+
+format   : special field defined by a pattern
+
+Patterns consists of fixed text and field definitions enclosed by {}.
+Fields consists of a list of single character regular expressions.
+Each expression can be repeated using a preceding multiplier.
+For shorthand, a number of predefined classes can be used.
+
+ Example: Flight ID BA-2272
+
+  {[A-Z][A-Z]}-{[0-9][0-9][0-9][0-9]} 		or
+  {2[A-Z]}-{4[0-9]} 								or
+  {AA}-{####} 										or
+  {2A}-{4#}
+
+ Predefined classes:
+
+  *  : any
+  #  : [0-9]
+  d  : [0-9.-]
+  a  : [a-z]
+  A  : [A-Z]
+  w  : [a-z_0-9]
+  W  : [A-Z_0-9]
+  c  : any lowercase character
+  C  : any uppercase character

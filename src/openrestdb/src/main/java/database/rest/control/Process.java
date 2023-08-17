@@ -34,7 +34,6 @@ public class Process
   private final String opts;
   private final String jars;
   private final String instnm;
-  private final Config config;
   private final String javaexe;
   private final String httpopts;
   private final String restopts;
@@ -46,7 +45,6 @@ public class Process
 
   public Process(Config config) throws Exception
   {
-    this.config = config;
     this.instnm = config.instance();
     this.javaexe = config.getJava().exe();
     this.servers = config.getTopology().servers;

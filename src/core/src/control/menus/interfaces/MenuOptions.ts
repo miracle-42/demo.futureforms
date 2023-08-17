@@ -25,11 +25,14 @@ export enum Navigation
 	horizontal
 }
 
+/**
+ * Options for menu-display
+ */
 export interface MenuOptions
 {
-	skiproot?:boolean;
-	openroot?:boolean;
-	singlepath?:boolean;
-	openOnHoover?:boolean;
-	navigation?:Navigation;
+	skiproot?:boolean; 		// Skip root and start with children
+	openroot?:boolean; 		// Show root, but always display children
+	multipleOpen?:boolean; 	// Allow multiple open children at same time
+	openOnHoover?:boolean; 	// Open and display childs when hoover over menu-entry
+	navigation?:Navigation; // Navigation differs when vertical opposed to horizontal
 }

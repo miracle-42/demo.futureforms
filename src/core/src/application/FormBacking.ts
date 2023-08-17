@@ -59,6 +59,33 @@ export class FormBacking
 	private static bdata:Map<Form,FormBacking> =
 		new Map<Form,FormBacking>();
 
+	public static async createForm(form:Class<Form|InternalForm>|string, page:HTMLElement, parameters?:Map<any,any>) : Promise<Form>
+	{
+		if (typeof form === "string")
+		{
+			let path:string = form;
+			form = form.toLowerCase();
+			form = FormsModule.get().getComponent(form);
+			if (form == null) throw "@Application: No components mapped to path '"+path+"'";
+		}
+
+		let factory:ComponentFactory = Properties.FactoryImplementation;
+		let canvasimpl:Class<Canvas> = Properties.CanvasImplementationClass;
+
+		let canvas:Canvas = new canvasimpl();
+		let instance:Form = await factory.createForm(form,parameters);
+
+		await instance.setView(page);
+
+		canvas.setComponent(instance);
+		FormBacking.getViewForm(instance).canvas = canvas;
+
+		await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance));
+		await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance));
+
+		return(instance);
+	}
+
 	public static async showform(form:Class<Form|InternalForm>|string, parent:Form|InternalForm, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
 	{
 		if (typeof form === "string")
@@ -101,7 +128,6 @@ export class FormBacking
 		container.appendChild(canvas.getView());
 
 		FormBacking.getViewForm(instance).canvas = canvas;
-		let mform:ModelForm = FormBacking.getModelForm(instance);
 
 		if (parent)
 		{

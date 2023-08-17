@@ -22,6 +22,7 @@
 import { Form } from "./Form.js";
 import { Row, Status } from "./Row.js";
 import { Field } from "./fields/Field.js";
+import { Alert } from "../application/Alert.js";
 import { DataType } from "./fields/DataType.js";
 import { FieldInfo } from "./fields/FieldInfo.js";
 import { KeyMap } from "../control/events/KeyMap.js";
@@ -32,6 +33,7 @@ import { Properties } from "../application/Properties.js";
 import { FieldInstance } from "./fields/FieldInstance.js";
 import { EventType } from "../control/events/EventType.js";
 import { FormBacking } from "../application/FormBacking.js";
+import { DateConstraint } from "../public/DateConstraint.js";
 import { BasicProperties } from "./fields/BasicProperties.js";
 import { FieldFeatureFactory } from "./FieldFeatureFactory.js";
 import { FlightRecorder } from "../application/FlightRecorder.js";
@@ -347,7 +349,24 @@ export class Block
 		return(null);
 	}
 
-	public getFieldsByClass(field:string, clazz:string) : FieldInstance[]
+	public getInstancesByName(field:string, all?:boolean) : FieldInstance[]
+	{
+		let instances:FieldInstance[] = [];
+
+		if (all)
+		{
+			instances = this.getInstancesByClass(field);
+		}
+		else
+		{
+			this.getCurrentFields(field).forEach((fld) =>
+				{instances.push(...fld.getInstances())})
+		}
+
+		return(instances);
+	}
+
+	public getInstancesByClass(field:string, clazz?:string) : FieldInstance[]
 	{
 		let matched:FieldInstance[] = [];
 		let fields:Field[] = this.getAllFields(field);
@@ -492,10 +511,33 @@ export class Block
 		return(success);
 	}
 
+	public async validateDate(field:string, date:any) : Promise<boolean>
+	{
+		let success:boolean = true;
+		let type:DataType = this.fieldinfo.get(field)?.type;
+
+		if (type == DataType.date || type == DataType.datetime)
+		{
+			let backing:FormBacking = FormBacking.getBacking(this.form.parent);
+			let datecstr:DateConstraint = backing.getDateConstraint(this.name,field);
+
+			if (datecstr)
+			{
+				success = datecstr.valid(date);
+				if (!success) Alert.warning(datecstr.message,"Date Validation");
+			}
+		}
+
+		return(success);
+	}
+
 	public async validateField(inst:FieldInstance, value?:any) : Promise<boolean>
 	{
 		if (this.model.getValue(inst.name) == inst.getValue())
 			return(true);
+
+		if (!await this.validateDate(inst.name,inst.getValue()))
+			return(false);
 
 		await this.setEventTransaction(EventType.WhenValidateField);
 		let success:boolean = await this.fireFieldEvent(EventType.WhenValidateField,inst);
@@ -1271,6 +1313,9 @@ export class Block
 
 					if (!inst.qbeProperties.advquery)
 						advquery = true;
+
+					if (inst.properties.listofvalues)
+						FormBacking.getBacking(this.form.parent).setListOfValues(this.name,inst.name,inst.properties.listofvalues);
 
 					if (inst.datatype != type)
 					{

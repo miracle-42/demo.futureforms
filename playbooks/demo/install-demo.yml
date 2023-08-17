@@ -35,7 +35,7 @@
     - name: Futureforms core npm install
       ansible.builtin.command:
         cmd: npm install
-        creates: "../../src/core/package-lock.json"
+        creates: "../../src/core/node_modules"
       args:
         chdir: "../../src/core"
       tags:
@@ -44,7 +44,7 @@
     - name: Futureforms demo npm install
       ansible.builtin.command:
         cmd: npm install
-        creates: "../../src/demo/package-lock.json"
+        creates: "../../src/demo/node_modules"
       args:
         chdir: "../../src/demo"
       tags:

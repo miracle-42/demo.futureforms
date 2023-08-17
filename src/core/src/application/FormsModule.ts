@@ -232,6 +232,12 @@ export class FormsModule
 		return(FormBacking.getRunningForms());
 	}
 
+	/** Create a form based on the page */
+	public async createform(form:Class<Form|InternalForm>|string, page:HTMLElement, parameters?:Map<any,any>) : Promise<Form>
+	{
+		return(FormBacking.createForm(form,page,parameters));
+	}
+
 	/** Create and attach a form to the container (or root-element) */
 	public async showform(form:Class<Form|InternalForm>|string, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
 	{

@@ -177,6 +177,14 @@ export class Block
 	{
 		this.queried = false;
 
+		if (this.ctrlblk)
+		{
+			for (let i = 0; i < this.wrapper.getRecords(); i++)
+				this.wrapper.getRecord(i).clear();
+
+			return(true);
+		}
+
 		if (!await this.wrapper.clear(flush))
 			return(false);
 
@@ -372,6 +380,9 @@ export class Block
 	{
 		if (record == null)
 			return(true);
+
+		if (!await this.view.validateDate(field,record.getValue(field)))
+			return(false);
 
 		if (!await this.setEventTransaction(EventType.WhenValidateField,record)) return(false);
 		let success:boolean = await this.fire(EventType.WhenValidateField,field);

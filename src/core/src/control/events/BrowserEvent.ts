@@ -19,9 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { KeyMap } from "./KeyMap";
 import { Framework } from "../../application/Framework.js";
 import { Properties, ScrollDirection } from "../../application/Properties.js";
-import { KeyMap } from "./KeyMap";
 
 export class BrowserEvent
 {
@@ -157,7 +157,23 @@ export class BrowserEvent
 
 		this.ctrlkey = null;
 		this.funckey = null;
-	 }
+	}
+
+	public get undoing() : boolean
+	{
+		if (this.type != "keyup")
+			return(false);
+
+		return(this.undo);
+	}
+
+	public get pasting() : boolean
+	{
+		if (this.type != "keyup")
+			return(false);
+
+		return(this.paste);
+	}
 
 	public get isMouseEvent() : boolean
 	{
@@ -275,10 +291,8 @@ export class BrowserEvent
 
 	private KeyEvent() : void
 	{
-		this.undo = false;
 		this.mark = false;
 		this.copy = false;
-		this.paste = false;
 		this.accept = false;
 		this.cancel = false;
 		this.custom = false;
@@ -385,8 +399,13 @@ export class BrowserEvent
 
 					if (mod && this.key == 'a') this.mark = true;
 					if (mod && this.key == 'c') this.copy = true;
-					if (mod && this.key == 'z') this.undo = true;
-					if (mod && this.key == 'v') this.paste = true;
+					if (mod && this.key == 'z') this.undo = true; else this.undo = false;
+					if (mod && this.key == 'v') this.paste = true; else this.paste = false;
+				}
+				else
+				{
+					this.undo = false;
+					this.paste = false;
 				}
 
 				if (this.key == "Alt") this.alt = true;
@@ -448,6 +467,8 @@ export class BrowserEvent
 
 			this.type = "wait";
 			this.wait$ = true;
+
+			setTimeout(() => {this.wait$ = false}, BrowserEvent.DBLClickDetection);
 		}
 
 		if (this.type == "contextmenu")

@@ -226,8 +226,8 @@ public class RestHandler extends Handler
 
 
   private static String req = "\n----------------- request -----------------\n";
-  private static String rsp = "\n----------------- response -----------------\n";
-  private static String end = "\n---------------------------------------------\n";
+  private static String rsp = "\n----------------- response ----------------\n";
+  private static String end = "\n-------------------------------------------\n";
 
   private void log(Logger logger, HTTPRequest request, HTTPResponse response)
   {

@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "tsc": "tsc",
-    "build": "cp version.ts index.ts && cat public-api.d.ts >> index.ts && tsc && cp public-api.d.ts package.json ../../build/core && cp -R mods ../../build/core"
+    "build": "cp version.ts index.ts && cat public-api.d.ts >> index.ts && tsc && cp public-api.d.ts package.json dist && cp -R mods dist"
   },
   "keywords": [
     "Database",

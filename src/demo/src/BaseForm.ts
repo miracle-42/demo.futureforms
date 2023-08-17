@@ -60,14 +60,20 @@ export class BaseForm extends Form
 	public toggle() : void
 	{
 
+		let image:HTMLImageElement = document.createElement("img");
 		let toggle:HTMLElement = this.getView().querySelector(".toggle");
-		
+
+		toggle.innerHTML = "";
+
+		image.width = 9;
+		image.height = 9;
+
 		if (this.view == null)
 		{
 			this.view = this.getViewPort();
 			let avail:View = this.getParentViewPort();
 
-			toggle.innerHTML = "&#10697;" 
+			image.src = "images/insidearrow.png";
 
 			avail.x = 0;
 			avail.y = 0;
@@ -78,12 +84,13 @@ export class BaseForm extends Form
 		}
 		else
 		{
-		
-			toggle.innerHTML = "&#8414;"
-
+			image.src = "images/outsidearrow.png";
+	
 			this.setViewPort(this.view);
 			this.view = null;
 		}
+		
+		toggle.appendChild(image);
 	}
 
 	public async minimize() : Promise<void>

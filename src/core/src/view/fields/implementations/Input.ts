@@ -19,17 +19,16 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Pattern } from "../Pattern.js";
 import { DataType } from "../DataType.js";
-import { Section } from "../interfaces/Pattern.js";
 import { DataMapper, Tier } from "../DataMapper.js";
-import { Alert } from "../../../application/Alert.js";
+import { dates } from "../../../model/dates/dates.js";
 import { FieldProperties } from "../FieldProperties.js";
+import { Formatter as DefaultFormatter } from "../Formatter.js";
 import { FieldFeatureFactory } from "../../FieldFeatureFactory.js";
 import { BrowserEvent } from "../../../control/events/BrowserEvent.js";
 import { FieldEventHandler } from "../interfaces/FieldEventHandler.js";
 import { KeyMap, KeyMapping } from "../../../control/events/KeyMap.js";
-import { DatePart, dates, FormatToken } from "../../../model/dates/dates.js";
+import { Formatter, SimpleFormatter } from "../interfaces/Formatter.js";
 import { FieldImplementation, FieldState } from "../interfaces/FieldImplementation.js";
 
 enum Case
@@ -49,13 +48,13 @@ export class Input implements FieldImplementation, EventListenerObject
 	private int:boolean = false;
 	private dec:boolean = false;
 	private maxlen:number = null;
-	private cse:Case = Case.mixed;
-	private pattern:Pattern = null;
+	private case:Case = Case.mixed;
 	private state:FieldState = null;
 	private placeholder:string = null;
+	private formatter:Formatter = null;
 	private datamapper:DataMapper = null;
-	private datetokens:FormatToken[] = null;
 	private properties:FieldProperties = null;
+	private sformatter:SimpleFormatter = null;
 	private eventhandler:FieldEventHandler = null;
 
 	private element:HTMLInputElement = null;
@@ -118,39 +117,7 @@ export class Input implements FieldImplementation, EventListenerObject
 
 	public clear() : void
 	{
-		this.before = "";
 		this.setElementValue(null);
-	}
-
-	public bonusstuff(value:any) : any
-	{
-		// finish date with defaults from today
-		if (DataType[this.datatype$].startsWith("date") && this.pattern && value == null)
-		{
-			let date:Date = dates.parse(this.getElementValue());
-
-			if (date == null && !this.pattern.isNull())
-			{
-				let fine:string = this.finishDate();
-
-				date = dates.parse(fine);
-
-				if (date != null)
-				{
-					this.pattern.setValue(fine);
-					this.setElementValue(this.pattern.getValue());
-				}
-				else
-				{
-					if (dates.parse(this.getElementValue()) == null)
-						this.setElementValue(null);
-				}
-			}
-
-			return(date);
-		}
-
-		return(value);
 	}
 
 	public getValue() : any
@@ -179,8 +146,11 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.datatype$ == DataType.integer || this.datatype$ == DataType.decimal)
 			return(+value);
 
-		if (this.pattern != null)
-			return(this.pattern.getValue().trim());
+		if (this.formatter != null)
+			return(this.formatter.getValue());
+
+		if (this.sformatter != null)
+			return(this.sformatter.getValue());
 
 		if (this.properties.validValues.size > 0)
 		{
@@ -227,23 +197,27 @@ export class Input implements FieldImplementation, EventListenerObject
 				value = null;
 		}
 
-		if (this.pattern != null)
+		if (this.formatter != null)
 		{
-			this.pattern.setValue(value);
-			if (this.pattern.isNull()) value = "";
-			else value = this.pattern.getValue();
+			this.formatter.setValue(value);
+			if (this.formatter.isNull()) value = null;
+			else value = this.formatter.getValue();
+		}
+
+		if (this.sformatter != null)
+		{
+			this.sformatter.setValue(value);
+			value = this.sformatter.getValue();
 		}
 
 		if (value == null)
 			value = "";
 
 		value += "";
-		this.before = value;
-		this.initial = value;
 		this.setElementValue(value);
 
-		if (this.pattern != null)
-			this.setPosition(this.pattern.findPosition(0));
+		this.before = value;
+		this.initial = value;
 
 		return(true);
 	}
@@ -254,7 +228,7 @@ export class Input implements FieldImplementation, EventListenerObject
 			return(this.datamapper.getIntermediateValue(Tier.Backend));
 
 		let value:string = this.getElementValue();
-		if (this.pattern == null) value = value.trim();
+		if (this.formatter == null) value = value.trim();
 
 		return(value);
 	}
@@ -272,14 +246,11 @@ export class Input implements FieldImplementation, EventListenerObject
 
 		value = value.trim();
 
-		if (this.pattern != null && value.length > 0)
+		if (this.formatter != null && value.length > 0)
 		{
-			this.pattern.setValue(value);
-			value = this.pattern.getValue();
+			this.formatter.setValue(value);
+			value = this.formatter.getValue();
 		}
-
-		this.before = value;
-		this.initial = value;
 
 		this.setElementValue(value);
 	}
@@ -293,13 +264,9 @@ export class Input implements FieldImplementation, EventListenerObject
 	{
 		this.int = false;
 		this.dec = false;
-		this.pattern = null;
-		this.cse = Case.mixed;
+		this.case = Case.mixed;
 		this.placeholder = null;
 		this.datatype$ = DataType.string;
-
-		let datepattern:string = "";
-		let types:FormatToken[] = dates.tokenizeFormat();
 
 		this.type = attributes.get("type");
 		if (this.type == null) this.type = "text";
@@ -315,14 +282,20 @@ export class Input implements FieldImplementation, EventListenerObject
 
 		attributes.forEach((value,attr) =>
 		{
+			if (attr == "date")
+				this.datatype$ = DataType.date;
+
+			if (attr == "datetime")
+				this.datatype$ = DataType.datetime;
+
 			if (attr == "upper")
-				this.cse = Case.upper;
+				this.case = Case.upper;
 
 			if (attr == "lower")
-				this.cse = Case.lower;
+				this.case = Case.lower;
 
 			if (attr == "initcap")
-				this.cse = Case.initcap;
+				this.case = Case.initcap;
 
 			if (attr == "boolean")
 				this.datatype$ = DataType.boolean;
@@ -339,59 +312,6 @@ export class Input implements FieldImplementation, EventListenerObject
 				this.datatype$ = DataType.decimal;
 			}
 
-			if (attr == "date" || attr == "datetime")
-			{
-				this.datetokens = [];
-				let parts:number = 3;
-				this.placeholder = "";
-
-				this.datatype$ = DataType.date;
-				types = dates.tokenizeFormat();
-
-				types.forEach((type) =>
-				{
-					if (type.type == DatePart.Year || type.type == DatePart.Month || type.type == DatePart.Day)
-					{
-						parts--;
-						this.datetokens.push(type);
-						this.placeholder += type.mask;
-						datepattern += "{"+type.length+"#}";
-
-						if (parts > 0)
-						{
-							datepattern += type.delimitor;
-							this.placeholder += type.delimitor;
-						}
-					}
-				})
-			}
-
-			if (attr == "datetime")
-			{
-				let parts:number = 3;
-				this.datatype$ = DataType.datetime;
-
-				datepattern += " ";
-				this.placeholder += " ";
-
-				types.forEach((type) =>
-				{
-					if (type.type == DatePart.Hour || type.type == DatePart.Minute || type.type == DatePart.Second)
-					{
-						parts--;
-						this.datetokens.push(type);
-						this.placeholder += type.mask;
-						datepattern += "{"+type.length+"#}";
-
-						if (parts > 0)
-						{
-							datepattern += type.delimitor;
-							this.placeholder += type.delimitor;
-						}
-					}
-				})
-			}
-
 			if (attr == "maxlength")
 			{
 				this.maxlen = +value;
@@ -400,25 +320,19 @@ export class Input implements FieldImplementation, EventListenerObject
 					this.maxlen = null;
 			}
 
-			if (attr == "format")
-				this.pattern = new Pattern(value);
-
 			if (attr == "placeholder")
 				this.placeholder = value;
 		});
 
-		if (datepattern.length > 0)
+		this.getFormatter(attributes);
+
+		if (this.formatter != null)
 		{
 			this.element.type = "text";
-			this.pattern = new Pattern(datepattern);
-			this.placeholder = this.placeholder.toLowerCase();
-		}
-		else if (this.pattern != null)
-		{
-			this.element.type = "text";
+			this.placeholder = this.formatter.placeholder;
 
 			if (this.element.getAttribute("size") == null)
-				this.element.setAttribute("size",""+this.pattern.getPlaceholder().length);
+				this.element.setAttribute("size",""+this.formatter.size());
 		}
 
 		this.element.removeAttribute("placeholder");
@@ -436,68 +350,96 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.event.waiting)
 			return;
 
+		if (this.event.undo)
+		{
+			this.event.preventDefault(true);
+
+			let pos:number = this.getPosition();
+			this.setElementValue(this.initial);
+
+			if (this.formatter)
+			{
+				this.formatter.setValue(this.getElementValue());
+				this.setElementValue(this.formatter.getValue());
+			}
+
+			if (this.sformatter)
+			{
+				this.sformatter.setValue(this.getElementValue());
+				this.setElementValue(this.sformatter.getValue());
+			}
+
+			if (this.getElementValue().length > pos)
+				this.setPosition(pos);
+		}
+
+		if (this.event.paste)
+		{
+			if (this.event.type == "keydown")
+			{
+				this.element.value = "";
+			}
+			else
+			{
+				let pos:number = this.getPosition();
+
+				if (this.formatter)
+				{
+					this.formatter.setValue(this.getElementValue());
+					this.setElementValue(this.formatter.getValue());
+				}
+
+				if (this.sformatter)
+				{
+					this.sformatter.setValue(this.getElementValue());
+					this.setElementValue(this.sformatter.getValue());
+				}
+
+				if (this.getElementValue().length > pos)
+					this.setPosition(pos);
+			}
+		}
+
+
 		if (this.event.type == "focus")
 		{
 			bubble = true;
+			this.before = this.getElementValue();
 			this.initial = this.getIntermediateValue();
-
-			if (this.pattern != null)
-			{
-				this.initial = this.pattern.getValue();
-				this.setElementValue(this.initial);
-				this.setPosition(0);
-			}
-
-			if (this.placeholder != null)
-				this.element.removeAttribute("placeholder");
+			this.element.removeAttribute("placeholder");
 		}
 
-		if (this.pattern != null)
+		if (this.formatter != null)
 		{
 			if (!this.xfixed())
+					return;
+		}
+
+		if (this.sformatter != null)
+		{
+			if (!this.xformat())
 					return;
 		}
 
 		if (this.event.type == "blur")
 		{
 			bubble = true;
-			let change:boolean = false;
 
-			if (this.pattern == null)
-			{
-				if (this.getIntermediateValue() != this.initial)
-					change = true;
-			}
-			else
-			{
-				if (this.pattern.getValue() != this.initial)
-					change = true;
-			}
+			let change:boolean = false;
+			let value:string = this.getElementValue();
+
+			if (value != this.initial)
+				change = true;
 
 			if (change)
 			{
 				this.event.type = "change";
 
-				if (this.pattern != null)
-				{
-					this.pattern.setValue(this.getElementValue());
+				this.setValue(value);
+				await this.eventhandler.handleEvent(this.event);
 
-					if (this.pattern.isNull()) this.setElementValue(null);
-					else					   this.setElementValue(this.pattern.getValue());
-				}
-
-				this.initial = this.getIntermediateValue();
-				if (this.pattern != null) this.initial = this.pattern.getValue();
-
-				this.eventhandler.handleEvent(this.event);
 				this.event.type = "blur";
 			}
-
-			this.initial = this.getIntermediateValue();
-			if (this.pattern != null) this.initial = this.pattern.getValue();
-
-			if (this.placeholder != null)
-			this.element.removeAttribute("placeholder");
 		}
 
 		if (!this.disabled && this.event.type == "mouseover" && this.placeholder != null)
@@ -520,7 +462,7 @@ export class Input implements FieldImplementation, EventListenerObject
 				return;
 		}
 
-		if (this.cse != Case.mixed)
+		if (this.case != Case.mixed)
 		{
 			if (!this.xcase())
 				return;
@@ -529,36 +471,16 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.event.ignore) return;
 		if (this.event.custom) bubble = true;
 
-		if (event.type == "change")
+		if (this.event.type == "change")
 		{
 			bubble = false;
+			let value:string = this.getElementValue();
 
-			if (this.datatype$ == DataType.integer || this.datatype$ == DataType.decimal)
+			if (value != this.initial)
 			{
-				let num:string = this.getElementValue();
-
-				if (isNaN(+num)) this.setElementValue(null);
-				else if (num.trim().length > 0) this.setElementValue((+num)+"");
+				bubble = true;
+				this.setValue(value);
 			}
-
-			if (this.pattern == null)
-			{
-				if (this.getIntermediateValue() != this.initial)
-					bubble = true;
-			}
-			else
-			{
-				this.pattern.setValue(this.getElementValue());
-
-				if (this.pattern.isNull()) this.setElementValue(null);
-				else					   		this.setElementValue(this.pattern.getValue());
-
-				if (this.pattern.getValue() != this.initial)
-					bubble = true;
-			}
-
-			this.initial = this.getIntermediateValue();
-			if (this.pattern != null) this.initial = this.pattern.getValue();
 		}
 
 		if (this.event.bubbleMouseEvent)
@@ -576,23 +498,20 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.event.onFuncKey)
 			bubble = true;
 
-		if (!this.event.isMouseEvent)
-		{
-			let after:string = this.getElementValue();
-
-			if (this.before != after)
-			{
-				bubble = true;
-				this.before = after;
-				this.event.modified = true;
-
-				if (this.datamapper != null)
-					this.datamapper.setIntermediateValue(Tier.Frontend,after);
-			}
-		}
-
 		if (this.event.accept || this.event.cancel)
 			bubble = true;
+
+		let after:string = this.getElementValue();
+
+		if (this.before != after)
+		{
+			bubble = true;
+			this.before = after;
+			this.event.modified = true;
+
+			if (this.datamapper != null)
+				this.datamapper.setIntermediateValue(Tier.Frontend,after);
+		}
 
 		if (bubble)
 			await this.eventhandler.handleEvent(this.event);
@@ -625,13 +544,13 @@ export class Input implements FieldImplementation, EventListenerObject
 			if (pos >= value.length) value += this.event.key;
 			else value = value.substring(0,pos) + this.event.key + value.substring(pos);
 
-			if (this.cse == Case.upper)
+			if (this.case == Case.upper)
 				value = value.toLocaleUpperCase();
 
-			if (this.cse == Case.lower)
+			if (this.case == Case.lower)
 				value = value.toLocaleLowerCase();
 
-			if (this.cse == Case.initcap)
+			if (this.case == Case.initcap)
 			{
 				let cap:boolean = true;
 				let initcap:string = "";
@@ -749,6 +668,40 @@ export class Input implements FieldImplementation, EventListenerObject
 		return(true);
 	}
 
+	private xformat() : boolean
+	{
+		if (this.type == "range")
+			return(true);
+
+		if (this.element.readOnly)
+			return(true);
+
+		if (this.event.type == "keydown" && this.event.isPrintableKey)
+		{
+			if (this.event.ctrlkey != null || this.event.funckey != null)
+				return(true);
+
+			this.event.preventDefault(true);
+			let pos:number = this.getPosition();
+			let sel:number[] = this.getSelection();
+			let value:string = this.getElementValue();
+
+			if (sel[1] - sel[0] > 0)
+				value = value.substring(0,sel[0]) + value.substring(sel[1])
+
+			if (pos >= value.length) value += this.event.key;
+			else value = value.substring(0,pos) + this.event.key + value.substring(pos);
+
+			this.sformatter.setValue(value);
+			value = this.sformatter.getValue();
+
+			this.setElementValue(value);
+			this.setPosition(pos+1);
+		}
+
+		return(true);
+	}
+
 	private xfixed() : boolean
 	{
 		if (this.type == "range")
@@ -757,351 +710,104 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.element.readOnly)
 			return(true);
 
-		let prevent:boolean = this.event.prevent;
-
-		if (this.event.prevent)
-			prevent = true;
-
-		if (this.event.type == "drop")
-			prevent = true;
-
-		if (this.event.type == "keypress")
-			prevent = true;
-
-		if (this.event.key == "ArrowLeft" && this.event.shift)
-			prevent = true;
-
-		if (!this.event.modifier)
-		{
-			switch(this.event.key)
-			{
-					case "Backspace":
-					case "ArrowLeft":
-					case "ArrowRight": prevent = true;
-			}
-		}
-
-		this.event.preventDefault(prevent);
+		this.event.preventDefault();
 		let pos:number = this.getPosition();
-
-		// Get ready to markup
-		if (this.event.mousedown && this.event.mouseinit)
-			this.clearSelection();
-
-		// Mark current pos for replace
-		if (this.event.type == "click" && !this.event.mousemark)
-		{
-			let npos:number = this.pattern.findPosition(pos);
-			this.setSelection([npos,npos]);
-
-			setTimeout(() =>
-			{
-				// Sometimes setSelection can fail
-				let sel:number[] = this.getSelection();
-				if (sel[0] == sel[1]) this.setSelection([npos,npos]);
-			},0);
-
-			return(true);
-		}
 
 		if (this.event.type == "focus")
 		{
-			pos = this.pattern.findPosition(0);
-
-			this.pattern.setValue(this.getIntermediateValue());
-			this.setIntermediateValue(this.pattern.getValue());
-
-			this.setPosition(pos);
-			this.pattern.setPosition(pos);
-
-			return(true);
-		}
-
-		if (this.event.type == "blur")
-		{
-			this.pattern.setValue(this.getIntermediateValue());
-			if (this.pattern.isNull()) this.clear();
-				return(true);
-		}
-
-		if (this.event.type == "change")
-			return(true);
-
-		if (this.event.type?.startsWith("mouse") || this.event.type == "wheel")
-			return(true);
-
-		let ignore:boolean = this.event.ignore;
-		if (this.event.printable) ignore = false;
-
-		if (this.event.repeat)
-		{
-			switch(this.event.key)
+			if (this.formatter.isNull())
 			{
-					case "Backspace":
-					case "ArrowLeft":
-					case "ArrowRight": ignore = false;
+				let first:number = this.formatter.first();
+				this.setElementValue(this.formatter.getValue());
+				setTimeout(() => {this.setPosition(first)},0);
 			}
+
+			return(true);
 		}
 
-		if (ignore) return(true);
+		// Change should not fire because of preventDefault etc
+		if (this.event.type == "blur" || this.event.type == "change")
+		{
+			this.setElementValue(this.formatter.finish());
+			if (this.formatter.isNull()) this.clear();
+			return(true);
+		}
+
+		if (this.event.type == "drop")
+		{
+			this.event.preventDefault(true);
+			return(true);
+		}
 
 		if (this.event.key == "Backspace" && !this.event.modifier)
 		{
-			let sel:number[] = this.getSelection();
+			if (pos > 0) pos--;
+			this.event.preventDefault(true);
 
-			if (sel[0] == sel[1] && !this.pattern.input(sel[0]))
-			{
-					pos = this.pattern.prev(true);
-					this.setSelection([pos,pos]);
-			}
-			else
-			{
-				pos = sel[0];
+			if (this.event.type == "keyup")
+				return(true);
 
-				if (sel[0] > 0 && sel[0] == sel[1])
-				{
-					pos--;
+			let area:number[] = this.getSelection();
+			if (area[0] == area[1]) area[0]--;
 
-					// Move past fixed pattern before deleting
-					if (!this.pattern.setPosition(pos) && sel[0] > 0)
-					{
-						let pre:number = pos;
+			this.formatter.delete(area[0],area[1]);
+			this.setElementValue(this.formatter.getValue());
 
-						pos = this.pattern.prev(true);
-						let off:number = pre - pos;
+			if (!this.formatter.modifiable(pos))
+				pos = this.formatter.prev(pos) + 1;
 
-						if (off > 0)
-						{
-								sel[0] = sel[0] - off;
-								sel[1] = sel[1] - off;
-						}
-					}
-				}
-
-				pos = sel[0];
-				this.setElementValue(this.pattern.delete(sel[0],sel[1]));
-
-				if (sel[1] == sel[0] + 1)
-					pos = this.pattern.prev(true);
-
-				if (!this.pattern.setPosition(pos))
-					pos = this.pattern.prev(true,pos);
-
-				if (!this.pattern.setPosition(pos))
-					pos = this.pattern.next(true,pos);
-
-				this.setSelection([pos,pos]);
-			}
-
+			this.setPosition(pos);
 			return(true);
 		}
 
-		if (this.event.undo || this.event.paste)
+		if (this.event.type == "keypress" && this.event.isPrintableKey)
 		{
-			setTimeout(() =>
+			let last:number = this.formatter.last();
+			if (pos > last) pos = this.formatter.prev(pos);
+
+			if (!this.formatter.modifiable(pos))
 			{
-				this.pattern.setValue(this.getIntermediateValue());
-				this.setValue(this.pattern.getValue());
-				this.setPosition(this.pattern.next(true,pos));
-			},0);
-			return(true);
+				pos = this.formatter.next(pos);
+				this.setPosition(pos);
+			}
+
+			let area:number[] = this.getSelection();
+
+			if (area[1] - area[0] > 1)
+				this.formatter.delete(area[0],area[1]);
+
+			if (!this.formatter.insCharacter(pos,this.event.key))
+			{
+				this.setElementValue(this.formatter.getValue());
+				this.event.preventDefault(true);
+				this.setPosition(pos);
+				return(true);
+			}
+
+			this.setElementValue(this.formatter.getValue());
+
+			let npos:number = this.formatter.next(pos);
+			if (npos <= pos) npos++;
+
+			this.setPosition(npos);
+			this.event.preventDefault(true);
+
+			return(false);
 		}
 
-		if (this.datetokens != null)
+		if (this.formatter && DataType[this.datatype].startsWith("date"))
 		{
 			if (KeyMapping.parseBrowserEvent(this.event) == KeyMap.now)
 			{
-				this.pattern.setValue(this.getCurrentDate());
-				this.setElementValue(this.pattern.getValue());
+				this.formatter.setValue(this.getCurrentDate());
+				this.setElementValue(this.formatter.getValue());
 
-				this.setPosition(0);
-				this.pattern.setPosition(0);
-
+				this.setPosition(this.formatter.first());
 				return(true);
 			}
 		}
 
-		if (this.event.printable)
-		{
-			let sel:number[] = this.getSelection();
-
-			if (sel[0] != sel[1])
-			{
-				pos = sel[0];
-
-				if (!this.pattern.isValid(pos,this.event.key))
-					return(true);
-
-				this.pattern.delete(sel[0],sel[1]);
-				this.setElementValue(this.pattern.getValue());
-				pos = this.pattern.findPosition(sel[0]);
-				this.setSelection([pos,pos]);
-			}
-
-			if (this.pattern.setCharacter(pos,this.event.key))
-			{
-				if (this.datetokens != null)
-					this.validateDateField(pos);
-
-				pos = this.pattern.next(true,pos);
-						this.setElementValue(this.pattern.getValue());
-						this.setSelection([pos,pos]);
-			}
-
-			return(true);
-		}
-
-		if (this.event.key == "ArrowLeft")
-		{
-			let sel:number[] = this.getSelection();
-
-			if (!this.event.modifier)
-			{
-				pos = this.pattern.prev(true);
-				this.setSelection([pos,pos]);
-			}
-			else if (this.event.shift)
-			{
-				if (pos > 0)
-				{
-					pos--;
-					this.setSelection([pos,sel[1]-1]);
-				}
-			}
-
-			return(false);
-		}
-
-		if (this.event.key == "ArrowRight")
-		{
-			let sel:number[] = this.getSelection();
-
-			if (!this.event.modifier)
-			{
-				pos = this.pattern.next(true);
-				this.setSelection([pos,pos]);
-			}
-			else if (this.event.shift)
-			{
-				pos = sel[1];
-
-				if (pos < this.pattern.size())
-					this.setSelection([sel[0],pos]);
-			}
-
-			return(false);
-		}
-
 		return(true);
-	}
-
-	private finishDate() : string
-	{
-		let empty:boolean = false;
-		let input:string = this.getElementValue();
-		let today:string = dates.format(new Date());
-
-		this.datetokens.forEach((part) =>
-		{
-			empty = true;
-
-			for (let i = part.pos; i < part.pos + part.length; i++)
-				if (input.charAt(i) != ' ') empty = false;
-
-			if (!empty)
-			{
-				let fld:string = input.substring(part.pos,part.pos+part.length);
-
-				fld = fld.trim();
-
-				if (part.type == DatePart.Year && fld.length == 2)
-					fld = today.substring(part.pos,part.pos+2) + fld;
-
-				while(fld.length < part.length) fld = "0"+fld;
-				input = input.substring(0,part.pos) + fld + input.substring(part.pos+part.length);
-			}
-
-			if (empty)
-			{
-				input = input.substring(0,part.pos) +
-				today.substring(part.pos,part.pos+part.length) +
-				input.substring(part.pos+part.length);
-
-			}
-		})
-
-		return(input);
-	}
-
-	private validateDateField(pos:number) : void
-	{
-		let section:Section = this.pattern.findField(pos);
-		let token:FormatToken = this.datetokens[section.field()];
-
-		let maxval:number = 0;
-		let value:string = section.getValue();
-
-		switch(token.type)
-		{
-			case DatePart.Day 		: maxval = 31; break;
-			case DatePart.Month 		: maxval = 12; break;
-			case DatePart.Hour 		: maxval = 23; break;
-			case DatePart.Minute 	: maxval = 59; break;
-			case DatePart.Second 	: maxval = 59; break;
-		}
-
-		if (maxval > 0 && +value > maxval)
-			section.setValue(""+maxval);
-
-
-		let finished:boolean = true;
-		this.pattern.getFields().forEach((section) =>
-		{
-			value = section.getValue();
-
-			if (value.trim().length > 0)
-			{
-				let lpad:string = "";
-
-				for (let i = 0; i < value.length; i++)
-				{
-					if (value.charAt(i) != ' ') break;
-					else lpad += "0";
-				}
-
-				if (lpad.length > 0)
-					section.setValue(lpad+value.substring(lpad.length));
-			}
-
-			if (section.getValue().includes(' '))
-				finished = false;
-		});
-
-		if (finished)
-		{
-			let dayentry:number = -1;
-
-			for (let i = 0; i < this.datetokens.length; i++)
-			{
-				if (this.datetokens[i].type == DatePart.Day)
-					dayentry = i;
-			}
-
-			if (dayentry >= 0)
-			{
-				let tries:number = 3;
-				value = this.pattern.getValue();
-
-				while(dates.parse(this.pattern.getValue()) == null && --tries >= 0)
-				{
-					let day:number = +this.pattern.getField(dayentry).getValue();
-					this.pattern.getField(dayentry).setValue(""+(day-1));
-				}
-
-				if (tries < 3)
-					Alert.message("Date '"+value+"' is invalid, changed to "+this.pattern.getValue(),"Date Validation");
-			}
-		}
 	}
 
 	private getCurrentDate() : string
@@ -1112,37 +818,15 @@ export class Input implements FieldImplementation, EventListenerObject
 	private getPosition() : number
 	{
 		let pos:number = this.element.selectionStart;
-
-		if (pos < 0)
-		{
-			pos = 0;
-			this.setSelection([pos,pos]);
-		}
-
+		if (pos < 0) pos = 0;
 		return(pos);
 	}
 
 	private setPosition(pos:number) : void
 	{
 		if (pos < 0) pos = 0;
-		let sel:number[] = [pos,pos];
-
-		if (pos == 0) sel[1] = 1;
-			this.element.setSelectionRange(sel[0],sel[1]);
-	}
-
-	private setSelection(sel:number[]) : void
-	{
-		if (sel[0] < 0) sel[0] = 0;
-		if (sel[1] < sel[0]) sel[1] = sel[0];
-
-		this.element.selectionStart = sel[0];
-		this.element.selectionEnd = sel[1]+1;
-	}
-
-	private clearSelection() : void
-	{
-		this.element.setSelectionRange(0,0);
+		this.element.selectionStart = pos;
+		this.element.selectionEnd = pos;
 	}
 
 	private getSelection() : number[]
@@ -1167,6 +851,26 @@ export class Input implements FieldImplementation, EventListenerObject
 	private get disabled() : boolean
 	{
 		return(this.element.disabled);
+	}
+
+	private getFormatter(attributes:Map<string,any>) : void
+	{
+		let impl:any = this.properties.formatter;
+		let format:string = attributes.get("format");
+
+		// custom date and datetime requires a formatter
+		if (!impl && (format || attributes.has("date") || attributes.has("datetime")))
+			impl = new DefaultFormatter();
+
+		if (impl)
+		{
+			this.formatter = impl;
+			this.formatter.format = format;
+			this.formatter.datatype = this.datatype;
+		}
+
+		if (!impl)
+			this.sformatter = this.properties.simpleformatter;
 	}
 
 	private addEvents(element:HTMLElement) : void

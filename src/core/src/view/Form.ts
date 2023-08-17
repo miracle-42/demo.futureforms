@@ -124,7 +124,19 @@ export class Form implements EventListenerObject
 			return(false);
 
 		this.blocks$.forEach((block) =>
-		{block.clear(true,true,true)})
+		{
+			if (!block.model.ctrlblk)
+			{
+				block.clear(true,true,true);
+			}
+			else
+			{
+				block.model.clear(false);
+
+				for (let i = 0; i < block.rows; i++)
+					block.getRow(i).clear();
+			}
+		})
 
 		return(true);
 	}
@@ -399,21 +411,6 @@ export class Form implements EventListenerObject
 			}
 		}
 
-		// Prefield
-
-		if (inst != preinst)
-		{
-			if (!await this.enterField(inst,recoffset))
-			{
-				inst.blur(true);
-
-				if (preform != this) preform.focus();
-				else if (this.curinst$) this.curinst$.focus(true);
-
-				return(false);
-			}
-		}
-
 		nxtblock.current = inst;
 		FormBacking.setCurrentForm(this);
 		nxtblock.setCurrentRow(inst.row,true);
@@ -436,6 +433,21 @@ export class Form implements EventListenerObject
 			}
 
 			await this.onRecord(inst.field.block);
+		}
+
+		// Prefield
+
+		if (inst != preinst)
+		{
+			if (!await this.enterField(inst,recoffset))
+			{
+				inst.blur(true);
+
+				if (preform != this) preform.focus();
+				else if (this.curinst$) this.curinst$.focus(true);
+
+				return(false);
+			}
 		}
 
 		this.setURL();
@@ -583,7 +595,7 @@ export class Form implements EventListenerObject
 		}
 
 		let blk:Block = this.getBlock(block.toLowerCase());
-		let match:FieldInstance[] = blk?.getFieldsByClass(field,clazz);
+		let match:FieldInstance[] = blk?.getInstancesByClass(field,clazz);
 
 		if (!match || match.length == 0)
 		{
@@ -1156,6 +1168,9 @@ export class Form implements EventListenerObject
 
 	public setURL(close?:boolean) : void
 	{
+		if (!FormsModule.get().showurl)
+			return;
+
 		let location:Location = window.location;
 		let params:URLSearchParams = new URLSearchParams(location.search);
 		let path:string = location.protocol + '//' + location.host + location.pathname;
@@ -1170,8 +1185,9 @@ export class Form implements EventListenerObject
 		}
 
 		let map:string = FormsModule.getFormPath(this.parent.name);
+		let nav:boolean = FormBacking.getURLNavigable(map);
 
-		if (map != null && FormsModule.get().showurl)
+		if (map != null && nav)
 		{
 			params.set("form",map)
 			window.history.replaceState('','',path+"?"+params);

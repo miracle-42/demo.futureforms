@@ -165,8 +165,8 @@ export class Between implements Filter
 		let value:any = record.getValue(this.column$.toLowerCase());
 
 		if (!this.incl)
-		return(value > this.bindvalues$[0].value && value < this.bindvalues$[1].value);
-		return(value >= this.bindvalues$[0].value && value <= this.bindvalues$[1].value);
+		return(value > this.constraint$[0] && value < this.constraint$[1]);
+		return(value >= this.constraint$[0] && value <= this.constraint$[1]);
 	}
 
 	public asSQL() : string

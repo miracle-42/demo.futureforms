@@ -427,7 +427,7 @@ export class QueryEditor extends Form
 					<table name="type" style="width:100%">
 						<tr>
 							<td style="text-align: center">
-								<select name="options" from="options"></select>
+								<select name="options" from="options" size="1"></select>
 							</td>
 						</tr>
 					</table>

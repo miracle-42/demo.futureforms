@@ -77,26 +77,41 @@ export class Form implements CanvasComponent
 		return(FormBacking.getViewForm(this)?.canvas);
 	}
 
+	/** Get all blocks on the form */
 	public get blocks() : Block[]
 	{
 		return(Array.from(FormBacking.getBacking(this).blocks.values()))
 	}
 
+	/** Remove the form from it's parent element */
 	public hide() : void
 	{
 		this.canvas.remove();
 	}
 
+	/** Attach the form to it's previous parent */
 	public show() : void
 	{
 		this.canvas.restore();
 		this.focus();
 	}
 
+	/** Remove the form from it's parent element (same as hide) */
+	public dettach() : void
+	{
+		this.canvas.remove();
+	}
+
+	/** Attach the form to this element */
+	public attach(parent:HTMLElement) : void
+	{
+		parent.appendChild(this.canvas.getView());
+	}
+
 	/** Clears the form. If force, no validation will take place and changes will be ignored */
 	public async clear(force?:boolean) : Promise<boolean>
 	{
-		if (force) FormBacking.getModelForm(this)?.clear()
+		if (force) FormBacking.getModelForm(this)?.clear();
 		return(FormBacking.getViewForm(this)?.clear(!force));
 	}
 

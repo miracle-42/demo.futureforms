@@ -30,7 +30,7 @@ export class Menu extends MenuComponent
 
 	constructor()
 	{
-		super("left-menu",new FormList(),{openroot: true});
+		super("left-menu",new FormList(),{openroot: true, multipleOpen: true});
 
 		this.menuelem = document.createElement("div");
 		this.menuelem.classList.value = "left-menu-container";

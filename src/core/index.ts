@@ -1,6 +1,5 @@
-const version = "3.16.3";
-console.log("Library Version "+version);
-export { Form } from './src/public/Form.js';
+const version = "3.16.8";
+console.log("Library Version "+version);export { Form } from './src/public/Form.js';
 export { Block } from './src/public/Block.js';
 export { Record } from './src/public/Record.js';
 export { Key } from './src/model/relations/Key.js';
@@ -65,6 +64,7 @@ export { DatabaseResponse } from './src/database/DatabaseResponse.js';
 
 export { dates, WeekDays } from './src/model/dates/dates.js';
 export { DataMapper, Tier } from "./src/view/fields/DataMapper.js";
+export { Formatter } from './src/view/fields/interfaces/Formatter.js'
 
 export { MouseMap } from './src/control/events/MouseMap.js';
 export { KeyCodes } from './src/control/events/KeyCodes.js';
@@ -78,8 +78,8 @@ export { EventListenerClass as EventListener } from './src/control/events/EventL
 
 export { Class } from './src/types/Class.js';
 export { FormsModule } from './src/application/FormsModule.js';
+export { HTMLFragment } from './src/application/HTMLFragment.js';
 export { Canvas, View } from './src/application/interfaces/Canvas';
-export { HTMLFragment as Include } from './src/application/HTMLFragment.js';
 export { ComponentFactory } from './src/application/interfaces/ComponentFactory.js';
 export { Component, FormsPathMapping } from './src/application/annotations/FormsPathMapping.js';
 

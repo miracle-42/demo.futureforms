@@ -185,7 +185,9 @@ export class Form
 		for (let i = 0; i < blocks.length; i++)
 		{
 			blocks[i].dirty = false;
-			blocks[i].wrapper.clear(false);
+
+			if (!blocks[i].ctrlblk)
+				blocks[i].wrapper.clear(false);
 		}
 	}
 

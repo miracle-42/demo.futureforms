@@ -23,9 +23,11 @@ import { DataType } from "./DataType.js";
 import { DataMapper } from "./DataMapper.js";
 import { Alert } from "../../application/Alert.js";
 import { Class, isClass } from "../../types/Class.js";
+import { ListOfValues } from "../../public/ListOfValues.js";
 import { Properties } from "../../application/Properties.js";
 import { FormsModule } from "../../application/FormsModule.js";
 import { ComponentFactory } from "../../application/ComponentFactory.js";
+import { Formatter, SimpleFormatter, isFormatter, isSimpleFormatter } from "./interfaces/Formatter.js";
 
 
 export interface Style
@@ -40,6 +42,9 @@ export class BasicProperties
 	protected styles$:Style[] = [];
 	protected classes$:string[] = [];
 	protected mapper$:DataMapper = null;
+	protected formatter$:Formatter = null;
+	protected listofvalues$:ListOfValues = null;
+	protected simpleformatter$:SimpleFormatter = null;
 	protected attribs$:Map<string,string> = new Map<string,string>();
 
 	protected hidden$:boolean = false;
@@ -53,7 +58,12 @@ export class BasicProperties
 	protected values$:Map<any,any> = new Map<any,any>();
 
 	protected handled$:string[] = ["id","name",Properties.BindAttr,"row","invalid"];
-	protected structured$:string[] = ["hidden","enabled","readonly","required","derived","advquery","value","class","style","mapper"];
+
+	protected structured$:string[] =
+	[
+		"hidden","enabled","readonly","required","derived","advquery",
+		"value","class","style","mapper","formatter","listofvalues"
+	];
 
 	public get tag() : string
 	{
@@ -406,6 +416,8 @@ export class BasicProperties
 				case "class": this.setClasses(value); break;
 
 				case "mapper": this.setMapper(value); break;
+				case "formatter": this.setFormatterType(value); break;
+				case "listofvalues": this.setListOfValues(value); break;
 			}
 
 			return(this);
@@ -513,8 +525,14 @@ export class BasicProperties
 		if (typeof mapper === "string")
 			mapper = FormsModule.get().getComponent(mapper);
 
+		else
+
 		if (isClass(mapper))
 			this.mapper$ = factory.createBean(mapper) as DataMapper;
+
+		else
+
+		this.mapper$ = mapper;
 
 		if (this.mapper$ != null && !("getIntermediateValue" in this.mapper$))
 		{
@@ -523,5 +541,103 @@ export class BasicProperties
 		}
 
 		return(this);
+	}
+
+	public get formatter() : Formatter
+	{
+		return(this.formatter$);
+	}
+
+	public set formatter(formatter:Formatter)
+	{
+		this.formatter$ = formatter;
+	}
+
+	public setFormatter(formatter:Class<Formatter>|Formatter|string) : BasicProperties
+	{
+		let factory:ComponentFactory =
+			Properties.FactoryImplementation;
+
+		if (typeof formatter === "string")
+			formatter = FormsModule.get().getComponent(formatter);
+
+		else
+
+		if (isClass(formatter))
+			this.formatter$ = factory.createBean(formatter) as Formatter;
+
+		else
+
+		this.formatter$ = formatter;
+
+		return(this);
+	}
+
+	public get simpleformatter() : SimpleFormatter
+	{
+		return(this.simpleformatter$);
+	}
+
+	public set simpleformatter(formatter:SimpleFormatter)
+	{
+		this.simpleformatter$ = formatter;
+	}
+
+	public setSimpleFormatter(formatter:Class<SimpleFormatter>|SimpleFormatter|string) : BasicProperties
+	{
+		let factory:ComponentFactory =
+			Properties.FactoryImplementation;
+
+		if (typeof formatter === "string")
+			formatter = FormsModule.get().getComponent(formatter);
+
+		else
+
+		if (isClass(formatter))
+			this.simpleformatter$ = factory.createBean(formatter) as SimpleFormatter;
+
+		else
+
+		this.simpleformatter$ = formatter;
+
+		return(this);
+	}
+
+	public get listofvalues() : ListOfValues
+	{
+		return(this.listofvalues$);
+	}
+
+	public set listofvalues(listofvalues:ListOfValues)
+	{
+		this.listofvalues$ = listofvalues;
+	}
+
+	public setListOfValues(listofvalues:Class<ListOfValues>|ListOfValues|string) : BasicProperties
+	{
+		let factory:ComponentFactory =
+			Properties.FactoryImplementation;
+
+		if (typeof listofvalues === "string")
+			listofvalues = FormsModule.get().getComponent(listofvalues);
+
+		else
+
+		if (isClass(listofvalues))
+			this.listofvalues$ = factory.createBean(listofvalues) as ListOfValues;
+
+		else
+
+		this.listofvalues$ = listofvalues;
+
+		return(this);
+	}
+
+	private setFormatterType(formatter:string) : void
+	{
+		let impl:any = FormsModule.get().getComponent(formatter);
+
+		if (isFormatter(impl)) this.setFormatter(impl);
+		else if (isSimpleFormatter(impl)) this.setSimpleFormatter(impl);
 	}
 }

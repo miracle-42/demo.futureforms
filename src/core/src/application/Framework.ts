@@ -31,7 +31,6 @@ import { ComponentFactory } from './interfaces/ComponentFactory.js';
 export class Framework
 {
 	private component:any = null;
-	private root:HTMLElement = null;
 	private static event$:any = null;
 	private static taglib:Map<string,Tag> = null;
 	private static attrlib:Map<string,Tag> = null;
@@ -140,11 +139,6 @@ export class Framework
 
 		this.parseDoc(doc);
 		this.applyEvents();
-	}
-
-	public getRoot() : HTMLElement
-	{
-		return(this.root);
 	}
 
 	private parseDoc(doc:Element) : void
@@ -287,7 +281,7 @@ export class Framework
 
 		if (replace == null)
 		{
-			if (impl.element.parent != null)
+			if (impl.element.parentElement != null)
 				impl.element.remove();
 
 			return([]);
@@ -302,6 +296,9 @@ export class Framework
 
 		if (!Array.isArray(replace))
 			replace = [replace];
+
+		if (!impl.recursive)
+			return(replace);
 
 		let nested:Map<number,HTMLElement[]> =
 			new Map<number,HTMLElement[]>();
@@ -319,7 +316,7 @@ export class Framework
 		return(nodes);
 }
 
-	private apply(doc:Element, impl:Implementation) : void
+	private apply(doc:Element, impl:Implementation) : number
 	{
 		let replace:HTMLElement[] = this.getReplacement(impl);
 
@@ -330,9 +327,14 @@ export class Framework
 
 			impl.element.remove();
 
-			for(let r=0; r < replace.length; r++)
-				this.parseDoc(replace[r]);
+			if (impl.recursive)
+			{
+				for(let r=0; r < replace.length; r++)
+					this.parseDoc(replace[r]);
+			}
 		}
+
+		return(replace.length);
 	}
 
 	private applyEvents() : void
@@ -521,4 +523,11 @@ class EventHandler implements EventListenerObject
 class Implementation
 {
 	constructor(public element:any, public tag:Tag, public name:string, public attr:string) {}
+	get recursive() : boolean
+	{
+		if (this.tag.recursive == null)
+			return(true);
+
+		return(this.tag.recursive);
+	}
 }

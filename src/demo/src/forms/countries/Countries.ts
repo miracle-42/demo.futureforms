@@ -21,7 +21,7 @@
 
 import content from './Countries.html';
 
-import { datasource } from "forms42core";
+import { datasource, formevent, FormEvent, EventType } from "forms42core";
 import { BaseForm } from "../../BaseForm";
 import { CountryTable } from "./CountryTable";
 
@@ -33,5 +33,12 @@ export class Countries extends BaseForm
 	{
 		super(content);
 		this.title = "Countries";
+	}
+
+	@formevent()
+	public async test(event:FormEvent) : Promise<boolean>
+	{
+		console.log(EventType[event.type]+" "+event.block+"."+event.field)
+		return(true);
 	}
 }

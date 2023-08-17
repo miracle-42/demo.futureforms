@@ -2,17 +2,17 @@
   "name": "test",
   "version": "1.0.0",
   "type": "module",
-  "description": "Demo suite for forms42core",
+  "description": "Test suite for forms42core",
   "scripts": {
     "test": "cd dist && ls",
     "server": "live-server --port=5500 --open=./dist/index.html &",
-    "build": "webpack --mode production && cp index.html *.css dist/ && cp -a images dist/ && rm -rf ../../build/demo/tmp/*"
+    "build": "webpack --mode production && cp index.html tutorial.html *.css dist && cp -R images dist"
   },
   "keywords": [],
   "author": "Alex Høffner",
   "license": "ISC",
   "dependencies": {
-    "forms42core": "file:../../build/core"
+    "forms42core": "file:../core/dist"
   },
   "devDependencies": {
     "html-loader": "^4.2.0",

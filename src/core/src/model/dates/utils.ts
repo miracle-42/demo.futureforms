@@ -31,8 +31,8 @@ import {format as formatimpl, parse as parseimpl} from './fecha.js';
 
 export interface datepart
 {
-    token:string;
-    delim:string;
+	token:string;
+	delim:string;
 }
 
 export class utils
@@ -52,16 +52,16 @@ export class utils
 		return(Properties.DateDelimitors);
 	}
 
-    public static parse(datestr:string, withtime:boolean, format?:string) : Date
-    {
-        if (format == null)
+	public static parse(datestr:string, withtime:boolean, format?:string) : Date
+	{
+		if (format == null)
 		{
 			if (withtime) format = utils.full();
-			else		  format = utils.date();
+			else		  	  format = utils.date();
 		}
 
-        if (datestr == null || datestr.trim().length == 0)
-            return(null);
+		if (datestr == null || datestr.trim().length == 0)
+			return(null);
 
 		try
 		{
@@ -72,14 +72,14 @@ export class utils
 			Alert.message(""+error,"Date Parser");
 			return(null);
 		}
-    }
+   }
 
-    public static format(date:Date, format?:string) : string
-    {
-		  if (date == null)
+	public static format(date:Date, format?:string) : string
+	{
+		if (date == null)
 		  	return(null);
 
-        if (format == null)
+		if (format == null)
 			format = utils.full();
 
 		try
@@ -91,13 +91,13 @@ export class utils
 			Alert.message(""+error,"Date Formatter");
 			return(null);
 		}
-    }
+   }
 
 	public static tokenize(date:Date, format?:string) : DateToken[]
 	{
 		let tokens:DateToken[] = [];
 
-        if (format == null)
+      if (format == null)
 			format = utils.full();
 
 		let delim:string = utils.delim();

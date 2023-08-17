@@ -25,12 +25,14 @@
  */
 export class Internals
 {
+	public static close:string = null;
+
 	public static header:string =
 	`
 		<div name="popup" class="canvas-handle">
 			<div name="popup-header" class="canvas-handle">
 				<span name="title"></span>
-				<div name="close-button" onclick="this.close(true)">&#215;</div>
+				<div name="close-button" onclick="this.close(true)"></div>
 			</div>
 		</div>
 	`;
@@ -46,7 +48,6 @@ export class Internals
 		height: 20px;
 		text-align: center;
 		position: relative;
-		border-bottom: 1px solid black;
 	`;
 
 	public static PopupStyle =
@@ -141,6 +142,9 @@ export class Internals
 		if (header && Internals.PopupHeaderStyle) header.style.cssText = Internals.PopupHeaderStyle;
 		if (footer && Internals.PopupFooterStyle) footer.style.cssText = Internals.PopupFooterStyle;
 
+		if (close && Internals.close)
+			close.innerHTML = Internals.close;
+
 
 		if (login && Internals.PopupStyleLogin) login.style.cssText = Internals.PopupStyleLogin;
 		if (lowerright && Internals.PopupStyleLowerRight) lowerright.style.cssText = Internals.PopupStyleLowerRight;
@@ -185,6 +189,9 @@ export class Internals
 
 		left += (view.parentElement.offsetWidth - view.offsetWidth)/1.50;
 		top += (view.parentElement.offsetHeight - view.offsetHeight)/4.00;
+
+		if (top < 0) top = 50;
+		if (left < 0) left = 50;
 
 		view.style.top = top+"px";
 		view.style.left = left+"px";

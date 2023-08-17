@@ -29,7 +29,7 @@ div[name="close"]:hover,
 .canvas-handle div[name="close-button"]:hover
 {
 	color:white;
-	background-color: red;
+	background-color: rgb(255, 94, 94);
 }
 
 .app-header
@@ -80,6 +80,11 @@ div[name="close"]:hover,
 	grid-auto-flow: column;
 	background-color: #424549;
 	grid-template-columns: 40px 1fr 60px;
+}
+
+.toggle
+{
+	color:#000000 !important;
 }
 
 .form-header,
@@ -147,6 +152,7 @@ tr td span:hover
 	font-weight: 400;
 	text-align: left;
 	border-radius: 0;
+	overflow: hidden;
 	text-decoration: none;
 	background: transparent;
 }
@@ -167,7 +173,9 @@ tr td span:hover
 
 .left-menu-container .left-menu a
 {
+	z-index: 1;
 	width:100%;
+	overflow:hidden;
 	padding-left:5px;
 	display:table-cell;
 	height: fit-content;
@@ -177,8 +185,11 @@ tr td span:hover
 
 .left-menu-container .left-menu li a
 {
+	
 	width:200px;
 	padding:5px 3px;
+	position: relative;
+	display:table-cell;
 }
 
 .left-menu-container li[type="link"]
@@ -212,19 +223,6 @@ tr td span:hover
 .left-menu-container  .left-menu:not(:first-child)::before
 {
 	margin-left: 10px;
-}
-
-.left-menu-container .left-menu a:hover,
-.left-menu-container .left-menu a:focus
-{
-	background-color:#6060F0;
-}
-
-.left-menu-container .left-menu a:hover:after
-{
-	content: "";
-	display:flex;
-	border-right:25px solid red
 }
 
 th label[draggable="true"]
@@ -711,13 +709,7 @@ div[name="date-picker"]
 	justify-content: center;
 }
 
-.topbar .top-menu.level-1 li[type="link"] a:after
-{
-	content:"" !important;
-	display:flex !important;
-}
-
-.topbar .top-menu.level-1 li[type="menu"] a:after
+.topbar .top-menu.level-1 li[type="menu"]:after
 {
 	top:4px;
 	left:85%;
@@ -743,6 +735,11 @@ div[name="date-picker"]
 	box-shadow: 0 2px 10px #666;
 }
 
+.toggle
+{
+	filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(120deg) brightness(105%) contrast(101%);
+}
+
 [disabled]
 {
 	color:#83868c;
@@ -761,10 +758,21 @@ div[name="date-picker"]
 
 }
 
-.topbar .top-menu li li a:not([disabled]):hover,
-.topbar .top-menu li li a:not([disabled]):focus
+.topbar menu[name="top-menu"] li
 {
-	background-color: #6060F0;
+	padding:0;
+	margin:0;
+	height: 100%;
+}
+
+.topbar menu[name="top-menu"]  li a
+{
+	z-index: 1;
+	display:flex;
+	height: 90%;
+	min-width: 110px;
+	align-items: center;
+	justify-content: center;
 }
 
 .topbar .top-menu li li a
@@ -971,38 +979,18 @@ button:before
 	}
 }
 
-menu[name="top-menu"] li
-{
-	padding:0;
-	margin:0;
-	height: 100%;
-}
-
-menu[name="top-menu"]  li a
-{
-
-	display:flex;
-	min-width: 110px;
-	align-items: center;
-	justify-content: center;
-}
-
-.infomation a:hover,
-menu[name="top-menu"]  li a:hover:not([disabled]),
-menu[name="top-menu"]  li a:focus:not([disabled])
-{
-	background-color: #6060F0;
-}
-
 .infomation .tutorial
 {
 	height: 100%;
 	display:flex;
+	
 }
 
 .infomation .tutorial a
 {
-	padding: 13px 20px 0 20px;
+	z-index: 1;
+	position: relative;
+	padding: 12px 20px 0 20px;
 }
 
 button::after
@@ -1295,4 +1283,99 @@ div[name="buttonarea"]
 div[name="close-button"]
 {
 	line-height: 15px;
+}
+
+.infomation .tutorial a:before,
+.left-menu-container .left-menu a:before,
+.topbar menu[name="top-menu"] li a:before
+{
+	top: 0;
+	left: 0;
+	opacity: 0;
+	width: 100%;
+	content: '';
+	height: 100%;
+	transition: .3s;
+	user-select: none;
+	position: absolute;
+	transform: scaleY(2);
+	pointer-events: none; 
+	border-top: 2px solid #6060F0;
+	border-bottom: 2px solid #6060F0;
+}
+
+.infomation .tutorial a:after,
+.left-menu-container .left-menu a:after,
+.topbar menu[name="top-menu"]  li a:after
+{
+	left: 0;
+	top: 2px;
+	opacity: 0;
+	z-index: -1;
+	content: '';
+	width: 100%;
+	height: 100%;
+	transition: .3s;
+	user-select: none;
+	position: absolute;
+	transform: scale(0);
+	pointer-events: none; 
+	background-color: #6060F0;
+}
+
+.infomation .tutorial a:focus,
+.infomation .tutorial a:hover,
+.left-menu-container .left-menu a:focus,
+.left-menu-container .left-menu a:hover,
+.topbar menu[name="top-menu"]  li a:focus:not([disabled]),
+.topbar menu[name="top-menu"]  li a:hover:not([disabled])
+{
+	color:white
+}
+
+.infomation .tutorial a:hover:after,
+.infomation .tutorial a:focus:after,
+.infomation .tutorial a:focus:before,
+.infomation .tutorial a:hover:before,
+.topbar  li a:hover:not([disabled]):after,
+.topbar  li a:focus:not([disabled]):after,
+.topbar  li a:hover:not([disabled]):before,
+.topbar  li a:focus:not([disabled]):before,
+.left-menu-container .left-menu a:hover:after,
+.left-menu-container .left-menu a:hover:before,
+.left-menu-container .left-menu a:focus:after,
+.left-menu-container .left-menu a:focus:before
+{
+	opacity: 1;
+	transform: scaleY(1);
+}
+
+.middle
+{
+	justify-content: center;
+}
+
+button[name="login"],
+button[name="cancel"]
+{
+	width:60px;
+}
+
+legend
+{
+	font-weight: bold;
+}
+
+textarea 
+{
+	border:none;
+	resize: none;
+	box-shadow: none;
+	border-bottom: 2px solid black;
+}
+
+textarea:required
+{
+	outline: none;
+	box-shadow: none;
 }

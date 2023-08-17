@@ -164,7 +164,10 @@ export class DatePicker extends Form
 		let next:boolean  = event.key == KeyMap.nextrecord;
 		let prev:boolean  = event.key == KeyMap.prevrecord;
 
-		if( event.field == "prev"|| event.field == "next")
+		if (event.field == "date" && prev)
+			return(false);
+
+		if(event.field == "prev" || event.field == "next")
 		{
 			this.navigateMonth(event);
 			return(false);
@@ -175,6 +178,7 @@ export class DatePicker extends Form
 			if(event.field == "date")
 			{
 				this.goField(event.block,"prev");
+				return(false);
 			}
 			else
 			{
@@ -182,12 +186,15 @@ export class DatePicker extends Form
 					return(false);
 			}
 		}
-		else if (prev)
+
+		else
+
+		if (prev)
 		{
 			if ( 8 >= this.getValue(event.block,'day-' + (row) + col))
 			{
-			    if(this.getValue(event.block,'day-' + (--row) + col)) this.goField(event.block,'day-' + row + col);
-			    else this.goField(event.block,"prev");
+				if(this.getValue(event.block,'day-' + (--row) + col)) this.goField(event.block,'day-' + row + col);
+				else this.goField(event.block,"prev");
 				return(false);
 			}
 			else (this.getValue(event.block,'day-' + (--row) + col))
@@ -196,7 +203,10 @@ export class DatePicker extends Form
 				return(false);
 			}
 		}
-		else if (right)
+
+		else
+
+		if (right)
 		{
 			if (this.getValue(event.block,'day-' + row + (++col)))
 			{
@@ -204,7 +214,10 @@ export class DatePicker extends Form
 				return(false);
 			}
 		}
-		else if (left)
+
+		else
+
+		if (left)
 		{
 			if (this.getValue(event.block,'day-' + row + (--col)))
 			{
@@ -212,7 +225,10 @@ export class DatePicker extends Form
 				return(false);
 			}
 		}
-		else if (space)
+
+		else
+
+		if (space)
 		{
 			if (this.getValue(event.block,'day-' + row + col))
 			{
@@ -222,7 +238,10 @@ export class DatePicker extends Form
 				return(false);
 			}
 		}
-		else if(enter)
+
+		else
+
+		if(enter)
 		{
 			await this.done();
 			return(false);
@@ -289,30 +308,31 @@ export class DatePicker extends Form
 
 		if (left)
 		{
-			if(event.field == "next")
-			{
-			this.goField(event.block,"prev")
+			if(event.field == "next") this.goField(event.block,"prev")
+			else this.goToPrevMonth();
 			return(false);
-			}
-			else
-				this.goToPrevMonth();
 		}
-		else if (right)
+
+		else
+
+		if (right)
 		{
-			if(event.field == "prev")
-			{
-				this.goField(event.block,"next")
-				return(false);
-			}
-			else
-				this.goToNextMonth();
+			if(event.field == "prev") this.goField(event.block,"next")
+			else this.goToNextMonth();
+			return(false);
 		}
-		else if (prev)
+
+		else
+
+		if (prev)
 		{
 			this.goField(event.block,"date")
 			return(false);
 		}
-		else if (next)
+
+		else
+
+		if (next)
 		{
 			for (let index = 0; index <= 7; index++)
 			{
@@ -322,8 +342,8 @@ export class DatePicker extends Form
 					return(false);
 				}
 			}
-			return(true);
 		}
+
 		return(true);
 	}
 

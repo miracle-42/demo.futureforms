@@ -32,6 +32,7 @@ import { Include } from './tags/Include.js';
 import { Foreach } from './tags/Foreach.js';
 import { RowIndicator } from './tags/RowIndicator.js';
 import { FromAttribute } from './tags/FromAttribute.js';
+import { ImplAttribute } from './tags/ImplAttribute.js';
 import { FilterIndicator } from './tags/FilterIndicator.js';
 
 export enum ScrollDirection
@@ -62,8 +63,10 @@ export class Properties
 	public static BindAttr:string = "from";
 	public static RecordModeAttr:string = "mode";
 
+	public static ImplAttr:string = "implementation";
+
 	public static IncludeTag:string = "include";
-	public static ForeachTag:string = "foreach";
+	public static ForeachAttr:string = "foreach";
 
 	public static DateDelimitors:string = "./-: ";
 	public static TimeFormat:string = "HH:mm:ss";
@@ -110,8 +113,9 @@ export class Properties
 	new Map<string,Class<Tag>>
 	(
 			[
-				[Properties.ForeachTag,Foreach],
-				[Properties.BindAttr,FromAttribute]
+				[Properties.ForeachAttr,Foreach],
+				[Properties.BindAttr,FromAttribute],
+				[Properties.ImplAttr,ImplAttribute]
 			]
 	);
 }

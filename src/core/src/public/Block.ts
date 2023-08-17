@@ -504,7 +504,7 @@ export class Block
 		clazz = clazz?.toLowerCase();
 		field = field?.toLowerCase();
 		let props:FieldProperties[] = [];
-		FormBacking.getViewBlock(this).getFieldsByClass(field,clazz).
+		FormBacking.getViewBlock(this).getInstancesByClass(field,clazz).
 		forEach((inst) => {props.push(new FieldProperties(inst.qbeProperties))})
 		return(props);
 	}
@@ -515,7 +515,7 @@ export class Block
 		clazz = clazz?.toLowerCase();
 		field = field?.toLowerCase();
 		let props:FieldProperties[] = [];
-		FormBacking.getViewBlock(this).getFieldsByClass(field,clazz).
+		FormBacking.getViewBlock(this).getInstancesByClass(field,clazz).
 		forEach((inst) => {props.push(new FieldProperties(inst.insertProperties))})
 		return(props);
 	}
@@ -526,7 +526,7 @@ export class Block
 		clazz = clazz?.toLowerCase();
 		field = field?.toLowerCase();
 		let props:FieldProperties[] = [];
-		FormBacking.getViewBlock(this).getFieldsByClass(field,clazz).
+		FormBacking.getViewBlock(this).getInstancesByClass(field,clazz).
 		forEach((inst) => {props.push(new FieldProperties(inst.updateProperties))})
 		return(props);
 	}
@@ -536,7 +536,7 @@ export class Block
 	{
 		field = field?.toLowerCase();
 		clazz = clazz?.toLowerCase();
-		FormBacking.getViewBlock(this).getFieldsByClass(field,clazz).
+		FormBacking.getViewBlock(this).getInstancesByClass(field,clazz).
 		forEach((inst) => {FieldFeatureFactory.replace(props,inst,Status.qbe);})
 	}
 
@@ -545,7 +545,7 @@ export class Block
 	{
 		field = field?.toLowerCase();
 		clazz = clazz?.toLowerCase();
-		FormBacking.getViewBlock(this).getFieldsByClass(field,clazz).
+		FormBacking.getViewBlock(this).getInstancesByClass(field,clazz).
 		forEach((inst) => {FieldFeatureFactory.replace(props,inst,Status.insert);})
 	}
 
@@ -554,7 +554,7 @@ export class Block
 	{
 		field = field?.toLowerCase();
 		clazz = clazz?.toLowerCase();
-		FormBacking.getViewBlock(this).getFieldsByClass(field,clazz).
+		FormBacking.getViewBlock(this).getInstancesByClass(field,clazz).
 		forEach((inst) => {FieldFeatureFactory.replace(props,inst,Status.update);})
 	}
 

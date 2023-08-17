@@ -19,10 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Include } from 'forms42core';
 import fragment from './PageFooter.html';
+import { HTMLFragment } from 'forms42core';
 
-export class PageFooter implements Include
+export class PageFooter implements HTMLFragment
 {
 	public content = fragment;
 }

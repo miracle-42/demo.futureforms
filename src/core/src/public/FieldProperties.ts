@@ -21,10 +21,12 @@
 
 import { Class } from '../types/Class.js';
 import { Alert } from '../application/Alert.js';
+import { ListOfValues } from './ListOfValues.js';
 import { DataType } from '../view/fields/DataType.js';
 import { DataMapper } from '../view/fields/DataMapper.js';
 import { BasicProperties } from '../view/fields/BasicProperties.js';
 import { FieldFeatureFactory } from '../view/FieldFeatureFactory.js';
+import { Formatter, SimpleFormatter } from '../view/fields/interfaces/Formatter.js';
 
 /**
  * HTML Properties used by bound fields
@@ -175,6 +177,27 @@ export class FieldProperties extends BasicProperties
 	public setMapper(mapper:Class<DataMapper>|DataMapper|string) : FieldProperties
 	{
 		super.setMapper(mapper);
+		return(this);
+	}
+
+	/** Set formatter */
+	public setFormatter(formatter:Class<Formatter>|Formatter|string) : FieldProperties
+	{
+		super.setFormatter(formatter);
+		return(this);
+	}
+
+	/** Set simple formatter */
+	public setSimpleFormatter(formatter:Class<SimpleFormatter>|SimpleFormatter|string) : FieldProperties
+	{
+		super.setSimpleFormatter(formatter);
+		return(this);
+	}
+
+	/** Set listofvalues */
+	public setListOfValues(listofvalues:Class<ListOfValues>|ListOfValues|string) : FieldProperties
+	{
+		super.setListOfValues(listofvalues);
 		return(this);
 	}
 }

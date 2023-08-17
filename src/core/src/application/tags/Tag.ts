@@ -25,5 +25,6 @@
  */
 export interface Tag
 {
+	recursive?:boolean;
    parse(component:any, tag:HTMLElement, attr:string) : HTMLElement|HTMLElement[]|string|null;
 }

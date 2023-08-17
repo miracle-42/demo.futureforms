@@ -90,10 +90,11 @@ public constructor(columns?:string|string[], records?:number|any[][])
 		});
 	}
 
-	/** Mark all records clean */
+	/** Clear all records */
 	public clear() : void
 	{
 		this.dirty$ = [];
+		this.records$.forEach((rec) => {rec.refresh()});
 	}
 
 	/** Memory source is not transactional */

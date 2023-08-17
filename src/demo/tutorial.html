@@ -1,11 +1,21 @@
-<html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>tuorial</title>
-   <link rel="icon" href="images/spaceship.jpg" type="images/gif">
-</head>
-<body>
-      <center>Hello world</center>
-</body>
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" href="extremestyles.css">
+        <link rel="icon" href="images/spaceship.jpg" type="images/gif">
+    </head>
+
+    <body>
+        <include src="/html/pageheader"></include>
+
+        <div class="app-page">
+            <div id="main-menu" class="menu-left" onclick="this.leftmenu.togglemenu()"></div>
+            <div id="forms" class="form-area"></div>
+        </div>
+
+        <include src="/html/pagefooter"></include>
+
+        <script src="demo.js"></script>
+    </body>
 </html>

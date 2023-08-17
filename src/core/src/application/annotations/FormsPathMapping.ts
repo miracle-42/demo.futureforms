@@ -59,13 +59,14 @@ export const FormsPathMapping = (components:(Class<any> | Component)[]) =>
 		{
 			let path:string = null;
 			let clazz:Class<any> = null;
-			let navigable:boolean = true;
+			let navigable:boolean = false;
 
 			if (isComponent(element))
 			{
 				clazz = (element as Component).class;
 				path = (element as Component).path.toLowerCase();
 				navigable = (element as Component).navigable;
+				if (navigable == null) navigable = false;
 			}
 			else
 			{

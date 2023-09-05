@@ -56,11 +56,12 @@ FutureForms is primarily ment to be used for intranet.
 SQL-statements are written in the Javascript application
 and then passed through the backend directly to the database.
 
-It is therefore necessary to protect with `GRANT` and other
-security technics.
+It is therefore necessary to protect the database with `GRANT`, 
+`POLICY` and other security technics.
 
-SQL-statments like `DROP` and `CREATE` can be blacklisted in `openrestdb`
-but it is recommended to only `GRANT` necessary statements in the database itself.
+SQL-statments like `DROP` and `CREATE` can be blacklisted in
+`openrestdb` but it is recommended to only `GRANT` necessary
+statements in the database itself.
 
 ![Figure: Compare Security](img/compare-security.svg)
 

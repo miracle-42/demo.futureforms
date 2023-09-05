@@ -39,7 +39,9 @@ export interface FieldImplementation
 
 	clear() : void;
 	getValue() : any;
-    setValue(value:any) : boolean;
+   setValue(value:any) : boolean;
+
+	setValidated() : void;
 
 	getIntermediateValue() : string;
 	setIntermediateValue(value:string) : void;
@@ -47,5 +49,5 @@ export interface FieldImplementation
 	getFieldState() : FieldState;
 	setFieldState(state:FieldState) : void;
 
-    getElement() : HTMLElement;
+   getElement() : HTMLElement;
 }

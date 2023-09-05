@@ -41,6 +41,10 @@ export class Select implements FieldImplementation, EventListenerObject
 	private datatype$:DataType = DataType.string;
    private event:BrowserEvent = BrowserEvent.get();
 
+	public setValidated() : void
+	{
+	}
+
 	public get datatype() : DataType
 	{
 		return(this.datatype$);
@@ -237,8 +241,24 @@ export class Select implements FieldImplementation, EventListenerObject
 
 	public async handleEvent(event:Event) : Promise<void>
 	{
+		// Select ignores readonly
+		let readonly:boolean = this.element.hasAttribute("readonly");
+
+		if (readonly && event.type == "mousedown")
+		{
+			event.preventDefault();
+			return;
+		}
+
 		let bubble:boolean = false;
 		this.event.setEvent(event);
+
+		// Select ignores readonly
+		if (readonly && this.event.type == "keydown" && this.event.key == ' ')
+		{
+			event.preventDefault();
+			return;
+		}
 
 		if (this.event.type == "skip")
 			return;

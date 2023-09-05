@@ -41,6 +41,10 @@ export class Radio implements FieldImplementation, EventListenerObject
 	private datatype$:DataType = DataType.string;
    private event:BrowserEvent = BrowserEvent.get();
 
+	public setValidated() : void
+	{
+	}
+
 	public get datatype() : DataType
 	{
 		return(this.datatype$);
@@ -199,7 +203,16 @@ export class Radio implements FieldImplementation, EventListenerObject
 
 	public async handleEvent(event:Event) : Promise<void>
 	{
-      let bubble:boolean = false;
+		// Radio ignores readonly
+		let readonly:boolean = this.element.hasAttribute("readonly");
+
+		if (readonly && event.type == "click")
+		{
+			event.preventDefault();
+			return;
+		}
+
+		let bubble:boolean = false;
 		this.event.setEvent(event);
 
 		if (this.event.type == "skip")

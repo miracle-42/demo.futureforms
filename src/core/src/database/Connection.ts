@@ -240,8 +240,7 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Alert.fatal(response.message,"Database Connection");
 			return(false);
 		}
 

@@ -147,17 +147,17 @@ export class FieldFeatureFactory
 			props.hidden = tag.hidden;
 			props.enabled = !tag.disabled;
 			props.required = tag.required;
-			props.readonly = tag.getAttribute("readonly") != null;
+			props.readonly = tag.hasAttribute("readonly");
 			props.setValidValues(FieldFeatureFactory.getSelectOptions(tag));
 		}
 
 		else
 
 		{
-			props.enabled = true;
-			props.readonly = false;
-			props.required = false;
-			props.hidden = tag.hidden;
+			props.hidden = tag.hasAttribute("hidden");
+			props.enabled = !tag.hasAttribute("disabled");
+			props.readonly = tag.hasAttribute("readonly");
+			props.required = tag.hasAttribute("required");
 		}
 
 		props.setStyles(tag.style.cssText);
@@ -225,8 +225,22 @@ export class FieldFeatureFactory
 			tag.disabled = !props.enabled;
 			tag.required = props.required;
 			FieldFeatureFactory.setSelectOptions(tag,props);
-			FieldFeatureFactory.setReadOnly(tag,props.readonly)
+			FieldFeatureFactory.setReadOnly(tag,props.readonly);
 			if (props.readonly) tag.setAttribute("readonly","");
+		}
+
+		else
+
+		{
+			tag.removeAttribute("hidden");
+			tag.removeAttribute("readonly");
+			tag.removeAttribute("required");
+			tag.removeAttribute("disabled");
+
+			if (props.hidden) tag.setAttribute("hidden","");
+			if (props.readonly) tag.setAttribute("readonly","");
+			if (props.required) tag.setAttribute("required","");
+			if (!props.enabled) tag.setAttribute("disabled","");
 		}
 	}
 
@@ -336,37 +350,34 @@ export class FieldFeatureFactory
 
 	public static setEnabledState(tag:HTMLElement, props:FieldProperties, flag:boolean) : void
 	{
-		if (!flag) FieldFeatureFactory.setEnabled(tag,props,flag);
-		else if (props.enabled) FieldFeatureFactory.setEnabled(tag,props,flag);
+		if (!flag) FieldFeatureFactory.setEnabled(tag,flag);
+		else if (props.enabled) FieldFeatureFactory.setEnabled(tag,flag);
 	}
 
 	public static setReadOnly(tag:HTMLElement, flag:boolean) : void
 	{
 		if (tag instanceof HTMLInputElement)
-		{
 			tag.readOnly = flag;
 
-			if (tag.type == "checkbox" || tag.type == "radio")
-				tag.disabled = flag;
-		}
+		else
 
-		if (tag instanceof HTMLSelectElement)
-			tag.disabled = flag;
+		{
+			if (flag) tag.setAttribute("readonly","");
+			else		 tag.removeAttribute("readonly");
+		}
 	}
 
-	public static setEnabled(tag:HTMLElement, props:FieldProperties, flag:boolean) : void
+	public static setEnabled(tag:HTMLElement, flag:boolean) : void
 	{
-		if (tag instanceof HTMLInputElement)
-		{
-			if (tag.type == "checkbox" || tag.type == "radio")
-			{
-				if (!props.readonly)
-					tag.disabled = !flag
-			}
-			else tag.disabled = !flag;
-		}
+		if (tag instanceof HTMLInputElement || tag instanceof HTMLSelectElement)
+			tag.disabled = !flag;
 
-		if (tag instanceof HTMLSelectElement && !props.readonly) tag.disabled = !flag;
+		else
+
+		{
+			if (flag) tag.setAttribute("disabled","");
+			else		 tag.removeAttribute("disabled");
+		}
 	}
 
 	private static getSelectOptions(tag:HTMLSelectElement) : Map<string,string>

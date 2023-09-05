@@ -157,7 +157,7 @@ export class ListOfValues extends Form
 
 		if (event.key == KeyMap.prevrecord && event.block == "results")
 		{
-			if (this.getBlock("results").getRecord().recno == 0)
+			if (this.getBlock("results").getRecord()?.recno == 0)
 			{
 				this.goBlock("filter");
 				return(false);

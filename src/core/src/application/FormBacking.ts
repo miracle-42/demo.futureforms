@@ -378,6 +378,11 @@ export class FormBacking
 		let forms:ModelForm[] = [...FormBacking.mforms.values()];
 		let dbconns:Connection[] = Connection.getAllConnections();
 
+		if (document.activeElement instanceof HTMLElement)
+			document.activeElement.blur();
+
+		EventStack.clear();
+
 		if (!await FormEvents.raise(FormEvent.AppEvent(EventType.PreRollback)))
 			return(false);
 

@@ -197,14 +197,9 @@ export class Block
 		return(this.form.hasEventTransaction(this));
 	}
 
-	public checkEventTransaction(event:EventType) : boolean
+	public async checkEventTransaction(event:EventType) : Promise<boolean>
 	{
 		return(this.form.checkEventTransaction(event,this));
-	}
-
-	public async wait4EventTransaction(event:EventType) : Promise<boolean>
-	{
-		return(this.form.wait4EventTransaction(event,this));
 	}
 
 	public async setEventTransaction(event:EventType, record:Record) : Promise<boolean>
@@ -335,6 +330,7 @@ export class Block
 	public async preDelete(record:Record) : Promise<boolean>
 	{
 		if (this.ctrlblk) return(true);
+		if (record.state == RecordState.New) return(true);
 		if (!await this.setEventTransaction(EventType.PreDelete,record)) return(false);
 		let success:boolean = await this.fire(EventType.PreDelete);
 		this.endEventTransaction(EventType.PreDelete,success);
@@ -371,7 +367,7 @@ export class Block
 	public async postQuery() : Promise<boolean>
 	{
 		if (this.ctrlblk) return(true);
-		if (!await this.wait4EventTransaction(EventType.PostQuery)) return(false);
+		if (!await this.checkEventTransaction(EventType.PostQuery)) return(false);
 		let success:boolean = await this.fire(EventType.PostQuery);
 		return(success);
 	}
@@ -422,19 +418,24 @@ export class Block
 
 	public rewind() : void
 	{
-		this.record$ = -1;
+		this.record = -1;
 	}
 
 	public move(delta:number) : number
 	{
-		this.record$ = this.record + delta;
+		this.record = this.record + delta;
 		return(this.record$);
 	}
 
 	public get record() : number
 	{
 		if (this.record$ < 0) return(0);
-		else				  return(this.record$);
+		else				  		 return(this.record$);
+	}
+
+	public set record(record:number)
+	{
+		this.record$ = record;
 	}
 
 	public get interface() : InterfaceBlock
@@ -485,54 +486,109 @@ export class Block
 		if (this.querymode)
 			return(false);
 
-		if (!this.source$.insertallowed)
-			return(false);
-
 		if (!this.view.hasInsertableFields())
 		{
 			Alert.warning("'"+this.name+"' has no allowed input fields","Insert Record");
 			return(false);
 		}
 
-		if (!await this.view.validateRow())
+		if (!await this.view.form.validate())
 			return(false);
 
 		if (!this.checkEventTransaction(EventType.PreInsert))
 			return(false);
 
 		let record:Record = this.wrapper.create(this.record,before);
+		if (!record) return(false);
+
+		if (!await this.form.view.onCreateRecord(this.view,record))
+		{
+			this.wrapper.delete(record);
+			return(false);
+		}
 
 		if (record != null)
 		{
-			if (!this.view.getCurrentRow().exist)
+			let offset:number = 0;
+			let inst:FieldInstance = null;
+			let noex:boolean = this.view.empty();
+			let init:boolean = inst?.field.block.model == this;
+			let last:boolean = this.view.row == this.view.rows-1;
+
+			if (noex)
 			{
 				before = true;
 				this.view.openrow();
 			}
-
-			this.form.view.blur(true);
-			this.form.view.current = null;
-
-			let success:boolean = true;
-			this.scroll(0,this.view.row);
-
-			if (before)	await this.view.refresh(record);
-			else success = await this.view.nextrecord();
-
-			if (success)
+			else
 			{
-				let details:Block[] = this.getAllDetailBlocks(true);
+				if (last && !before)
+					offset = 1;
 
-				for (let i = 0; i < details.length; i++)
+				if (init && !await this.form.view.leaveField(null,offset))
 				{
-					if (details[i]!= this)
-						await details[i].clear(true);
+					this.wrapper.delete(record);
+					return(false);
 				}
 
-				this.view.findFirstEditable(record)?.focus();
+				if (init && !await this.form.view.leaveRecord(this.view,offset))
+				{
+					this.wrapper.delete(record);
+					return(false);
+				}
 			}
 
-			return(success);
+			this.scroll(offset,this.view.row);
+			await this.view.refresh(record);
+			inst = this.view.findFirstEditable(record);
+
+			if (inst == null)
+			{
+				this.wrapper.delete(record);
+				Alert.warning("'"+this.name+"' has no allowed input fields","Insert Record");
+				return(false);
+			}
+
+			let details:Block[] = this.getAllDetailBlocks(true);
+
+			for (let i = 0; i < details.length; i++)
+			{
+				if (details[i]!= this)
+					await details[i].clear(true);
+			}
+
+			this.view.current = inst;
+			this.view.form.blur(true);
+
+			if (!before && !last)
+			{
+				this.move(1);
+				this.view.move(1);
+			}
+
+			if (!await this.form.view.enterRecord(this.view,0))
+			{
+				this.wrapper.delete(record);
+				return(false);
+			}
+
+			if (!await this.form.view.enterField(inst,0,true))
+			{
+				this.wrapper.delete(record);
+				return(false);
+			}
+
+			if (!await this.form.view.onRecord(this.view))
+			{
+				this.wrapper.delete(record);
+				return(false);
+			}
+
+			inst.focus(true);
+			this.dirty = true;
+			this.view.refresh(record);
+
+			return(true);
 		}
 
 		return(false);
@@ -543,11 +599,14 @@ export class Block
 		if (this.querymode)
 			return(false);
 
-		if (!this.source$.deleteallowed)
-			return(false);
+		if (this.getRecord().state != RecordState.New)
+		{
+			if (!this.source$.deleteallowed)
+				return(false);
 
-		if (!this.checkEventTransaction(EventType.PreDelete))
-			return(false);
+			if (!this.checkEventTransaction(EventType.PreDelete))
+				return(false);
+		}
 
 		let empty:boolean = false;
 		let inst:FieldInstance = null;
@@ -564,7 +623,7 @@ export class Block
 			{
 				this.move(-1);
 				this.view.move(-1);
-				if (inst?.row >= 0) inst.blur();
+				if (inst?.row >= 0) inst.blur(true);
 			}
 
 			this.scroll(0,this.view.row);
@@ -600,6 +659,14 @@ export class Block
 
 		if (this.qbe.querymode)
 			return(true);
+
+		let rec:Record = this.getRecord();
+
+		if (rec?.inserted)
+		{
+			rec.state = RecordState.New;
+			await this.delete();
+		}
 
 		let undo:Record[] = await this.wrapper?.undo();
 
@@ -647,7 +714,7 @@ export class Block
 		if (!await this.wrapper.clear(true))
 			return(false);
 
-		this.record$ = 0;
+		this.record = 0;
 
 		this.qbe.clear();
 		this.qbe.querymode = true;
@@ -660,7 +727,7 @@ export class Block
 		return(true);
 	}
 
-	public async executeQuery(qryid?:object) : Promise<boolean>
+	public async executeQuery(qryid:object, trgs:boolean) : Promise<boolean>
 	{
 		this.queried = true;
 		let runid:object = null;
@@ -712,7 +779,7 @@ export class Block
 
 		FlightRecorder.debug("@model.block: execute query "+this.name+" filter: "+this.filter.toString());
 
-		this.record$ = -1;
+		this.record = -1;
 		let record:Record = null;
 
 		if (!await wrapper.query(this.filter))
@@ -736,12 +803,15 @@ export class Block
 				break;
 
 			found = true;
-			this.record$ = 0;
+			this.record = 0;
 			this.view.display(i,record);
-			if (i == 0)	this.view$.setCurrentRow(0,false);
 		}
 
-		if (!found)
+		if (found)
+		{
+			await this.view$.setCurrentRow(0,false);
+		}
+		else
 		{
 			let blocks:Block[] = this.getAllDetailBlocks(true);
 			blocks.forEach((det) => {det.view.clear(true,true,true)})
@@ -750,6 +820,8 @@ export class Block
 		this.form.QueryManager.setRunning(this,null);
 
 		this.view.lockUnused();
+
+		if (!trgs) return(true);
 		return(await this.postQuery());
 	}
 
@@ -1012,13 +1084,19 @@ export class Block
 		if (!this.form.finalized)
 			return(true);
 
+		let success:boolean = true;
 		let qryid:object = this.getQueryID();
 		if (newqry) qryid = this.startNewQueryChain();
 
-		this.getDetailBlocks(true).forEach((detail) =>
-			{detail.executeQuery(qryid)})
+		let blocks:Block[] = this.getDetailBlocks(true);
 
-		return(true);
+		for (let i = 0; i < blocks.length; i++)
+		{
+			if (!await blocks[i].executeQuery(qryid,false))
+				success = false;
+		}
+
+		return(success);
 	}
 
 	public async prefetch(records:number, offset:number) : Promise<number>

@@ -80,7 +80,6 @@ export enum EventType
 	PostRecord,
 
 	OnRecord,
-	OnNewRecord,
 
 	PreField,
 	PostField,
@@ -92,6 +91,8 @@ export enum EventType
 	OnFetch,
 	PreQuery,
 	PostQuery,
+
+	OnCreateRecord,
 
 	PreInsert,
 	PostInsert,

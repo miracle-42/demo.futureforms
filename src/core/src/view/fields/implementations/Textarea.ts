@@ -35,7 +35,11 @@ export class Textarea implements FieldImplementation, EventListenerObject
 	private eventhandler:FieldEventHandler = null;
 
 	private element:HTMLTextAreaElement = null;
-    private event:BrowserEvent = BrowserEvent.get();
+   private event:BrowserEvent = BrowserEvent.get();
+
+	public setValidated() : void
+	{
+	}
 
 	public get datatype() : DataType
 	{

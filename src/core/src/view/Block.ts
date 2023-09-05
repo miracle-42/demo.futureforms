@@ -489,7 +489,7 @@ export class Block
 
 	public async wait4EventTransaction(event:EventType) : Promise<boolean>
 	{
-		return(this.model.wait4EventTransaction(event));
+		return(this.model.checkEventTransaction(event));
 	}
 
 	public endEventTransaction(event:EventType, apply:boolean) : void
@@ -809,8 +809,10 @@ export class Block
 		return(this.rows$.get(this.row));
 	}
 
-	public setCurrentRow(rownum:number, newqry:boolean) : void
+	public async setCurrentRow(rownum:number, newqry:boolean) : Promise<boolean>
 	{
+		let success:boolean = true;
+
 		if (this.row$ < 0)
 		{
 			this.row$ = 0;
@@ -824,15 +826,15 @@ export class Block
 				this.displaycurrent();
 
 				if (this.getRow(this.row).status != Status.qbe)
-					this.model.queryDetails(newqry);
+					success = await this.model.queryDetails(newqry);
 			}
 
 			this.setIndicators(null,rownum);
-			return;
+			return(success);
 		}
 
 		if (rownum == this.row || rownum == -1)
-			return;
+			return(success);
 
 		this.model$.move(rownum-this.row);
 		this.setIndicators(this.row$,rownum);
@@ -849,10 +851,11 @@ export class Block
 			this.openrow();
 
 			if (this.getRow(this.row).status != Status.qbe)
-				this.model.queryDetails(newqry);
+				success = await this.model.queryDetails(newqry);
 		}
 
 		this.displaycurrent();
+		return(success);
 	}
 
 	public addRow(row:Row) : void
@@ -870,9 +873,9 @@ export class Block
 		return(this.displayed$.get(record?.id));
 	}
 
-	public getRecord(row:number) : Record
+	public getRecord(row?:number) : Record
 	{
-		if (row < 0) row = this.row;
+		if (!row || row < 0) row = this.row;
 		return(this.model.getRecord(row-this.row));
 	}
 
@@ -1044,7 +1047,6 @@ export class Block
 
 	private async scroll(inst:FieldInstance, scroll:number) : Promise<FieldInstance>
 	{
-		let success:boolean = null;
 		let next:FieldInstance = inst;
 
 		if (!await this.validateRow())
@@ -1079,7 +1081,7 @@ export class Block
 				next.ignore = "focus";
 			}
 
-			if (!await this.form.leaveField(inst))
+			if (!await this.form.leaveField(inst,0,true))
 				return(next);
 
 			if (!await this.form.leaveRecord(this))
@@ -1087,11 +1089,26 @@ export class Block
 
 			let moved:number = this.model.scroll(scroll,this.row);
 
-			success = await this.form.enterRecord(this,0);
-			if (!success) FlightRecorder.add("@view.block.scroll : unable to enter record. block: "+this.name+" inst: "+inst);
+			if (!await this.form.enterRecord(this,0))
+			{
+				this.model.scroll(-scroll,this.row);
+				this.setIndicators(null,this.row$);
+				return(next);
+			}
 
-			success = await this.form.enterField(inst,0);
-			if (!success) FlightRecorder.add("@view.block.scroll : unable to enter field. block: "+this.name+" inst: "+inst);
+			if (!await this.form.enterField(next,0,true))
+			{
+				this.model.scroll(-scroll,this.row);
+				this.setIndicators(null,this.row$);
+				return(next);
+			}
+
+			if (!await this.form.onRecord(next.field.block))
+			{
+				this.model.scroll(-scroll,this.row);
+				this.setIndicators(null,this.row$);
+				return(next);
+			}
 
 			if (moved < scroll)
 				this.row$ -= scroll - moved;
@@ -1110,17 +1127,17 @@ export class Block
 			if (this.getRow(this.row+scroll).status == Status.na)
 				return(inst);
 
-			if (!await this.form.leaveField(inst))
-				return(next);
+			if (!await this.form.leaveField(inst,0,true))
+				return(inst);
 
 			if (!await this.form.leaveRecord(this))
-				return(next);
+				return(inst);
 
 			if (!await this.form.enterRecord(this,scroll))
-				return(next);
+				return(inst);
 
-			if (!await this.form.enterField(inst,scroll))
-				return(next);
+			if (!await this.form.enterField(inst,scroll,true))
+				return(inst);
 
 			this.setCurrentRow(this.row+scroll,true);
 		}

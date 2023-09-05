@@ -38,7 +38,11 @@ export class Display implements FieldImplementation, EventListenerObject
 	private value$:any = null;
 	private element:HTMLElement = null;
 	private datatype$:DataType = DataType.string;
-    private event:BrowserEvent = BrowserEvent.get();
+   private event:BrowserEvent = BrowserEvent.get();
+
+	public setValidated() : void
+	{
+	}
 
 	public get datatype() : DataType
 	{

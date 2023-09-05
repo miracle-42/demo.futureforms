@@ -42,7 +42,7 @@ export class KeyMap
 	public static refresh:KeyMap = new KeyMap({key: 'u', ctrl: true}, "refresh","Refresh value from backend");
 
 	public static clearblock:KeyMap = new KeyMap({key: KeyCodes.f4},"clear block","clear block");
-	public static clearform:KeyMap = new KeyMap({key: KeyCodes.f4, shift: true},"clear block","clear block");
+	public static clearform:KeyMap = new KeyMap({key: KeyCodes.f4, shift: true},"clear form","clear form");
 
 	public static enterquery:KeyMap = new KeyMap({key: KeyCodes.f7},"enter query","start query by example mode");
 	public static executequery:KeyMap = new KeyMap({key: KeyCodes.f8},"execute query","execute query");
@@ -67,8 +67,8 @@ export class KeyMap
 
 	public static delete:KeyMap = new KeyMap({key: KeyCodes.f6},"delete","delete record");
 
-	public static insert:KeyMap = new KeyMap({key: KeyCodes.f5},"insert","insert record");
-	public static insertAbove:KeyMap = new KeyMap({key: KeyCodes.f5, shift: true},"insert above","insert record above the current");
+	public static insert:KeyMap = new KeyMap({key: KeyCodes.Enter, shift: true},"insert","insert record");
+	public static insertAbove:KeyMap = new KeyMap({key: KeyCodes.Enter, ctrl: true},"insert above","insert record above the current");
 
 	public static lov:KeyMap = new KeyMap({key: KeyCodes.f9},"list of values","show valid values");
 	public static calendar:KeyMap = new KeyMap({key: KeyCodes.f9},"datepicker","show datepicker");
@@ -99,6 +99,13 @@ export class KeyMap
 				}
 			}
 		});
+
+		list.sort((k0,k1) =>
+		{
+			if (k0[1] > k1[1]) return(1);
+			if (k0[1] < k1[1]) return(-11);
+			return(0);
+		})
 
 		return(list);
 	}

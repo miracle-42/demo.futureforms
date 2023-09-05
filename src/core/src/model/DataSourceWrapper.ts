@@ -222,6 +222,7 @@ export class DataSourceWrapper
 
 				else
 
+				if (records[i].state != RecordState.Deleted)
 				{
 					records[i].flushing = true;
 					succces = await this.block.postDelete(records[i]);
@@ -346,14 +347,19 @@ export class DataSourceWrapper
 			record.setDirty();
 			this.dirty = true;
 
-			if (!await this.lock(record,false))
+			let skip:boolean = false;
+			if (record.state == RecordState.New || record.state == RecordState.Insert) skip = true;
+
+			if (!skip && !await this.lock(record,false))
 				return(false);
 
 			success = await this.delete(record);
 
 			if (success)
 			{
-				record.state = RecordState.Delete;
+				if (!skip) record.state = RecordState.Delete;
+				else       record.state = RecordState.Deleted;
+				
 				this.block.view.setAttributes(record);
 			}
 		}

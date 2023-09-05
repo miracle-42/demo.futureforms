@@ -434,7 +434,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 				rec.response = new DatabaseResponse(response,this.delreturncolumns$);
 			}
 
-			else
+			else if (rec.state != RecordState.Deleted)
 
 			{
 				processed.push(rec);

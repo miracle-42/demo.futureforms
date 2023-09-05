@@ -386,7 +386,7 @@ export class Form implements CanvasComponent
 		if (vform == null)
 			return(true);
 
-		if (!await FormBacking.getModelForm(this).wait4EventTransaction(EventType.OnCloseForm,null))
+		if (!await FormBacking.getModelForm(this).checkEventTransaction(EventType.OnCloseForm,null))
 			return(false);
 
 		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.OnCloseForm,this)))

@@ -237,6 +237,11 @@ export class FieldInstance implements FieldEventHandler
 		this.impl.datatype = type;
 	}
 
+	public setValidated() : void
+	{
+		this.impl.setValidated();
+	}
+
 	public get implementation() : FieldImplementation
 	{
 		return(this.impl);

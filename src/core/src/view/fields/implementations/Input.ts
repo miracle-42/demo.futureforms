@@ -71,6 +71,11 @@ export class Input implements FieldImplementation, EventListenerObject
 		this.datatype$ = type;
 	}
 
+	public setValidated() : void
+	{
+		this.initial = this.getElementValue();
+	}
+
 	public create(eventhandler:FieldEventHandler, _tag:string) : HTMLInputElement
 	{
 		this.element = document.createElement("input");
@@ -117,7 +122,7 @@ export class Input implements FieldImplementation, EventListenerObject
 
 	public clear() : void
 	{
-		this.setElementValue(null);
+		this.setValue(null);
 	}
 
 	public getValue() : any
@@ -403,7 +408,6 @@ export class Input implements FieldImplementation, EventListenerObject
 			}
 		}
 
-
 		if (this.event.type == "focus")
 		{
 			bubble = true;
@@ -428,20 +432,12 @@ export class Input implements FieldImplementation, EventListenerObject
 		{
 			bubble = true;
 
-			let change:boolean = false;
 			let value:string = this.getElementValue();
 
 			if (value != this.initial)
-				change = true;
-
-			if (change)
 			{
-				this.event.type = "change";
-
 				this.setValue(value);
-				await this.eventhandler.handleEvent(this.event);
-
-				this.event.type = "blur";
+				this.event.type = "change+blur";
 			}
 		}
 

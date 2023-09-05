@@ -208,10 +208,10 @@ export class Block
 	}
 
 	/** Perform the query details operation */
-	public querydetails(field?:string) : void
+	public async querydetails(field?:string) : Promise<boolean>
 	{
-		if (!field) FormBacking.getModelBlock(this).queryDetails(true);
-		else FormBacking.getModelForm(this.form).queryFieldDetails(this.name,field);
+		if (!field) return(FormBacking.getModelBlock(this).queryDetails(true));
+		else return(FormBacking.getModelForm(this.form).queryFieldDetails(this.name,field));
 	}
 
 	/** Navigate to previous record */

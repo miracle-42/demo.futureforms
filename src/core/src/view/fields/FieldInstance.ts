@@ -332,14 +332,29 @@ export class FieldInstance implements FieldEventHandler
 		this.impl.setIntermediateValue(value);
 	}
 
+	public skip() : void
+	{
+		let focus:Element = document.activeElement;
+		let inst:HTMLElement = this.impl.getElement();
+
+		if (focus == inst)
+		{
+			this.ignore = "skip";
+			inst.blur();
+		}
+	}
+
 	public blur(ignore?:boolean) : void
 	{
 		if (ignore == null) ignore = false;
 		let focus:Element = document.activeElement;
 		let inst:HTMLElement = this.impl.getElement();
 
-		if (ignore) this.ignore = "blur";
-		if (focus == inst) inst.blur();
+		if (focus == inst)
+		{
+			if (ignore) this.ignore = "blur";
+			inst.blur();
+		}
 	}
 
 	public focus(ignore?:boolean) : void
@@ -361,6 +376,11 @@ export class FieldInstance implements FieldEventHandler
 				this.field.handleEvent(this,event);
 			}
 		}
+	}
+
+	public hasFocus() : boolean
+	{
+		return(this.impl.getElement() == document.activeElement);
 	}
 
 	public focusable(status?:Status) : boolean

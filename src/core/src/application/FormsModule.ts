@@ -180,6 +180,14 @@ export class FormsModule
 		return(FormBacking.getCurrentForm());
 	}
 
+	/** Retrive the current active HTMLElement */
+	public getCurrentField() : HTMLElement
+	{
+		let form:ViewForm = FormBacking.getViewForm(FormBacking.getCurrentForm());
+		if (form.current?.hasFocus()) return(form.current.implementation.getElement());
+		else return(null);
+	}
+
 	/** Emulate a user key-stroke */
 	public async sendkey(key:KeyMap|string) : Promise<boolean>
 	{

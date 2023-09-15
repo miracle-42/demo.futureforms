@@ -410,11 +410,10 @@ export class Form implements CanvasComponent
 		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.PostForm,this)))
 			return(false);
 
+		FormBacking.removeBacking(this);
 		let success:boolean = await FormEvents.raise(FormEvent.FormEvent(EventType.PostCloseForm,this));
 
 		vform.setURL(true);
-		FormBacking.removeBacking(this);
-
 		return(success);
 	}
 

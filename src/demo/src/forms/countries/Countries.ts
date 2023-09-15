@@ -21,24 +21,17 @@
 
 import content from './Countries.html';
 
-import { datasource, formevent, FormEvent, EventType } from "forms42core";
-import { BaseForm } from "../../BaseForm";
-import { CountryTable } from "./CountryTable";
+import {  datasource } from "forms42core";
+import {  CountryDS  } from "./CountryDS";
+import {  BaseForm   } from "../../BaseForm";
 
-@datasource("Countries",CountryTable)
+@datasource("CountryDS",CountryDS)
 
 export class Countries extends BaseForm
 {
 	constructor()
 	{
 		super(content);
-		this.title = "Countries";
-	}
-
-	@formevent()
-	public async test(event:FormEvent) : Promise<boolean>
-	{
-		console.log(EventType[event.type]+" "+event.block+"."+event.field)
-		return(true);
+		this.title = "Countries"
 	}
 }

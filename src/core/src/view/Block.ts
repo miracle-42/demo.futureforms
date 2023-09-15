@@ -48,6 +48,7 @@ export class Block
 	private row$:number = -1;
 	private form$:Form = null;
 	private name$:string = null;
+	private focus$:boolean = null;
 	private model$:ModelBlock = null;
 	private finalized$:boolean = false;
 	private fieldnames$:string[] = null;
@@ -108,6 +109,11 @@ export class Block
 	public set current(inst:FieldInstance)
 	{
 		this.curinst$ = inst;
+	}
+
+	public skip() : void
+	{
+		this.current?.skip();
 	}
 
 	public blur(ignore?:boolean) : void
@@ -236,7 +242,7 @@ export class Block
 		if (!await this.form.enter(inst))
 			return(false);
 
-		inst.focus();
+		inst.focus(true);
 		return(true);
 	}
 
@@ -606,8 +612,13 @@ export class Block
 
 	public clear(props:boolean, rewind:boolean, fields?:boolean) : void
 	{
+		if (this.current?.hasFocus() && this.row > 0)
+			this.current.skip();
+
 		this.current = null;
-		this.displayed$.clear();
+
+		if (!this.model.ctrlblk)
+			this.displayed$.clear();
 
 		if (rewind)
 		{
@@ -617,6 +628,18 @@ export class Block
 
 		if (props) this.recprops$.clear();
 		if (fields) this.model.querymode = false;
+
+		if (this.model.ctrlblk)
+		{
+			if (fields)
+			{
+				this.rows$.forEach((row) => {row.clear()});
+				this.getRow(this.row).activateIndicators(true);
+			}
+
+			return;
+		}
+
 
 		this.rows$.forEach((row) =>
 		{
@@ -964,8 +987,11 @@ export class Block
 
 	public async refresh(record:Record) : Promise<boolean>
 	{
+		if (record == null) return(false);
 		let row:Row = this.displayed(record);
-		if (row == null) return;
+
+		if (row == null)
+			return;
 
 		row.validated = true;
 		this.display(row.rownum,record);

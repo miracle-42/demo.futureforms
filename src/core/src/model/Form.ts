@@ -157,8 +157,7 @@ export class Form
 
 		for (let i = 0; i < dirty.length; i++)
 		{
-			this.blkcord$.getDetailBlocks(dirty[i],true).
-			forEach((detail) =>
+			this.blkcord$.getDetailBlocks(dirty[i],true).forEach((detail) =>
 			{
 				if (!detail.ctrlblk)
 					requery.delete(detail)
@@ -248,8 +247,8 @@ export class Form
 
 		if (running)
 		{
-			if (!block) Alert.fatal("Cannot start transaction "+EventType[event]+" while running "+EventType[running],"Transaction Violation");
-			else			Alert.fatal("Cannot start transaction "+EventType[event]+" in "+block.name+" while running "+EventType[running],"Transaction Violation");
+			if (!block) Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" while running "+EventType[running],"Transaction Violation");
+			else			Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" in "+block.name+" while running "+EventType[running],"Transaction Violation");
 			return(false);
 		}
 
@@ -262,8 +261,8 @@ export class Form
 
 		if (running)
 		{
-			if (!block) Alert.fatal("Cannot start transaction "+EventType[event]+" while running "+EventType[running],"Transaction Violation");
-			else			Alert.fatal("Cannot start transaction "+EventType[event]+" in "+block.name+" while running "+EventType[running],"Transaction Violation");
+			if (!block) Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" while running "+EventType[running],"Transaction Violation");
+			else			Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" in "+block.name+" while running "+EventType[running],"Transaction Violation");
 			return(false);
 		}
 
@@ -494,7 +493,7 @@ export class Form
 
 		for (let i = 0; i < blocks.length; i++)
 		{
-			blocks[i].executeQuery(qryid,false);
+			blocks[i].executeQuery(qryid);
 
 			let filters:boolean = false;
 			if (!blocks[i].QueryFilter.empty) filters = true;
@@ -555,12 +554,16 @@ export class Form
 		let blocks:Block[] = block.getAllDetailBlocks(true);
 
 		for (let i = 0; i < blocks.length; i++)
-		{
 			blocks[i].view.clear(true,true,true);
 
+		for (let i = blocks.length-1; i >= 0; i--)
+		{
 			if (!await blocks[i].preQuery())
 				return(false);
+		}
 
+		for (let i = 0; i < blocks.length; i++)
+		{
 			if (!await blocks[i].setDetailDependencies())
 				return(false);
 
@@ -574,7 +577,17 @@ export class Form
 		if (init) inst?.blur(true);
 		this.view.current = null;
 
-		let success:boolean = await block.executeQuery(this.qrymgr$.startNewChain(),true);
+		let success:boolean = await block.executeQuery(this.qrymgr$.startNewChain());
+		if (!success) return(false);
+
+		for (let i = blocks.length-1; i >= 0; i--)
+		{
+			if (!await blocks[i].postQuery())
+			{
+				success = false;
+				break;
+			}
+		}
 
 		if (init)
 		{
@@ -587,11 +600,14 @@ export class Form
 					success = await this.view.onRecord(inst?.field.block);
 			}
 
-			inst?.focus(true);
-			this.view.current = inst;
-
 			// Make sure onRecord doesn't fire twice
 			if (inst) inst.field.block.current = inst;
+		}
+
+		if (inst)
+		{
+			inst.focus(true);
+			this.view.current = inst;
 		}
 
 		return(success);
@@ -606,7 +622,7 @@ export class Form
 				block.datasource = block.createMemorySource();
 
 				block.ctrlblk = true;
-				await block.executeQuery(null,false);
+				await block.executeQuery(null);
 			}
 		}
 	}

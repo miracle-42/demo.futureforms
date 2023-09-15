@@ -22,7 +22,6 @@
 import { Row } from "../Row.js";
 import { Form } from "../Form.js";
 import { Block } from "../Block.js";
-import { Input } from "./implementations/Input.js";
 import { FieldInstance } from "./FieldInstance.js";
 import { Form as Interface } from "../../public/Form.js";
 import { Block as ModelBlock } from "../../model/Block.js";
@@ -255,6 +254,15 @@ export class Field
 
 	public async handleEvent(inst:FieldInstance, brwevent:BrowserEvent) : Promise<void>
 	{
+		if (inst.ignore == "skip")
+		{
+			if (brwevent.type == "blur" || brwevent.type == "change+blur")
+				inst.ignore = null;
+
+			return;
+		}
+
+
 		if (brwevent.type == "blur" && inst.ignore == "blur") {inst.ignore = null; return}
 		if (brwevent.type == "focus" && inst.ignore == "focus") {inst.ignore = null; return}
 		return(await EventStack.stack(this,inst,brwevent));
@@ -264,6 +272,7 @@ export class Field
 	{
 		let key:KeyMap = null;
 		let success:boolean = null;
+		FlightRecorder.add(brwevent.type+" "+inst);
 
 		if (brwevent.type == "focus")
 		{
@@ -276,7 +285,6 @@ export class Field
 
 		if (brwevent.type == "change" || brwevent.type == "change+blur")
 		{
-			this.row.invalidate();
 			success = await this.validate(inst);
 
 			this.distribute(inst,this.value$,this.dirty);
@@ -378,6 +386,7 @@ export class Field
 		if (!this.dirty)
 			return(true);
 
+		this.row.invalidate();
 
 		if (!await this.block.validateField(inst,inst.getValue()))
 		{

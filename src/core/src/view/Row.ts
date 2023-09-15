@@ -163,6 +163,18 @@ export class Row
 	public set validated(flag:boolean)
 	{
 		this.validated$ = flag;
+
+		if (flag)
+		{
+			this.getFieldInstances().forEach((inst) =>
+				{inst.valid = true;})
+
+			if (this.rownum == this.block.row)
+			{
+				this.block.getRow(-1)?.getFieldInstances().forEach((inst) =>
+					{inst.valid = true;})
+			}
+		}
 	}
 
 	public invalidate() : void

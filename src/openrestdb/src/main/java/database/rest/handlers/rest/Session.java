@@ -181,13 +181,13 @@ public class Session
 
   public boolean stateful()
   {
-    return(scope != Scope.None);
+    return(scope != Scope.Stateless);
   }
 
 
   public boolean autocommit()
   {
-    return(scope == Scope.None);
+    return(scope == Scope.Stateless);
   }
 
 
@@ -509,10 +509,7 @@ public class Session
   private Scope getScope(String scope)
   {
     if (scope == null)
-      return(Scope.None);
-
-    if (scope.equalsIgnoreCase("shared"))
-      scope = "None";
+      return(Scope.Stateless);
 
     scope = Character.toUpperCase(scope.charAt(0))
            + scope.substring(1).toLowerCase();
@@ -539,8 +536,8 @@ public class Session
 
   private static enum Scope
   {
-    None,
-    Transaction,
-    Dedicated
+    Dedicated,
+    Stateless,
+    Transaction
   }
 }

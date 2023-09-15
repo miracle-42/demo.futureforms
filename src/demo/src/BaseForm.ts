@@ -85,11 +85,11 @@ export class BaseForm extends Form
 		else
 		{
 			image.src = "images/outsidearrow.png";
-	
+
 			this.setViewPort(this.view);
 			this.view = null;
 		}
-		
+
 		toggle.appendChild(image);
 	}
 
@@ -115,14 +115,14 @@ export class BaseForm extends Form
 		if(needle.length == 0)
 			return(true);
 
-		for (let i = 0; i < needle.length; i++) 
+		for (let i = 0; i < needle.length; i++)
 		{
 				if(connect)
 				{
 					needle[i].classList.add("green");
 					needle[i].classList.remove("red");
 				}
-				else 
+				else
 				{
 					needle[i].classList.add("red");
 					needle[i].classList.remove("green");

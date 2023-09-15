@@ -20,6 +20,7 @@
 */
 
 import { Form } from "./Form.js";
+import { Row } from "../view/Row.js";
 import { Filters } from "./filters/Filters.js";
 import { Filter } from "./interfaces/Filter.js";
 import { Alert } from "../application/Alert.js";
@@ -181,12 +182,12 @@ export class Block
 		{
 			for (let i = 0; i < this.wrapper.getRecords(); i++)
 				this.wrapper.getRecord(i).clear();
-
-			return(true);
 		}
-
-		if (!await this.wrapper.clear(flush))
-			return(false);
+		else
+		{
+			if (!await this.wrapper.clear(flush))
+				return(false);
+		}
 
 		this.form.clearBlock(this);
 		return(true);
@@ -399,11 +400,12 @@ export class Block
 	public async validateRecord() : Promise<boolean>
 	{
 		let record:Record = this.getRecord();
+		let row:Row = this.view.displayed(record);
 
-		if (record == null)
+		if (!record || !row)
 			return(true);
 
-		if (this.view.displayed(record)?.validated)
+		if (row.validated)
 			return(true);
 
 		if (!await this.setEventTransaction(EventType.WhenValidateRecord,record)) return(false);
@@ -412,6 +414,9 @@ export class Block
 
 		if (success)
 			success = await this.wrapper.modified(record,false);
+
+		if (success)
+			row.validated = true;
 
 		return(success);
 	}
@@ -510,8 +515,8 @@ export class Block
 		if (record != null)
 		{
 			let offset:number = 0;
-			let inst:FieldInstance = null;
 			let noex:boolean = this.view.empty();
+			let inst:FieldInstance = this.view.form.current;
 			let init:boolean = inst?.field.block.model == this;
 			let last:boolean = this.view.row == this.view.rows-1;
 
@@ -608,14 +613,16 @@ export class Block
 				return(false);
 		}
 
+		let inst:FieldInstance = this.view.form.current;
+
 		let empty:boolean = false;
-		let inst:FieldInstance = null;
 		let offset:number = this.view.rows - this.view.row - 1;
 		let success:boolean = await this.wrapper.modified(this.getRecord(),true);
 
 		if (success)
 		{
-			inst = this.view.current;
+			this.view.skip();
+
 			await this.prefetch(1,offset-1);
 			empty = this.wrapper.getRecords() <= this.record;
 
@@ -623,16 +630,37 @@ export class Block
 			{
 				this.move(-1);
 				this.view.move(-1);
-				if (inst?.row >= 0) inst.blur(true);
 			}
 
 			this.scroll(0,this.view.row);
 			await this.view.refresh(this.getRecord());
 
 			if (!empty) this.view.current = inst;
-			else this.view.getPreviousInstance(inst)?.focus();
+			else inst = this.view.getPreviousInstance(inst);
 
 			this.view.getRow(this.view.row).validated = true;
+			inst?.focus(true);
+
+			if (this.getRecord() != null)
+			{
+				if (!await this.form.view.enterRecord(this.view,0))
+				{
+					inst?.blur();
+					return(false);
+				}
+
+				if (!await this.form.view.enterField(inst,0,true))
+				{
+					inst?.blur();
+					return(false);
+				}
+
+				if (!await this.form.view.onRecord(this.view))
+				{
+					inst?.blur();
+					return(false);
+				}
+			}
 		}
 		else
 		{
@@ -659,14 +687,6 @@ export class Block
 
 		if (this.qbe.querymode)
 			return(true);
-
-		let rec:Record = this.getRecord();
-
-		if (rec?.inserted)
-		{
-			rec.state = RecordState.New;
-			await this.delete();
-		}
 
 		let undo:Record[] = await this.wrapper?.undo();
 
@@ -727,7 +747,7 @@ export class Block
 		return(true);
 	}
 
-	public async executeQuery(qryid:object, trgs:boolean) : Promise<boolean>
+	public async executeQuery(qryid:object) : Promise<boolean>
 	{
 		this.queried = true;
 		let runid:object = null;
@@ -820,9 +840,7 @@ export class Block
 		this.form.QueryManager.setRunning(this,null);
 
 		this.view.lockUnused();
-
-		if (!trgs) return(true);
-		return(await this.postQuery());
+		return(true);
 	}
 
 	public showLastQuery() : void
@@ -1092,7 +1110,7 @@ export class Block
 
 		for (let i = 0; i < blocks.length; i++)
 		{
-			if (!await blocks[i].executeQuery(qryid,false))
+			if (!await blocks[i].executeQuery(qryid))
 				success = false;
 		}
 

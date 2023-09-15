@@ -81,11 +81,6 @@ export class EventStack
 	// Javascript might not be multi-threaded, but browsers doesn't wait for events to be handled
 	// This code requires events to passed one at a time, which cannot be guaranteed !!!!
 
-	public static clear() : void
-	{
-		EventStack.stack$ = [];
-	}
-
 	public static async send(inst:FieldInstance, brwevent:BrowserEvent) : Promise<void>
 	{
 		EventStack.stack(inst.field,inst,brwevent);
@@ -132,11 +127,5 @@ export class EventStack
 			EventStack.stack$ = [];
 			EventStack.running = false;
 		}
-	}
-
-	public static async wait() : Promise<void>
-	{
-		while(EventStack.stack$.length > 0)
-			await FormsModule.sleep(1);
 	}
 }

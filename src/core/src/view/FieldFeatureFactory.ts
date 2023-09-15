@@ -258,19 +258,34 @@ export class FieldFeatureFactory
 			return;
 
 		if (inst.field.row.status == Status.na)
+		{
+			tag.removeAttribute(Properties.Classes.Invalid);
 			tag.setAttribute(Properties.RecordModeAttr,"na");
+		}
 
 		if (inst.field.row.status == Status.qbe)
+		{
+			tag.removeAttribute(Properties.Classes.Invalid);
 			tag.setAttribute(Properties.RecordModeAttr,"query");
+		}
 
 		if (inst.field.row.status == Status.update)
+		{
+			tag.removeAttribute(Properties.Classes.Invalid);
 			tag.setAttribute(Properties.RecordModeAttr,"update");
+		}
 
 		if (inst.field.row.status == Status.delete)
+		{
+			tag.removeAttribute(Properties.Classes.Invalid);
 			tag.setAttribute(Properties.RecordModeAttr,"deleted");
+		}
 
 		if (inst.field.row.status == Status.new || inst.field.row.status == Status.insert)
+		{
+			tag.removeAttribute(Properties.Classes.Invalid);
 			tag.setAttribute(Properties.RecordModeAttr,"insert");
+		}
 	}
 
 	public static applyType(inst:FieldInstance) : void

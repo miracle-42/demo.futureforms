@@ -15,6 +15,8 @@ NEW=$1
 if [[ -z $NEW ]]
 then
 	echo Error, missing new version number argument.
+	echo Example:
+	echo \ $0 1.2
 	exit 1
 fi
 

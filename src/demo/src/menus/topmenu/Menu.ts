@@ -157,8 +157,8 @@ export class Menu extends MenuComponent
 	}
 
 	@formevent([
-		{type: EventType.OnNewRecord},
-		{type: EventType.OnTransaction}
+		{type: EventType.OnTransaction},
+		{type: EventType.OnCreateRecord}
 	])
 	public async onTransactionStart(event:FormEvent) : Promise<boolean>
 	{

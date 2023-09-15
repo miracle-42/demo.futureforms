@@ -331,7 +331,9 @@ export class DataSourceWrapper
 		if (record.state == RecordState.Update)
 			record.state = RecordState.Consistent;
 
+		this.block.view.refresh(record);
 		await this.block.onFetch(record);
+		
 		this.block.view.setAttributes(record);
 	}
 
@@ -359,7 +361,7 @@ export class DataSourceWrapper
 			{
 				if (!skip) record.state = RecordState.Delete;
 				else       record.state = RecordState.Deleted;
-				
+
 				this.block.view.setAttributes(record);
 			}
 		}

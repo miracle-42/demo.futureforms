@@ -59,11 +59,12 @@ export class Commands extends StaticMenu
 		{
 			switch(parts[1])
 			{
-				case "insert" 		: module.sendkey(KeyMap.insert);		break;
-				case "delete" 		: module.sendkey(KeyMap.delete);		break;
-				case "refresh" 	: module.sendkey(KeyMap.refresh);	break;
-				case "scrollup" 	: module.sendkey(KeyMap.pageup);		break;
-				case "scrolldown" : module.sendkey(KeyMap.pagedown);	break;
+				case "insert" 		: module.sendkey(KeyMap.insert);			break;
+				case "Insert" 		: module.sendkey(KeyMap.insertAbove);	break;
+				case "delete" 		: module.sendkey(KeyMap.delete);			break;
+				case "refresh" 	: module.sendkey(KeyMap.refresh);		break;
+				case "scrollup" 	: module.sendkey(KeyMap.pageup);			break;
+				case "scrolldown" : module.sendkey(KeyMap.pagedown);		break;
 			}
 		}
 
@@ -170,7 +171,7 @@ export class Commands extends StaticMenu
 									id: "before",
 									display: "Above",
 									hinttext: "Shift-F5",
-									command: "record/insert"
+									command: "record/Insert"
 								}
 							]
 						},

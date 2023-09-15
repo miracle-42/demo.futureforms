@@ -36,7 +36,7 @@ export class Employees extends Block
 		this.setDateConstraint(new WorkDays(),"hire_date");
 	}
 
-	@formevent({type: EventType.OnNewRecord})
+	@formevent({type: EventType.OnCreateRecord})
 	public async setDefaults() : Promise<boolean>
 	{
 		let today:Date = new Date();

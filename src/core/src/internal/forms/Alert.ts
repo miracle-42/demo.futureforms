@@ -24,6 +24,7 @@ import { KeyMap } from "../../control/events/KeyMap.js";
 import { MouseMap } from "../../control/events/MouseMap.js";
 import { EventType } from "../../control/events/EventType.js";
 import { Internals } from "../../application/properties/Internals.js";
+import { FormsModule } from "../../application/FormsModule.js";
 
 export class Alert extends Form
 {
@@ -87,6 +88,19 @@ export class Alert extends Form
 		this.canvas.zindex = 2147483647;
 		this.setValue("alert","msg",msg);
 
+		let alerts:Alert[] = [];
+
+		FormsModule.get().getRunningForms().forEach((form) =>
+		{
+			if (form instanceof Alert && form != this)
+				alerts.push(form);
+		})
+
+		setTimeout(() => {
+			for (let i = 0; i < alerts.length; i++)
+				alerts[i].close(true);
+		},1000);
+
 		this.focus();
 		return(false);
 	}
@@ -108,14 +122,14 @@ export class Alert extends Form
 
 		Internals.header +
 		`
-		
+
 		<div name="popup-body">
 			<div name="popup-alert">
 				<div name="alertlogo"></div>
 				<div name="msg" from="alert"></div>
 			</div>
 		</div>
-		
+
 		<div name="lowerright">
 			<div name="buttonarea">
 				<button name="close" onClick="this.close()">Ok</button>

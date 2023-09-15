@@ -38,7 +38,6 @@ import { Relation } from '../model/relations/Relation.js';
 import { EventType } from '../control/events/EventType.js';
 import { Form as InternalForm } from '../internal/Form.js';
 import { DateConstraint } from '../public/DateConstraint.js';
-import { EventStack } from '../control/events/EventStack.js';
 import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
 
@@ -100,14 +99,15 @@ export class FormBacking
 		let currw:ViewForm = FormBacking.getViewForm(curr);
 
 		// check if ok to leave curr
-		if (curr && parent != curr)
+		if (!parent)
 		{
-			if (!await currw.checkLeave(currw))
+			if (currw && !await currw.checkLeave(currw))
 				return(null);
 		}
-
-		// Wait for events
-		await EventStack.wait();
+		else
+		{
+			currw?.blur(true);
+		}
 
 		if (container == null)
 			container = FormsModule.get().getRootElement();
@@ -136,8 +136,6 @@ export class FormBacking
 			let backing:FormBacking = FormBacking.getBacking(parent);
 			if (backing) backing.hasModalChild = true;
 		}
-
-		FormBacking.setCurrentForm(instance);
 
 		if (await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance)))
 			instance.focus();
@@ -378,11 +376,6 @@ export class FormBacking
 		let forms:ModelForm[] = [...FormBacking.mforms.values()];
 		let dbconns:Connection[] = Connection.getAllConnections();
 
-		if (document.activeElement instanceof HTMLElement)
-			document.activeElement.blur();
-
-		EventStack.clear();
-
 		if (!await FormEvents.raise(FormEvent.AppEvent(EventType.PreRollback)))
 			return(false);
 
@@ -390,7 +383,7 @@ export class FormBacking
 		{
 			if (forms[i].dirty)
 			{
-				forms[i].view.blur(true);
+				forms[i].view.skip();
 				forms[i].view.current = null;
 			}
 		}

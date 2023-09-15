@@ -45,7 +45,7 @@ export class Menu extends MenuComponent
       {
          this.menuelem.classList.value = this.rightmenu;
          this.menuelem = this.body.appendChild(this.menuelem);
-			
+
       }
 
       this.target = this.menuelem;
@@ -56,14 +56,14 @@ export class Menu extends MenuComponent
 
    private placeManagement(event:MouseEvent): void
    {
-		
+
       let x:number = event.offsetX;
       let y:number = event.offsetY;
       let winWidth:number = window.innerWidth;
       let winHeight:number= window.innerHeight;
       let cmWidth:number = this.menuelem.offsetWidth;
       let cmHeight:number = this.menuelem.offsetHeight;
-		
+
       x = x > winWidth - cmWidth ? winWidth - cmWidth : x;
       y = y > winHeight - cmHeight ? winHeight - cmHeight : y;
 
@@ -76,7 +76,7 @@ export class Menu extends MenuComponent
 			let target = event.target as HTMLElement;
 
 			console.log(this.menuelem.contains(target))
-			
+
 			if(this.menuelem != null)
 			{
 				if(!this.menuelem.contains(target))
@@ -84,7 +84,7 @@ export class Menu extends MenuComponent
 					this.menuelem.style.display = "none";
 				}
 			}
-		})	
+		})
    }
 
    @formevent({type: EventType.Connect})
@@ -162,7 +162,7 @@ export class Menu extends MenuComponent
 		{
 			entry = await this.findEntry("/topbar/form");
 			if (entry) entry.disabled = false;
-         
+
 			if (FormsModule.DATABASE.connected())
 			{
 				entry = await this.findEntry("/topbar/query");
@@ -205,8 +205,8 @@ export class Menu extends MenuComponent
 	}
 
 	@formevent([
-		{type: EventType.OnNewRecord},
-		{type: EventType.OnTransaction}
+		{type: EventType.OnTransaction},
+		{type: EventType.OnCreateRecord}
 	])
 	public async onTransactionStart(event:FormEvent) : Promise<boolean>
 	{

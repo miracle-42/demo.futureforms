@@ -10,9 +10,9 @@
 				<th>Country</th>
 			</tr>
 			<tr class="row" foreach="row in 1..5">
-				<td class="indicator"><span from="countries" row="$row" type="row-indicator"></span></td>
-				<td><input name="country_id" from="countries" row="$row" size="4" upper required></td>
-				<td><input name="country_name" from="countries" row="$row" initcap required advquery="false"></td>
+				<td class="indicator"><span from="CountryDS" row="$row" type="row-indicator"></span></td>
+				<td><input name="country_id" from="CountryDS" row="$row" size="4" maxlength="2" upper required></td>
+				<td><input name="country_name" from="CountryDS" row="$row" initcap required advquery="false"></td>
 			</tr>
 		</table>
 	</div>

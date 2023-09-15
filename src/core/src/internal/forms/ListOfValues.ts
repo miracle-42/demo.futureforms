@@ -244,7 +244,7 @@ export class ListOfValues extends Form
 
 		Internals.stylePopupWindow(view,this.props.title);
 
-		this.goField("filter","criteria");
+		await this.goField("filter","criteria");
 		this.results = this.getBlock("results");
 
 		this.addListeners();
@@ -263,7 +263,7 @@ export class ListOfValues extends Form
 		}
 
 		this.query();
-		return(true);
+		return(false);
 	}
 
 	private initcap(str:string) : string

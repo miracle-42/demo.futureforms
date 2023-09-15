@@ -71,7 +71,7 @@
 
     - name: Copy Openrestdb template
       ansible.builtin.copy:
-        src: "../../src/database.js/template/"
+        src: "../../src/openrestdb/template/"
         dest: "{{ install_path }}/openrestdb"
         mode: preserve
       when: openrestdb_template.stat.exists == false

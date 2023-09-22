@@ -59,6 +59,7 @@
       community.general.archive:
         path: "{{ install_path }}/core"
         dest: "{{ download_path }}/futureforms-lib-{{ relver }}.zip"
+        exclusion_patterns: "*.ts"
         format: zip
       tags:
         - zip_lib

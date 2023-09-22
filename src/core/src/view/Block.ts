@@ -1510,7 +1510,7 @@ export class Block
 			case RecordState.New 			: return(Status.new);
 			case RecordState.Insert 		: return(Status.insert);
 			case RecordState.Delete 		: return(Status.delete);
-			case RecordState.Inserted 		: return(Status.update);
+			case RecordState.Inserted 		: return(Status.insert);
 			case RecordState.Update 		: return(Status.update);
 			case RecordState.Updated 		: return(Status.update);
 			case RecordState.Consistent 	: return(Status.update);

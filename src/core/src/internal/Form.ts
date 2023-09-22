@@ -122,7 +122,7 @@ export class Form implements CanvasComponent
 
 	public getCurrentBlock() : Block
 	{
-		return(this.getBlock(FormBacking.getViewForm(this).block.name));
+		return(this.getBlock(FormBacking.getViewForm(this)?.block?.name));
 	}
 
 	/** Requires the block using the current filter. Often used with sorting */
@@ -387,10 +387,10 @@ export class Form implements CanvasComponent
 		if (vform == null)
 			return(true);
 
-		if (!await FormBacking.getModelForm(this).checkEventTransaction(EventType.OnCloseForm,null))
+		if (!force && !await FormBacking.getModelForm(this).checkEventTransaction(EventType.OnCloseForm,null))
 			return(false);
 
-		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.OnCloseForm,this)))
+		if (!force && !await FormEvents.raise(FormEvent.FormEvent(EventType.OnCloseForm,this)))
 			return(false);
 
 		if (!await this.clear(force))
@@ -407,13 +407,16 @@ export class Form implements CanvasComponent
 			if (backing) backing.hasModalChild = false;
 		}
 
-		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.PostForm,this)))
+		if (!force && !await FormEvents.raise(FormEvent.FormEvent(EventType.PostForm,this)))
 			return(false);
 
-		FormBacking.removeBacking(this);
-		let success:boolean = await FormEvents.raise(FormEvent.FormEvent(EventType.PostCloseForm,this));
-
 		vform.setURL(true);
+		FormBacking.removeBacking(this);
+
+		if (force)
+			return(true);
+
+		let success:boolean = await FormEvents.raise(FormEvent.FormEvent(EventType.PostCloseForm,this));
 		return(success);
 	}
 

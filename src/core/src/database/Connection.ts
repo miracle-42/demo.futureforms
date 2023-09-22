@@ -669,6 +669,9 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
+		if (response["session"])
+			this.conn$ = response.session;
+
 		if (this.scope == ConnectionScope.transactional)
 		{
 			if (this.modified$)

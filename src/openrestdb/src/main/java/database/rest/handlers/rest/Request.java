@@ -33,6 +33,7 @@ public class Request
   public final String cmd;
   public final String path;
   public final String func;
+  public final String sesid;
   public final String session;
   public final JSONObject payload;
   public final ArrayList<String> args;
@@ -81,6 +82,7 @@ public class Request
 
     String cmd = null;
     String func = null;
+    String sesid = null;
     String session = null;
 
     if (path.startsWith("/"))
@@ -129,9 +131,10 @@ public class Request
 
     if (pos > 0)
     {
-      if (args[0].equals(rest.getFixedToken())) session = args[0];
-      else if (args[0].equals(rest.getProxyToken())) session = args[0];
-      else session = rest.decode(args[0]);
+      sesid = args[0];
+
+      if (sesid.startsWith("*")) session = sesid;
+      else                       session = rest.decode(sesid);
     }
 
     for (int i = pos+1; i < args.length; i++)
@@ -139,6 +142,7 @@ public class Request
 
     this.cmd = cmd;
     this.func = func;
+    this.sesid = sesid;
     this.session = session;
   }
 

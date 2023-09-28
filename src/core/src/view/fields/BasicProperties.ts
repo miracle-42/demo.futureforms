@@ -62,7 +62,7 @@ export class BasicProperties
 	protected structured$:string[] =
 	[
 		"hidden","enabled","readonly","required","derived","advquery",
-		"value","class","style","mapper","formatter","listofvalues"
+		"value","class","style","mapper","formatter","lov"
 	];
 
 	public get tag() : string
@@ -416,8 +416,8 @@ export class BasicProperties
 				case "class": this.setClasses(value); break;
 
 				case "mapper": this.setMapper(value); break;
+				case "lov": this.setListOfValues(value); break;
 				case "formatter": this.setFormatterType(value); break;
-				case "listofvalues": this.setListOfValues(value); break;
 			}
 
 			return(this);
@@ -452,6 +452,8 @@ export class BasicProperties
 			case "class": this.setClasses(null); break;
 
 			case "mapper": this.setMapper(null); break;
+			case "lov": this.setListOfValues(null); break;
+			case "formatter": this.setFormatter(null); break;
 		}
 
 		return(this);
@@ -589,7 +591,11 @@ export class BasicProperties
 			Properties.FactoryImplementation;
 
 		if (typeof formatter === "string")
-			formatter = FormsModule.get().getComponent(formatter);
+		{
+			let map:string = formatter;
+			formatter = FormsModule.get().getComponent(map);
+			if (!formatter) Alert.fatal("Formatter '"+map+"' is not mapped","Formatters");
+		}
 
 		else
 
@@ -619,16 +625,14 @@ export class BasicProperties
 			Properties.FactoryImplementation;
 
 		if (typeof listofvalues === "string")
-			listofvalues = FormsModule.get().getComponent(listofvalues);
+		{
+			let map:string = listofvalues;
+			listofvalues = FormsModule.get().getComponent(map);
+			if (!listofvalues) Alert.fatal("ListOfValues '"+map+"' is not mapped","ListOfValues");
+		}
 
-		else
-
-		if (isClass(listofvalues))
-			this.listofvalues$ = factory.createBean(listofvalues) as ListOfValues;
-
-		else
-
-		this.listofvalues$ = listofvalues;
+		if (!isClass(listofvalues)) this.listofvalues$ = listofvalues;
+		else this.listofvalues$ = factory.createBean(listofvalues) as ListOfValues;
 
 		return(this);
 	}

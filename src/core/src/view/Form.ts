@@ -465,9 +465,9 @@ export class Form implements EventListenerObject
 		return(true);
 	}
 
-	public async leave(inst:FieldInstance) : Promise<boolean>
+	public async leave(inst:FieldInstance, force?:boolean) : Promise<boolean>
 	{
-		if (!await this.leaveField(inst))
+		if (!await this.leaveField(inst,0,force))
 		{
 			Form.current().focus();
 			return(false);

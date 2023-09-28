@@ -222,12 +222,6 @@ export class ListOfValues extends Form
 		if (this.props.filterMinLength == null)
 			this.props.filterMinLength = 0;
 
-		if (this.props.filter)
-		{
-			if (!Array.isArray(this.props.filter)) this.props.filter = [this.props.filter];
-			this.props.filter.forEach((filter) => {this.props.datasource.addFilter(filter)})
-		}
-
 		this.props.datasource.addColumns(this.props.sourcefields);
 		this.props.datasource.addColumns(this.props.displayfields);
 

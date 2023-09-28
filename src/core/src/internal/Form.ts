@@ -273,6 +273,22 @@ export class Form implements CanvasComponent
 		FormBacking.getModelForm(this).setDataSource(block?.toLowerCase(),source);
 	}
 
+	/** Get the LOV for the given block and field */
+	public getListOfValues(block:string, field:string) : ListOfValues
+	{
+		return(FormBacking.getBacking(this).getListOfValues(block,field));
+	}
+
+	/** Remove the LOV for the given block and field */
+	public removeListOfValues(block:string, field:string|string[]) : void
+	{
+		if (!Array.isArray(field))
+			field = [field];
+
+		for (let i = 0; i < field.length; i++)
+			FormBacking.getBacking(this).removeListOfValues(block,field[i]);
+	}
+
 	/** Set the LOV for the given block, field or fields */
 	public setListOfValues(lov:ListOfValues, block:string, field:string|string[]) : void
 	{

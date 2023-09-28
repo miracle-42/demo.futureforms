@@ -18,8 +18,8 @@
 				<td class="indicator"><span from="Departments" row="$row" type="row-indicator"></span></td>
 				<td><input name="department_id" 		from="Departments" row="$row" size="6"  integer></td>
 				<td><input name="department_name" 	from="Departments" row="$row" size="20" initcap></td>
-				<td><input name="manager" 				from="Departments" row="$row" size="20" derived readonly query="false"></td>
-				<td><input name="location" 			from="Departments" row="$row" size="30" derived readonly query="false"></td>
+				<td><input name="manager" 				from="Departments" row="$row" size="20" lov="/lovs/managers" derived readonly query="false"></td>
+				<td><input name="location" 			from="Departments" row="$row" size="30" lov="/lovs/locations" derived readonly query="false"></td>
 			</tr>
 		</table>
 	</div>

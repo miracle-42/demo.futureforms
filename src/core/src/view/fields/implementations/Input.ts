@@ -735,10 +735,15 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.element.readOnly)
 			return(true);
 
-		if (this.event.key == "Insert")
-			this.event.event.preventDefault();
+		let force:boolean = null;
 
-		this.event.preventDefault();
+		if (this.event.key == "Insert")
+			force = true;
+
+		if (this.event.key == "Delete")
+			force = true;
+
+		this.event.preventDefault(force);
 		let pos:number = this.getPosition();
 
 		if (this.event.type == "focus")

@@ -19,12 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Locations as LocationBlock } from "./Locations";
-import { Employees as EmployeeBlock } from "./Employees";
+import { Block, EventType, Form, formevent } from "forms42core";
 import { Employees as EmployeeTable} from "../datasources/database/Employees";
 import { Locations as LocationTable } from "../datasources/database/Locations";
 import { Departments as DepartmentTable } from "../datasources/database/Departments";
-import { BindValue, Block, EventType, Filter, Filters, FilterStructure, Form, formevent, ListOfValues } from "forms42core";
 
 export class Departments extends Block
 {
@@ -127,44 +125,5 @@ export class Departments extends Block
 		}
 
 		return(true);
-	}
-
-	public setLocationLov(fields:string|string[]) : void
-	{
-		this.setListOfValues(LocationBlock.getLocationLov(),fields);
-	}
-
-	public setManagerLov(fields:string|string[]) : void
-	{
-		this.setListOfValues(EmployeeBlock.getManagerLov(),fields);
-	}
-
-
-	public static getDepartmentLov() : ListOfValues
-	{
-		let bindvalues:BindValue[] = [];
-		let filter:FilterStructure = null;
-		let source:DepartmentTable = null;
-
-		let nameflt:Filter = Filters.ILike("department_name");
-
-		filter = new FilterStructure().and(nameflt);
-		source = new DepartmentTable().addFilter(filter);
-
-		bindvalues.push(nameflt.getBindValue());
-
-		let lov:ListOfValues =
-		{
-			filterPostfix: "%",
-			datasource: source,
-			title: "Departments",
-			bindvalue: bindvalues,
-			displayfields: "department_name",
-			filterInitialValueFrom: "department_name",
-			sourcefields: ["department_id","department_name"],
-			targetfields: ["department_id","department_name"],
-		}
-
-		return(lov);
 	}
 }

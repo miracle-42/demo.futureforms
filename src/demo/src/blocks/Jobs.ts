@@ -19,8 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { Block, Form } from "forms42core";
 import { Jobs as JobTable } from "../datasources/database/Jobs";
-import { BindValue, Block, Filter, Filters, FilterStructure, Form, ListOfValues } from "forms42core";
 
 export class Jobs extends Block
 {
@@ -28,36 +28,5 @@ export class Jobs extends Block
 	{
 		super(form,name);
 		this.datasource = new JobTable();
-	}
-
-	public static getJobLov() : ListOfValues
-	{
-		let source:JobTable = null;
-		let bindvalues:BindValue[] = [];
-		let filter:FilterStructure = null;
-
-		let idflt:Filter = Filters.ILike("job_id");
-		let titleflt:Filter = Filters.ILike("job_title");
-
-		filter = new FilterStructure().and(idflt).or(titleflt);
-		source = new JobTable().addFilter(filter);
-
-		bindvalues.push(idflt.getBindValue());
-		bindvalues.push(titleflt.getBindValue());
-
-		let lov:ListOfValues =
-		{
-			title: "Jobs",
-			inQueryMode: true,
-			filterPostfix: "%",
-			datasource: source,
-			bindvalue: bindvalues,
-			displayfields: "job_title",
-			filterInitialValueFrom: "job_id",
-			sourcefields: ["job_id","job_title"],
-			targetfields: ["job_id","job_title"],
-		}
-
-		return(lov);
 	}
 }

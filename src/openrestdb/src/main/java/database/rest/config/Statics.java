@@ -22,7 +22,6 @@
 package database.rest.config;
 
 import database.rest.admin.Client;
-import database.rest.security.OAuth;
 import database.rest.database.Database;
 import database.rest.handlers.CrossOrigin;
 import database.rest.servers.http.HTTPResponse;
@@ -32,7 +31,6 @@ public class Statics
 {
   static void init(Config config) throws Exception
   {
-    OAuth.init(config);
     Database.setUrl(config.getDatabase().url);
     HTTPResponse.init(config.getHTTP().timeout);
     Database.setTestSQL(config.getDatabase().test);

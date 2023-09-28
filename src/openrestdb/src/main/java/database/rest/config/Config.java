@@ -189,6 +189,12 @@ public class Config
   }
 
 
+  public static boolean has(JSONObject config, String attr)
+  {
+    return(config.has(attr));
+  }
+
+
   @SuppressWarnings({ "unchecked", "cast" })
   public static <T> T get(JSONObject config, String attr)
   {

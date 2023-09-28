@@ -19,8 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { Block, Form } from "forms42core";
 import { Countries as CountryTable } from "../datasources/database/Countries";
-import { BindValue, Block, Filter, Filters, FilterStructure, Form, ListOfValues } from "forms42core";
 
 export class Countries extends Block
 {
@@ -33,35 +33,5 @@ export class Countries extends Block
 	public static async getCountryName(id:string) : Promise<string>
 	{
 		return(CountryTable.getName(id));
-	}
-
-	public static getCountryLov() : ListOfValues
-	{
-		let source:CountryTable = null;
-		let bindvalues:BindValue[] = [];
-		let filter:FilterStructure = null;
-
-		let idflt:Filter = Filters.ILike("country_id");
-		let nameflt:Filter = Filters.ILike("country_name");
-
-		filter = new FilterStructure().and(idflt).or(nameflt);
-		source = new CountryTable().addFilter(filter);
-
-		bindvalues.push(idflt.getBindValue());
-		bindvalues.push(nameflt.getBindValue());
-
-		let lov:ListOfValues =
-		{
-			filterPostfix: "%",
-			datasource: source,
-			title: "Countries",
-			bindvalue: bindvalues,
-			displayfields: "country_name",
-			filterInitialValueFrom: "country_name",
-			sourcefields: ["country_id","country_name"],
-			targetfields: ["country_id","country_name"],
-		}
-
-		return(lov);
 	}
 }

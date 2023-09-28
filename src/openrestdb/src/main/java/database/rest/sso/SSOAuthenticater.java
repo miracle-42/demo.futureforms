@@ -25,10 +25,9 @@ import database.rest.admin.Client;
 import database.rest.config.SSOConfig;
 
 
-public class Authenticater
+public class SSOAuthenticater
 {
   private final Client client;
-
 
   public static void main(String[] args) throws Exception
   {
@@ -38,12 +37,12 @@ public class Authenticater
       System.exit(-1);
     }
 
-    Authenticater auth = new Authenticater(args[0]);
+    SSOAuthenticater auth = new SSOAuthenticater(args[0]);
     System.out.println(auth.authenticate(args[1]));
   }
 
 
-  public Authenticater(String url) throws Exception
+  public SSOAuthenticater(String url) throws Exception
   {
     SSOConfig config = new SSOConfig();
     Client.setConfig(config.pkictx,1024,20000);

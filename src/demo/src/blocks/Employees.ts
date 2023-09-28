@@ -19,13 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Jobs as JobBlock} from "./Jobs";
 import { WorkDays } from '../dates/WorkDays';
-import { Departments as DepartmentBlock} from "./Departments";
 import { Jobs as JobTable } from '../datasources/database/Jobs';
 import { Employees as EmployeeTable } from "../datasources/database/Employees";
 import { Departments as DepartmentTable } from '../datasources/database/Departments';
-import { BindValue, Block, DatabaseResponse, EventType, Filter, Filters, FilterStructure, Form, formevent, FormEvent, ListOfValues } from "forms42core";
+import { Block, DatabaseResponse, EventType, Form, formevent, FormEvent } from "forms42core";
 
 export class Employees extends Block
 {
@@ -192,45 +190,5 @@ export class Employees extends Block
 		let response:DatabaseResponse = this.getRecord().response;
 		this.setValue("employee_id",response.getValue("employee_id"));
 		return(true);
-	}
-
-	public setJobLov(fields:string|string[]) : void
-	{
-		this.setListOfValues(JobBlock.getJobLov(),fields);
-	}
-
-	public setDepartmentLov(fields:string|string[]) : void
-	{
-		this.setListOfValues(DepartmentBlock.getDepartmentLov(),fields);
-	}
-
-	public static getManagerLov() : ListOfValues
-	{
-		let source:JobTable = null;
-		let bindvalues:BindValue[] = [];
-		let filter:FilterStructure = null;
-
-		let fnameflt:Filter = Filters.ILike("first_name");
-		let lnameflt:Filter = Filters.ILike("last_name");
-
-		filter = new FilterStructure().and(fnameflt).or(lnameflt);
-		source = new EmployeeTable().addFilter(filter);
-
-		bindvalues.push(fnameflt.getBindValue());
-		bindvalues.push(lnameflt.getBindValue());
-
-		let lov:ListOfValues =
-		{
-			title: "Employees",
-			filterPostfix: "%",
-			datasource: source,
-			inReadOnlyMode: true,
-			bindvalue: bindvalues,
-			displayfields: ["first_name","last_name"],
-			sourcefields: "employee_id",
-			targetfields: "manager_id",
-		}
-
-		return(lov);
 	}
 }

@@ -32,6 +32,12 @@ Get last minut changes
 
     git pull
 
+If you have any changes which should be added do that:
+
+    git add -A
+    git commit
+    git push
+
 Create a release branch which can be shared with other testers
 
     git checkout -b release-1.2.4 dev

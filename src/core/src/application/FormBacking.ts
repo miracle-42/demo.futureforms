@@ -40,6 +40,7 @@ import { Form as InternalForm } from '../internal/Form.js';
 import { DateConstraint } from '../public/DateConstraint.js';
 import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
+import { EventStack } from '../control/events/EventStack.js';
 
 export class FormBacking
 {
@@ -114,6 +115,8 @@ export class FormBacking
 
 		if (!(form.prototype instanceof Form) && !(form.prototype instanceof InternalForm))
 			throw "@Application: Component mapped to '"+form+"' is not a form";
+
+		EventStack.clear();
 
 		let factory:ComponentFactory = Properties.FactoryImplementation;
 		let canvasimpl:Class<Canvas> = Properties.CanvasImplementationClass;

@@ -25,7 +25,7 @@ package database.rest.database;
 public enum AuthMethod
 {
   SSO,
-  OAuth,
+  Custom,
   Database,
   PoolToken
 }

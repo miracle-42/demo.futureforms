@@ -151,7 +151,7 @@ export class QueryEditor extends Form
 	private setOptions() : void
 	{
 		let rec:Record = this.options.getRecord();
-		let opts:FieldProperties = rec.getProperties();
+		let opts:FieldProperties = rec.getProperties("options");
 
 		let types:Map<string,string> = new Map<string,string>();
 

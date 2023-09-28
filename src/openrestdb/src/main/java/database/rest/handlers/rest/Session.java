@@ -29,8 +29,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.PreparedStatement;
 import java.sql.CallableStatement;
-import database.rest.config.Config;
 import database.rest.database.Pool;
+import database.rest.config.Config;
 import database.rest.database.Database;
 import database.rest.database.BindValue;
 import database.rest.config.DatabaseType;
@@ -44,6 +44,8 @@ import database.rest.database.Database.ReturnValueHandle;
 
 public class Session
 {
+  private String sesid;
+
   private final String guid;
   private final Scope scope;
   private final String username;
@@ -179,6 +181,18 @@ public class Session
   }
 
 
+  public String sesid()
+  {
+    return(sesid);
+  }
+
+
+  public void sesid(String sesid)
+  {
+    this.sesid = sesid;
+  }
+
+
   public boolean stateful()
   {
     return(scope != Scope.Stateless);
@@ -230,7 +244,7 @@ public class Session
           if (pool.proxy()) database.setProxyUser(username);
           break;
 
-        case OAuth :
+        case Custom :
           if (scope == Scope.Dedicated) database = pool.connect();
           else                          database = pool.getConnection();
 
@@ -240,6 +254,14 @@ public class Session
         case Database :
           database = DatabaseUtils.getInstance();
           database.connect(username,secret);
+
+          if (pool != null)
+          {
+            database.dangling(true);
+            setSecret(pool.token());
+            setMethod(AuthMethod.PoolToken);
+          }
+
           break;
 
         case PoolToken :

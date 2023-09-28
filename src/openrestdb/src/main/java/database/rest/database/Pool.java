@@ -100,7 +100,7 @@ public class Pool
   }
 
 
-  synchronized void add(Database database)
+  public synchronized void add(Database database)
   {
     pool.add(database);
   }
@@ -204,6 +204,12 @@ public class Pool
 
     synchronized(this)
     {
+      if (database.dangling())
+      {
+        if (size >= max) return;
+        size++;
+      }
+
       database.touch();
       pool.add(0,database);
       this.notifyAll();

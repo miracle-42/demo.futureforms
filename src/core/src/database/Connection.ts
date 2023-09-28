@@ -126,12 +126,10 @@ export class Connection extends BaseConnection
 
 		switch(this.scope)
 		{
-			case ConnectionScope.stateless: scope = "none"; break;
+			case ConnectionScope.stateless: scope = "stateless"; break;
 			case ConnectionScope.dedicated: scope = "dedicated"; break;
 			case ConnectionScope.transactional: scope = "transaction"; break;
 		}
-
-		if (this.scope == ConnectionScope.stateless) scope = "none";
 
 		let payload:any =
 		{
@@ -150,10 +148,13 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error("failed to connect as "+this.username);
+			console.error(response);
 			Alert.warning(response.message,"Database Connection");
 			return(false);
 		}
+
+		if (response["version"])
+			console.log("OpenRestDB Version: "+response.version);
 
 		this.trx$ = new Object();
 		this.conn$ = response.session;
@@ -240,6 +241,7 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
+			console.error(response);
 			Alert.fatal(response.message,"Database Connection");
 			return(false);
 		}
@@ -364,7 +366,6 @@ export class Connection extends BaseConnection
 			if (!response.success)
 			{
 				console.error(response);
-				console.error(new Error().stack);
 				Alert.warning(response.message,"Database Connection");
 				return(response);
 			}
@@ -470,7 +471,6 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			console.error(response);
-			console.error(new Error().stack);
 			Alert.warning(response.message,"Database Connection");
 			return(response);
 		}
@@ -508,7 +508,6 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			console.error(response);
-			console.error(new Error().stack);
 			Alert.warning(response.message,"Database Connection");
 			return(response);
 		}
@@ -546,7 +545,6 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			console.error(response);
-			console.error(new Error().stack);
 			Alert.warning(response.message,"Database Connection");
 			return(response);
 		}
@@ -663,11 +661,15 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			this.conn$ = null;
+			console.error(response);
 			Alert.warning(response.message,"Database Connection");
 			await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
 			this.running$ = false;
 			return(response);
 		}
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		if (this.scope == ConnectionScope.transactional)
 		{
@@ -711,11 +713,14 @@ export class Connection extends BaseConnection
 		bindv.forEach((b) =>
 		{
 			let value:any = b.value;
-			if (value instanceof Date) value = value.getTime();
+
+			if (value instanceof Date)
+				value = value.getTime();
+
 			if (b.outtype) binds.push({name: b.name, type: b.type});
 			else
 			{
-				if (!value) binds.push({name: b.name, type: b.type});
+				if (value == null) binds.push({name: b.name, type: b.type});
 				else binds.push({name: b.name, value: value, type: b.type});
 			}
 		})

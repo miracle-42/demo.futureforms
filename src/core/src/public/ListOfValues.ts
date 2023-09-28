@@ -39,9 +39,10 @@ export interface LOVFilterPreProcessor
  */
 export interface ListOfValues
 {
+	title:string; 										// Window title
+
 	rows?:number; 											// The number of rows to display
 	width?:string; 										// Width of the display fields
-	title?:string; 										// Window title
 	cssclass?:string; 									// CSS class to apply
 
 	inQueryMode?:boolean;								// Use in Query By Example mode

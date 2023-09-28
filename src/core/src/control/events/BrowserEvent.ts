@@ -320,6 +320,7 @@ export class BrowserEvent
 			}
 
 			if (this.key == "Backspace") this.ignore = false;
+			if (this.event.key == "Delete") this.ignore = false;
 			if (this.event.key == "PageUp") this.ignore = false;
 			if (this.event.key == "PageDown") this.ignore = false;
 

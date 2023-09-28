@@ -39,7 +39,6 @@ enum Case
 	initcap
 }
 
-
 export class Input implements FieldImplementation, EventListenerObject
 {
 	private type:string = null;
@@ -47,6 +46,7 @@ export class Input implements FieldImplementation, EventListenerObject
 	private initial:string = "";
 	private int:boolean = false;
 	private dec:boolean = false;
+	private trim$:boolean = true;
 	private maxlen:number = null;
 	private case:Case = Case.mixed;
 	private state:FieldState = null;
@@ -60,6 +60,16 @@ export class Input implements FieldImplementation, EventListenerObject
 	private element:HTMLInputElement = null;
 	private datatype$:DataType = DataType.string;
 	private event:BrowserEvent = BrowserEvent.get();
+
+	public get trim() : boolean
+	{
+		return(this.trim$);
+	}
+
+	public set trim(flag:boolean)
+	{
+		this.trim$ = flag;
+	}
 
 	public get datatype() : DataType
 	{
@@ -127,7 +137,10 @@ export class Input implements FieldImplementation, EventListenerObject
 
 	public getValue() : any
 	{
-		let value:string = this.getElementValue().trim();
+		let value:string = this.getElementValue();
+
+		if (this.trim)
+			value = value?.trim();
 
 		if (this.datamapper != null)
 		{
@@ -136,7 +149,7 @@ export class Input implements FieldImplementation, EventListenerObject
 			return(value);
 		}
 
-		if (value.trim().length == 0)
+		if (value.length == 0)
 			return(null);
 
 		if (this.datatype$ == DataType.boolean)
@@ -178,6 +191,9 @@ export class Input implements FieldImplementation, EventListenerObject
 
 	public setValue(value:any) : boolean
 	{
+		if (this.trim && typeof value === "string")
+			value = value?.trim();
+
 		if (this.datamapper != null)
 		{
 			this.datamapper.setValue(Tier.Backend,value);
@@ -219,6 +235,7 @@ export class Input implements FieldImplementation, EventListenerObject
 			value = "";
 
 		value += "";
+
 		this.setElementValue(value);
 
 		this.before = value;
@@ -233,7 +250,12 @@ export class Input implements FieldImplementation, EventListenerObject
 			return(this.datamapper.getIntermediateValue(Tier.Backend));
 
 		let value:string = this.getElementValue();
-		if (this.formatter == null) value = value.trim();
+
+		if (this.formatter == null)
+		{
+			if (this.trim)
+				value = value?.trim();
+		}
 
 		return(value);
 	}
@@ -249,7 +271,8 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (value == null)
 			value = "";
 
-		value = value.trim();
+		if (this.trim)
+			value = value?.trim();
 
 		if (this.formatter != null && value.length > 0)
 		{
@@ -287,6 +310,9 @@ export class Input implements FieldImplementation, EventListenerObject
 
 		attributes.forEach((value,attr) =>
 		{
+			if (attr == "trim")
+				this.trim = value?.trim().toLowerCase() == "true";
+
 			if (attr == "date")
 				this.datatype$ = DataType.date;
 
@@ -441,7 +467,7 @@ export class Input implements FieldImplementation, EventListenerObject
 			}
 		}
 
-		if (!this.disabled && this.event.type == "mouseover" && this.placeholder != null)
+		if (!this.disabled && !this.readonly && this.event.type == "mouseover" && this.placeholder != null)
 			this.element.setAttribute("placeholder",this.placeholder);
 
 		if (this.event.type == "mouseout" && this.placeholder != null)
@@ -709,7 +735,15 @@ export class Input implements FieldImplementation, EventListenerObject
 		if (this.element.readOnly)
 			return(true);
 
-		this.event.preventDefault();
+		let force:boolean = null;
+
+		if (this.event.key == "Insert")
+			force = true;
+
+		if (this.event.key == "Delete")
+			force = true;
+
+		this.event.preventDefault(force);
 		let pos:number = this.getPosition();
 
 		if (this.event.type == "focus")
@@ -738,7 +772,7 @@ export class Input implements FieldImplementation, EventListenerObject
 			return(true);
 		}
 
-		if (this.event.key == "Backspace" && !this.event.modifier)
+		if ((this.event.key == "Backspace" || this.event.key == "Delete") && !this.event.modifier)
 		{
 			if (pos > 0) pos--;
 			this.event.preventDefault(true);
@@ -850,6 +884,11 @@ export class Input implements FieldImplementation, EventListenerObject
 	private get disabled() : boolean
 	{
 		return(this.element.disabled);
+	}
+
+	private get readonly() : boolean
+	{
+		return(this.element.readOnly);
 	}
 
 	private getFormatter(attributes:Map<string,any>) : void

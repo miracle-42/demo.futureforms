@@ -60,6 +60,7 @@ export class FieldFeatureFactory
 		clone.inst = props.inst;
 		clone.block = props.block;
 		clone.mapper = props.mapper;
+		clone.listofvalues = props.listofvalues;
 
 		return(clone);
 	}
@@ -173,10 +174,10 @@ export class FieldFeatureFactory
 				props.setAttribute(name,tag.getAttribute(name));
 		});
 
-		if (props.getAttributes().has("date") && !props.getAttributes().has("size"))
+		if (props.hasAttribute("date") && !props.hasAttribute("size"))
 			props.setAttribute("size",Properties.DateFormat.length);
 
-		if (props.getAttributes().has("datetime") && !props.getAttributes().has("size"))
+		if (props.hasAttribute("datetime") && !props.hasAttribute("size"))
 			props.setAttribute("size",(Properties.DateFormat+Properties.TimeFormat).length);
 
 		return(props);
@@ -256,6 +257,12 @@ export class FieldFeatureFactory
 
 		if (props.getAttribute(Properties.RecordModeAttr) != null)
 			return;
+
+		if (props.readonly || !props.enabled)
+		{
+			tag.setAttribute(Properties.RecordModeAttr,"-");
+			return;
+		}
 
 		if (inst.field.row.status == Status.na)
 		{

@@ -17,7 +17,7 @@
   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+  */
 
 import { BaseForm } from './BaseForm';
 import { Minimized } from './Minimized';
@@ -42,6 +42,13 @@ import { PhoneBookMembased } from './forms/phonenook/PhoneBookMembased';
 import { Lesson01 } from './lessons/lesson01/Lesson01';
 import { Lesson02 } from './lessons/lesson02/Lesson02';
 
+import { JobList } from './lists/JobList';
+import { ManagerList } from './lists/ManagerList';
+import { CountryList } from './lists/CountryList';
+//import { CountryList2 } from './lists/CountryList2';
+import { LocationList } from './lists/LocationList';
+import { DepartmentsList } from './lists/DepartmentsList';
+
 import { AppHeader } from './tags/AppHeader';
 import { LinkMapper } from './fields/LinkMapper';
 import { TrueFalseMapper } from './fields/TrueFalseMapper';
@@ -51,6 +58,12 @@ import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, F
 @FormsPathMapping(
 	[
 		{class: Fields, path: "/forms/fields"},
+
+		{class: JobList, path: "/lovs/jobs"},
+		{class: ManagerList, path: "/lovs/managers"},
+		{class: CountryList, path: "/lovs/countries"},
+		{class: LocationList, path: "/lovs/locations"},
+		{class: DepartmentsList, path: "/lovs/departments"},
 
 		{class: Jobs, path: "/forms/jobs"},
 		{class: Countries, path: "/forms/countries"},

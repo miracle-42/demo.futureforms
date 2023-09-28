@@ -23,7 +23,7 @@ import content from './Locations.html';
 
 import { BaseForm } from "../../BaseForm";
 import { Countries } from '../../blocks/Countries';
-import { Block, datasource, EventType, formevent, FormEvent, ListOfValues } from "forms42core";
+import { Block, datasource, EventType, formevent, FormEvent } from "forms42core";
 import { Locations as Locationdata, CountryNameFilter } from "../../datasources/database/Locations";
 
 @datasource("Locations",Locationdata)
@@ -34,10 +34,6 @@ export class Locations extends BaseForm
 	{
 		super(content);
 		this.title = "Locations";
-
-		let lov:ListOfValues = Countries.getCountryLov();
-		this.setListOfValues(lov,"Locations",["country_id","country_name"]);
-
 		this.addEventListener(this.preQuery,{type: EventType.PreQuery})
 	}
 

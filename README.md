@@ -1,6 +1,6 @@
 # FutureForms
 
-*Release 0.5*
+*Release 0.6*
 
 FutureForms is an Open-Source object-oriented set of Components, used for
 fast and easy development of data entry and update applications. 

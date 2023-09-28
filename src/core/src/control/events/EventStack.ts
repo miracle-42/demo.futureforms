@@ -128,4 +128,9 @@ export class EventStack
 			EventStack.running = false;
 		}
 	}
+
+	public static clear() : void
+	{
+		EventStack.stack$ = [];
+	}
 }

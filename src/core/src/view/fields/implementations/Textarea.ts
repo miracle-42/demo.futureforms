@@ -29,6 +29,7 @@ import { FieldImplementation, FieldState } from "../interfaces/FieldImplementati
 
 export class Textarea implements FieldImplementation, EventListenerObject
 {
+	private trim$:boolean = true;
 	private state:FieldState = null;
 	private datamapper:DataMapper = null;
 	private properties:FieldProperties = null;
@@ -36,6 +37,16 @@ export class Textarea implements FieldImplementation, EventListenerObject
 
 	private element:HTMLTextAreaElement = null;
    private event:BrowserEvent = BrowserEvent.get();
+
+	public get trim() : boolean
+	{
+		return(this.trim$);
+	}
+
+	public set trim(flag:boolean)
+	{
+		this.trim$ = flag;
+	}
 
 	public setValidated() : void
 	{
@@ -63,6 +74,13 @@ export class Textarea implements FieldImplementation, EventListenerObject
 		this.properties = properties;
 		this.datamapper = properties.mapper;
 		if (init) this.addEvents(this.element);
+		this.setAttributes(properties.getAttributes());
+	}
+
+	public setAttributes(attributes:Map<string,any>) : void
+	{
+		let value:string = attributes.get("trim");
+		if (value) this.trim = value.trim().toLowerCase() == "true";
 	}
 
 	public clear() : void
@@ -72,7 +90,10 @@ export class Textarea implements FieldImplementation, EventListenerObject
 
 	public getValue() : any
 	{
-		let value = this.element.value.trim();
+		let value = this.element.value;
+
+		if (this.trim)
+			value = value?.trim();
 
 		if (this.datamapper != null)
 		{
@@ -86,6 +107,9 @@ export class Textarea implements FieldImplementation, EventListenerObject
 
 	public setValue(value:any) : boolean
 	{
+		if (this.trim && typeof value === "string")
+			value = value?.trim();
+
 		if (this.datamapper != null)
 		{
 			this.datamapper.setValue(Tier.Backend,value);

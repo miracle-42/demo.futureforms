@@ -32,6 +32,12 @@ Get last minut changes
 
     git pull
 
+If you have any changes which should be added do that
+
+    git add -A
+    git commit
+    git push
+
 Create a release branch which can be shared with other testers
 
     git checkout -b release-1.2.4 dev
@@ -51,8 +57,13 @@ Pack the binaries which
 
 Publish the release branch to other testers
 
+    git add -A
     git commit -a -m "Bumped version number to 1.2.4"
-    git commit
+
+If someone should test this release candidate, it can
+be pushed.
+
+    git push --set-upstream origin release-1.2.4
 
 Now the release is finished and can be merged in to
 `main` and `dev`.

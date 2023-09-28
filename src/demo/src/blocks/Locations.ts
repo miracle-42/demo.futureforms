@@ -19,8 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { Block, Form } from "forms42core";
 import { Locations as LocationTable } from "../datasources/database/Locations";
-import { BindValue, Block, Filter, Filters, FilterStructure, Form, ListOfValues } from "forms42core";
 
 export class Locations extends Block
 {
@@ -28,36 +28,5 @@ export class Locations extends Block
 	{
 		super(form,name);
 		this.datasource = new LocationTable();
-	}
-
-	public static getLocationLov() : ListOfValues
-	{
-		let source:LocationTable = null;
-		let bindvalues:BindValue[] = [];
-		let filter:FilterStructure = null;
-
-		let cityflt:Filter = Filters.ILike("city");
-
-		filter = new FilterStructure().and(cityflt);
-		source = new LocationTable().addFilter(filter);
-
-		bindvalues.push(cityflt.getBindValue());
-
-		let lov:ListOfValues =
-		{
-			title: "Locations",
-			filterPostfix: "%",
-			datasource: source,
-
-			inQueryMode: true,
-			inReadOnlyMode: true,
-			
-			bindvalue: bindvalues,
-			displayfields: ["city","street_address"],
-			sourcefields: "loc_id",
-			targetfields: "loc_id",
-		}
-
-		return(lov);
 	}
 }

@@ -35,11 +35,7 @@ export class Employees extends BaseForm
 	{
 		super(content);
 		this.title = "Employees";
-
 		this.sorter = new Sorter(this.emp,"last_name");
-
-		this.emp.setJobLov(["job_id","job_title"]);
-		this.emp.setDepartmentLov(["department_id","department_name"]);
 	}
 
 	public sort(field:string) : void

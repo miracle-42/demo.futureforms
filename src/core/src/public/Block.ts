@@ -188,14 +188,14 @@ export class Block
 	}
 
 	/** Show the datepicker for the specified field */
-	public showDatePicker(field:string) : void
+	public showDatePicker(field:string, row?:number) : void
 	{
 		field = field?.toLowerCase();
 		FormBacking.getViewForm(this.form).showDatePicker(this.name,field);
 	}
 
 	/** Show the LOV associated with the field. Normally only 1 LOV can be active, force overrules this rule */
-	public showListOfValues(field:string, force?:boolean) : void
+	public showListOfValues(field:string, row?:number, force?:boolean) : void
 	{
 		field = field?.toLowerCase();
 		FormBacking.getViewForm(this.form).showListOfValues(this.name,field,force);
@@ -254,6 +254,12 @@ export class Block
 	public isControlBlock() : boolean
 	{
 		return(FormBacking.getModelBlock(this).ctrlblk);
+	}
+
+	/** Get the LOV for the given block and field */
+	public getListOfValues(field:string) : ListOfValues
+	{
+		return(FormBacking.getBacking(this.form).getListOfValues(this.name,field));
 	}
 
 	/** Bind LOV to field(s) */
@@ -347,7 +353,7 @@ export class Block
 		return(FormBacking.getViewBlock(this).isValid(field));
 	}
 
-	/** Mark the block valid */
+	/** Mark the field valid */
 	public setValid(field:string, flag:boolean) : void
 	{
 		FormBacking.getViewBlock(this).setValid(field,flag);

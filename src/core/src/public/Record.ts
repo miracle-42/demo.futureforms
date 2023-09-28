@@ -180,6 +180,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setReadOnly(flag),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Set enabled state for a given field */
@@ -187,6 +188,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setEnabled(flag),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Set disabled state for a given field */
@@ -194,6 +196,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setEnabled(!flag),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Get the style for a given field and type */
@@ -207,6 +210,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setStyle(style,value),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Remove a style for a given field */
@@ -214,6 +218,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.removeStyle(style),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Check if a given field has class */
@@ -227,6 +232,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setClass(clazz),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Remove a class on a given field */
@@ -234,6 +240,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.removeClass(clazz),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Check if a given field has attribute */
@@ -253,6 +260,7 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.setAttribute(attr,value),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Remove an attribute on a given field */
@@ -260,12 +268,14 @@ export class Record
 	{
 		let props:FieldProperties = this.getProperties(field);
 		if (props) this.setProperties(props.removeAttribute(attr),field);
+		else console.error("field '"+field+"' was not found in record");
 	}
 
 	/** Get a copy of all properties for a given field */
-	public getProperties(field?:string, clazz?:string) : FieldProperties
+	public getProperties(field:string, clazz?:string) : FieldProperties
 	{
-		field = field?.toLowerCase();
+		if (!field) return(null);
+		field = field.toLowerCase();
 		let blk:ModelBlock = this.rec$.block;
 		return(new FieldProperties(blk.view.getRecordProperties(this.rec$,field,clazz)));
 	}

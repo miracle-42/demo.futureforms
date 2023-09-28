@@ -23,12 +23,14 @@ import { Form } from "../Form.js";
 import { KeyMap } from "../../control/events/KeyMap.js";
 import { MouseMap } from "../../control/events/MouseMap.js";
 import { EventType } from "../../control/events/EventType.js";
-import { Internals } from "../../application/properties/Internals.js";
 import { FormsModule } from "../../application/FormsModule.js";
+import { Internals } from "../../application/properties/Internals.js";
 
 export class Alert extends Form
 {
 	private grap:number = 10;
+	private msg:string = null;
+	private created:number = 0;
 	public static WIDTH:number = 300;
 	public static HEIGHT:number = null;
 	private closeButton:HTMLElement = null;
@@ -61,11 +63,25 @@ export class Alert extends Form
 		return(this.close());
 	}
 
+	private async closeRunning(alerts:Alert[]) : Promise<void>
+	{
+		for (let i = 0; i < alerts.length; i++)
+		{
+			if (alerts[i].created < this.created)
+			{
+				console.log("closing former alert '"+alerts[i].msg+"'");
+				await alerts[i].close(true);
+				this.focus();
+			}
+		}
+	}
+
 	private async initialize() : Promise<boolean>
 	{
 		let view:HTMLElement = this.getView();
-		let msg:string = this.parameters.get("message");
 		let title:string = this.parameters.get("title");
+
+		this.msg = this.parameters.get("message");
 		this.closeButton = view.querySelector('button[name="close"]');
 
 		let fatal:boolean = this.parameters.get("fatal");
@@ -86,9 +102,10 @@ export class Alert extends Form
 		if (warning) block.classList.add("type","warning");
 
 		this.canvas.zindex = 2147483647;
-		this.setValue("alert","msg",msg);
+		this.setValue("alert","msg",this.msg);
 
 		let alerts:Alert[] = [];
+		this.created = new Date().getTime();
 
 		FormsModule.get().getRunningForms().forEach((form) =>
 		{
@@ -96,10 +113,7 @@ export class Alert extends Form
 				alerts.push(form);
 		})
 
-		setTimeout(() => {
-			for (let i = 0; i < alerts.length; i++)
-				alerts[i].close(true);
-		},1000);
+		setTimeout(() => {this.closeRunning(alerts)},10000);
 
 		this.focus();
 		return(false);

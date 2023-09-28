@@ -89,3 +89,27 @@ Publish the release.
 
     git push
 
+Go to Github and tag the new release.
+
+    firefox https://github.com/miracle-42/futureforms
+
+Click "Release" in the right side.
+
+![Release](../img/rel-1.png)
+
+Click "Draft a new release" in the right side.
+
+![Draft](../img/rel-2.png)
+
+Click "Choose a tag" in the left side.
+
+![Choose](../img/rel-3.png)
+
+Type a new tag in "Find or create a new tag".
+
+![Create a new tag](../img/rel-4.png)
+
+At the buttom click "Save draft" and "Publish release".
+
+![Publish](../img/rel-5.png)
+

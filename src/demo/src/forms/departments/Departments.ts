@@ -35,10 +35,6 @@ export class Departments extends BaseForm
 	{
 		super(content);
 		this.title = "Departments";
-
-		this.dept.setManagerLov("manager");
-		this.dept.setLocationLov("location");
-
 		this.sorter = new Sorter(this.dept,"department_id");
 	}
 

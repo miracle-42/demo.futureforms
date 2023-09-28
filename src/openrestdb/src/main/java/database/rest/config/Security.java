@@ -26,16 +26,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import database.rest.security.Keystore;
-import database.rest.database.NameValuePair;
 
 
 public class Security
 {
-  private final String oaurl;
-  private final String usrattr;
+  private final String secret;
   private final Keystore trust;
   private final Keystore identity;
-  private final ArrayList<NameValuePair<Object>> headers;
+
+  private final boolean tokens;
+  private final boolean database;
+  private final ArrayList<CustomAuthenticator> authenticators;
 
 
   Security(JSONObject config) throws Exception
@@ -66,25 +67,43 @@ public class Security
       file = Paths.apphome + File.separator + file;
 
     trust = new Keystore(file,type,null,passwd);
+    authenticators = new ArrayList<CustomAuthenticator>();
 
-    JSONObject oauth = Config.getSection(config,"oauth2");
-
-    this.oaurl = Config.get(oauth,"url");
-    this.usrattr = Config.get(oauth,"user.attr");
-    this.headers = new ArrayList<NameValuePair<Object>>();
-
-    JSONArray headers = oauth.getJSONArray("headers");
-
-    for (int i = 0; i < headers.length(); i++)
+    if (Config.has(config,"authenticators"))
     {
-      JSONObject header = headers.getJSONObject(i);
-      String name = JSONObject.getNames(header)[0];
+      JSONObject auth = Config.getSection(config,"authenticators");
 
-      Object value = Config.get(header,name);
-      this.headers.add(new NameValuePair<Object>(name,value));
+      this.database = Config.get(auth,"database",true);
+      this.tokens = Config.get(auth,"pool-tokens",false);
+
+      JSONArray custom = Config.getArray(auth,"custom");
+
+      for (int i = 0; i < custom.length(); i++)
+      {
+        JSONObject method = custom.getJSONObject(i);
+
+        String name = Config.get(method,"name");
+        String clazz = Config.get(method,"class");
+        boolean enabled = Config.get(method,"enabled");
+
+        if (name != null) name = name.toLowerCase();
+        authenticators.add(new CustomAuthenticator(name,clazz,enabled));
+      }
     }
+    else
+    {
+      this.tokens = false;
+      this.database = true;
+    }
+
+    this.secret = Config.get(config,"shared_secret");
   }
 
+
+  public String secret()
+  {
+    return(secret);
+  }
 
   public Keystore getTrusted()
   {
@@ -96,18 +115,49 @@ public class Security
     return(identity);
   }
 
-  public String oauthurl()
+  public boolean tokens()
   {
-    return(oaurl);
+    return(tokens);
   }
 
-  public String usrattr()
+  public boolean database()
   {
-    return(usrattr);
+    return(database);
   }
 
-  public ArrayList<NameValuePair<Object>> oaheaders()
+  public ArrayList<CustomAuthenticator> authenticators()
   {
-    return(headers);
+    return(authenticators);
+  }
+
+  public CustomAuthenticator authenticator(String meth)
+  {
+    for (CustomAuthenticator auth : authenticators)
+    {
+      if (auth.meth.equals(meth))
+        return(auth);
+    }
+
+    return(null);
+  }
+
+
+  public class CustomAuthenticator
+  {
+    public final String meth;
+    public final String clazz;
+    public final boolean enabled;
+
+    CustomAuthenticator(String name, String clazz, boolean enabled)
+    {
+      this.meth = name;
+      this.clazz = clazz;
+      this.enabled = enabled;
+    }
+
+    public String toString()
+    {
+      return("Authenticator: "+meth+" Implementation: "+clazz+" enabled: "+enabled);
+    }
   }
 }

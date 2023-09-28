@@ -68,6 +68,9 @@ export class Canvas implements CanvasDefinition, EventListenerObject
 
 	public set zindex(zindex:number)
 	{
+		if (zindex < this.zindex$)
+			return;
+
 		this.zindex$ = zindex;
 		this.canvas.style.zIndex = (2*this.zindex$)+"";
 		this.modal.style.zIndex = (2*this.zindex$ + 1)+"";

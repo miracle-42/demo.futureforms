@@ -23,6 +23,7 @@ package database.rest.handlers.rest;
 
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import database.rest.config.Config;
@@ -35,11 +36,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionManager
 {
-  private final Server server;
-  private final Config config;
   private final SSOReaper ssoreaper;
   private final SessionReaper sesreaper;
   private final static Logger logger = Logger.getLogger("rest");
+
+  private final static ArrayList<History> connhist =
+    new ArrayList<History>();
+
+  private final static ArrayList<History> dischist =
+    new ArrayList<History>();
 
   private final static ConcurrentHashMap<String,PreAuthRecord> preauth =
     new ConcurrentHashMap<String,PreAuthRecord>();
@@ -70,6 +75,67 @@ public class SessionManager
 
     sessions.put(guid,session);
     return(guid);
+  }
+
+
+  public static Date[] trace(String sesid)
+  {
+    Date conntime = null;
+    Date disctime = null;
+
+    synchronized(connhist)
+    {
+      for (History entry : connhist)
+      {
+        if (entry.sesid.equals(sesid))
+        {
+          conntime = entry.time;
+          break;
+        }
+      }
+    }
+
+    synchronized(dischist)
+    {
+      for (History entry : dischist)
+      {
+        if (entry.sesid.equals(sesid))
+        {
+          disctime = entry.time;
+          break;
+        }
+      }
+    }
+
+    return(new Date[] {conntime, disctime});
+  }
+
+
+  public static void history(Session session, boolean conn)
+  {
+    String guid = session.guid();
+    String sesid = session.sesid();
+
+    if (conn)
+    {
+      synchronized(connhist)
+      {
+        connhist.add(0,new History(guid,sesid));
+
+        if (connhist.size() > 128)
+          connhist.remove(127);
+      }
+    }
+    else
+    {
+      synchronized(dischist)
+      {
+        dischist.add(0,new History(guid,sesid));
+
+        if (dischist.size() > 128)
+          dischist.remove(127);
+      }
+    }
   }
 
 
@@ -132,8 +198,6 @@ public class SessionManager
 
   public SessionManager(Server server, boolean start)
   {
-    this.server = server;
-    this.config = server.config();
     this.ssoreaper = new SSOReaper(server);
     this.sesreaper = new SessionReaper(server);
     if (start) startSessionManager();
@@ -154,12 +218,10 @@ public class SessionManager
 
   private static class SSOReaper extends Thread
   {
-    private final Server server;
     private final Config config;
 
     SSOReaper(Server server)
     {
-      this.server = server;
       this.config = server.config();
 
       this.setDaemon(true);
@@ -207,12 +269,10 @@ public class SessionManager
 
   private static class SessionReaper extends Thread
   {
-    private final Server server;
     private final Config config;
 
     SessionReaper(Server server)
     {
-      this.server = server;
       this.config = server.config();
 
       this.setDaemon(true);
@@ -268,7 +328,8 @@ public class SessionManager
             if (time - session.touched() > timeout)
             {
               session.disconnect(true);
-              logger.fine("Session: "+session.guid()+" timed out");
+              SessionManager.history(session,false);
+              logger.fine("Session: "+session.sesid()+" timed out");
             }
           }
         }
@@ -277,6 +338,26 @@ public class SessionManager
       {
         logger.log(Level.SEVERE,e.getMessage(),e);
       }
+    }
+  }
+
+
+  private static class History
+  {
+    Date time;
+    String guid;
+    String sesid;
+
+    History(String guid, String sesid)
+    {
+      this.guid = guid;
+      this.sesid = sesid;
+      this.time = new Date();
+    }
+
+    public String toString()
+    {
+      return("guid: '"+guid+"' session: '"+sesid+"' "+time);
     }
   }
 }

@@ -36,7 +36,7 @@ export class KeyMapPage
 		this.ul = document.createElement("ul");
 		this.ul.classList.add("InformationKeyMap");
 
-		KeyMap.list(map).forEach(([name,desc]) =>
+		KeyMap.list(map).forEach(([desc,name]) =>
 		{
 			let li:HTMLElement = document.createElement("li");
 			li.innerHTML = "<label class='name'>" + name + "</label><label class='desc'>" + desc + "</label>";

@@ -30,6 +30,7 @@ import { FieldImplementation, FieldState } from "../interfaces/FieldImplementati
 
 export class Display implements FieldImplementation, EventListenerObject
 {
+	private trim$:boolean = true;
 	private state:FieldState = null;
 	private datamapper:DataMapper = null;
 	private properties:FieldProperties = null;
@@ -42,6 +43,16 @@ export class Display implements FieldImplementation, EventListenerObject
 
 	public setValidated() : void
 	{
+	}
+
+	public get trim() : boolean
+	{
+		return(this.trim$);
+	}
+
+	public set trim(flag:boolean)
+	{
+		this.trim$ = flag;
 	}
 
 	public get datatype() : DataType
@@ -89,6 +100,9 @@ export class Display implements FieldImplementation, EventListenerObject
 			return(this.value$);
 		}
 
+		if (this.trim && typeof this.value$ === "string")
+			this.value$ = this.value$?.trim();
+
 		if (this.datatype$ == DataType.boolean)
 			return(this.value$?.toLowerCase() == "true");
 
@@ -107,6 +121,9 @@ export class Display implements FieldImplementation, EventListenerObject
 
 	public setValue(value:any) : boolean
 	{
+		if (this.trim && typeof this.value$ === "string")
+			value = value?.trim();
+
 		if (this.datamapper != null)
 		{
 			this.datamapper.setValue(Tier.Backend,value);
@@ -154,6 +171,9 @@ export class Display implements FieldImplementation, EventListenerObject
 
 	public getIntermediateValue() : string
 	{
+		if (this.trim && typeof this.value$ === "string")
+			this.value$ = this.value$?.trim();
+
 		if (this.datamapper != null)
 		{
 			this.value$ = this.datamapper.getValue(Tier.Backend);
@@ -165,6 +185,9 @@ export class Display implements FieldImplementation, EventListenerObject
 
 	public setIntermediateValue(value:string) : void
 	{
+		if (this.trim)
+			value = value?.trim();
+
 		if (this.datamapper != null)
 		{
 			this.datamapper.setIntermediateValue(Tier.Backend,value);

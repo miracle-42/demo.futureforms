@@ -19,6 +19,14 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*
+
+
+ * Add API class
+ * Add pool-token-auth
+ * After database auth add connection to pool if less than max
+ */
+
 package database.rest.handlers.rest;
 
 import java.io.File;
@@ -29,23 +37,33 @@ import org.json.JSONArray;
 import java.sql.Savepoint;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.math.BigInteger;
 import java.io.FileInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Constructor;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import database.Version;
 import database.rest.config.Config;
 import database.rest.database.Pool;
-import database.rest.security.OAuth;
 import database.rest.servers.Server;
 import database.rest.custom.SQLRewriter;
 import database.rest.database.BindValue;
 import database.rest.database.SQLParser;
 import database.rest.custom.SQLValidator;
 import database.rest.database.AuthMethod;
+import database.rest.custom.Authenticator;
 import database.rest.cluster.PreAuthRecord;
 import database.rest.database.BindValueDef;
 import database.rest.database.NameValuePair;
-import java.util.concurrent.ConcurrentHashMap;
 import database.rest.servers.http.HTTPRequest.Pair;
+import database.rest.config.Security.CustomAuthenticator;
 import static database.rest.handlers.rest.JSONFormatter.Type.*;
 
 
@@ -54,20 +72,19 @@ public class Rest
   private boolean ping;
   private boolean conn;
 
-  private final String ftok;
-  private final String ptok;
-
   private final String host;
   private final String repo;
   private final Server server;
   private final Config config;
   private final SessionState state;
 
+  private final String secret;
   private final String dateform;
 
   private final boolean compact;
   private final boolean savepoint;
 
+  private Request request = null;
   private boolean failed = false;
 
   private final SQLRewriter rewriter;
@@ -90,17 +107,13 @@ public class Rest
     this.config    = server.config();
     this.state     = new SessionState(this);
 
+    this.secret    = secret(config);
+
     this.compact   = config.getDatabase().compact;
     this.rewriter  = config.getDatabase().rewriter;
     this.validator = config.getDatabase().validator;
     this.dateform  = config.getDatabase().dateformat;
     this.repo      = config.getDatabase().repository;
-
-    if (config.getDatabase().fixed == null) this.ftok = null;
-    else this.ftok = config.getDatabase().fixed.token();
-
-    if (config.getDatabase().proxy == null) this.ptok = null;
-    else this.ptok = config.getDatabase().proxy.token();
   }
 
 
@@ -110,41 +123,47 @@ public class Rest
 
     try
     {
-      Request request = new Request(this,path,payload);
-      Session session = SessionManager.get(request.session);
+      String ftok = null;
+      String ptok = null;
+      Session session = null;
+
+      Pool fpool = config.getDatabase().fixed;
+      Pool ppool = config.getDatabase().proxy;
+
+      if (fpool != null)
+        ftok = config.getDatabase().fixed.token();
+
+      if (ppool != null)
+        ptok = config.getDatabase().proxy.token();
+
+      request = new Request(this,path,payload);
 
       if (request.session != null)
       {
-        if (request.session.equals(ftok))
+        if (request.session.startsWith("*"))
         {
           stateless = true;
-          Pool pool = config.getDatabase().fixed;
-          session = new Session(config,AuthMethod.PoolToken,pool,"none",null,ftok);
+          StatelessSession sses = null;
+          int timeout = config.getREST().timeout;
+          sses = decodeStateless(this.secret,this.host,timeout,request.session);
+
+          Pool pool = sses.proxy ? ppool : fpool;
+          String token = sses.proxy ? ptok : ftok;
+
+          session = new Session(this.config,AuthMethod.PoolToken,pool,"stateless",sses.user,token);
+
+          state.stateless(sses);
           state.session(session);
         }
-
         else
-
-        if (request.session.equals(ptok))
         {
-          stateless = true;
-          String username = null;
-          Pool pool = config.getDatabase().proxy;
-
-          if (request.payload.has("username"))
-            username = request.payload.getString("username");
-
-          if (username == null)
-            return(state.release(new Exception("Missing username for proxy pool")));
-
-          session = new Session(config,AuthMethod.PoolToken,pool,"none",username,ptok);
+          session = SessionManager.get(request.session);
           state.session(session);
         }
-
-        else
-
-        state.session(session);
       }
+
+      if (session != null)
+        session.sesid(request.sesid);
 
       if (request.nvlfunc().equals("batch"))
         return(batch(request.payload));
@@ -164,18 +183,6 @@ public class Rest
       failed = true;
       return(error(e));
     }
-  }
-
-
-  public String getFixedToken()
-  {
-    return(this.ftok);
-  }
-
-
-  public String getProxyToken()
-  {
-    return(this.ptok);
   }
 
 
@@ -379,6 +386,8 @@ public class Rest
 
   private String ping(JSONObject payload)
   {
+    String sesid = null;
+
     try
     {
       this.ping = true;
@@ -391,7 +400,17 @@ public class Rest
         return(error("keepalive failed, session does not exist"));
 
       if (keepalive)
-        state.session().touch();
+      {
+        if (state.session().stateful())
+        {
+          state.session().touch();
+        }
+        else
+        {
+            StatelessSession sses = state.stateless();
+            sesid = encodeStateless(secret,host,sses.priv,sses.proxy,sses.user);
+        }
+      }
 
       if (state.session() != null)
         state.release();
@@ -407,6 +426,9 @@ public class Rest
 
     if (state.session() == null)
       json.add("connected",false);
+
+    if (sesid != null)
+      json.add("session",sesid);
 
     return(json.toString());
   }
@@ -425,6 +447,7 @@ public class Rest
     int timeout = 0;
     Pool pool = null;
     this.conn = true;
+    String meth = null;
     String type = null;
     String scope = null;
     String secret = null;
@@ -450,90 +473,87 @@ public class Rest
         secret = payload.getString("auth.secret");
 
       if (payload.has("auth.method"))
+          meth = payload.getString("auth.method");
+
+      if (meth == null)
+          return(error("No authentication method specified"));
+
+      meth = meth.toLowerCase();
+      CustomAuthenticator custom = config.getSecurity().authenticator(meth);
+
+      if (custom != null)
       {
-        String meth = payload.getString("auth.method");
+        meth = "custom";
 
-        switch(meth.toLowerCase())
-        {
-          case "sso"      : method = AuthMethod.SSO; break;
-          case "oauth"    : method = AuthMethod.OAuth; break;
-          case "database" : method = AuthMethod.Database; break;
-          case "token"    : method = AuthMethod.PoolToken; break;
+        if (!custom.enabled)
+          return(error("Authentication method "+custom.meth+" not allowed"));
 
-          default: return(error("Unknown authentication method "+meth));
-        }
+        Constructor<?> contructor = Class.forName(custom.clazz).getDeclaredConstructor();
+        Authenticator auth = (Authenticator) contructor.newInstance();
 
-        boolean usepool = false;
-        boolean anonymous = false;
+        if (!auth.authenticate(payload))
+          return(error(custom.meth+" authentication failed"));
 
-        if (method == AuthMethod.OAuth)
-        {
-          usepool = true;
-          username = OAuth.getUserName(secret);
-
-          if (username == null)
-            return(error("OAuth authentication failed"));
-
-          method = AuthMethod.PoolToken;
-
-          if (payload.has("anonymous"))
-            anonymous = payload.getBoolean("anonymous");
-        }
-
-        if (method == AuthMethod.SSO)
-        {
-          if (server.getAuthReader() != null)
-            SessionManager.refresh(server.getAuthReader());
-
-          usepool = true;
-          PreAuthRecord rec = SessionManager.validate(secret);
-
-          if (rec == null)
-            return(error("SSO authentication failed"));
-
-          username = rec.username;
-
-          if (payload.has("anonymous"))
-            anonymous = payload.getBoolean("anonymous");
-        }
-
-        if (method == AuthMethod.PoolToken)
-        {
-          usepool = true;
-
-          if (payload.has("anonymous"))
-            anonymous = payload.getBoolean("anonymous");
-
-          if (username == null)
-            anonymous = true;
-        }
-
-        if (usepool)
-        {
-          if (!anonymous) pool = config.getDatabase().proxy;
-          else            pool = config.getDatabase().fixed;
-
-          if (pool == null)
-            return(error("Connection pool not configured"));
-        }
-
-        state.session(new Session(config,method,pool,scope,username,secret));
-
-        state.session().connect(state.batch());
-        if (state.batch()) state.session().share();
-
-        if (!usepool && Session.forcePool(scope))
-        {
-          pool = config.getDatabase().proxy;
-
-          if (pool == null)
-            return(error("Connection pool not configured"));
-
-          state.session().setPool(pool);
-          state.session().setSecret(pool.token());
-          state.session().setMethod(AuthMethod.PoolToken);
-        }
+        username = auth.user();
       }
+
+      switch(meth)
+      {
+        case "sso"      : method = AuthMethod.SSO; break;
+        case "custom"   : method = AuthMethod.Custom; break;
+        case "database" : method = AuthMethod.Database; break;
+        case "token"    : method = AuthMethod.PoolToken; break;
+
+        default: return(error("Unknown authentication method "+meth));
+      }
+
+      if (method == AuthMethod.PoolToken && !config.getSecurity().tokens())
+        return(error("Authentication method "+meth+" not allowed"));
+
+      if (method == AuthMethod.Database && !config.getSecurity().database())
+        return(error("Authentication method "+meth+" not allowed"));
+
+      boolean usepool = false;
+
+      if (method == AuthMethod.Custom)
+      {
+        usepool = true;
+        method = AuthMethod.PoolToken;
+      }
+
+      if (method == AuthMethod.SSO)
+      {
+        usepool = true;
+
+        if (server.getAuthReader() != null)
+          SessionManager.refresh(server.getAuthReader());
+
+        PreAuthRecord rec = SessionManager.validate(secret);
+        if (rec == null) return(error("SSO authentication failed"));
+
+        if (rec.username != null && rec.username.length() > 0)
+          username = rec.username;
+      }
+
+      if (method == AuthMethod.PoolToken)
+        usepool = true;
+
+      if (Session.forcePool(scope))
+        usepool = true;
+
+      if (usepool)
+      {
+        if (username != null) pool = config.getDatabase().proxy;
+        else                  pool = config.getDatabase().fixed;
+
+        if (pool == null)
+          return(error("Connection pool not configured"));
+      }
+
+      state.session(new Session(this.config,method,pool,scope,username,secret));
+
+      state.session().connect(state.batch());
+      if (state.batch()) state.session().share();
     }
     catch (Throwable e)
     {
@@ -541,8 +561,26 @@ public class Rest
       return(error(e));
     }
 
+    String sesid = null;
     JSONFormatter json = new JSONFormatter();
-    String sesid = encode(privateses,state.session().guid(),host);
+
+    if (state.session().stateful())
+    {
+      sesid = encode(privateses,state.session().guid(),host);
+    }
+    else
+    {
+      try
+      {
+        boolean ppool = pool == config.getDatabase().proxy;
+        sesid = encodeStateless(this.secret,host,privateses,ppool,username);
+      }
+      catch (Throwable e)
+      {
+        failed = true;
+        return(error(e));
+      }
+    }
 
     json.success(true);
     json.add("type",type);
@@ -551,6 +589,10 @@ public class Rest
     json.add("autocommit",state.session().autocommit());
     json.add("scope",state.session().scope());
     json.add("session",sesid);
+    json.add("version",Version.number);
+
+    state.session().sesid(sesid);
+    SessionManager.history(state.session(),true);
 
     return(json.toString());
   }
@@ -561,11 +603,12 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
     {
+      SessionManager.history(state.session(),false);
       state.session().disconnect();
       state.session(null);
     }
@@ -591,7 +634,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -625,7 +668,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -733,7 +776,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -817,7 +860,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -878,7 +921,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -948,7 +991,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -979,7 +1022,7 @@ public class Rest
     if (state.session() == null)
     {
       failed = true;
-      return(error("not connected"));
+      return(ncerror());
     }
 
     try
@@ -1226,7 +1269,10 @@ public class Rest
     int len = token.length;
     while(token[len-1] == '=') len--;
 
-    return(new String(token,0,len));
+    data = new String(token,0,len);
+    data = data.replaceAll("/","@");
+
+    return(data);
   }
 
 
@@ -1235,6 +1281,7 @@ public class Rest
     byte[] bsalt = salt.getBytes();
     while(data.length() % 4 != 0) data += "=";
 
+    data = data.replaceAll("@","/");
     byte[] bdata = Base64.getDecoder().decode(data);
 
     byte indicator = bdata[0];
@@ -1253,6 +1300,143 @@ public class Rest
     }
 
     return(new String(token));
+  }
+
+
+  static String encodeStateless(String secret, String host, boolean priv, boolean proxy, String user) throws Exception
+  {
+    byte ctrl = 0;
+
+    if (priv) ctrl |= 1 << 0;
+    if (proxy) ctrl |= 1 << 1;
+
+    long time = System.currentTimeMillis();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    out.write(ctrl);
+    out.write(hash(host));
+    out.write(hash(time));
+    if (user != null) out.write(user.getBytes("UTF-8"));
+
+    byte[] bytes = out.toByteArray();
+    return(encrypt(secret,bytes));
+  }
+
+
+  static StatelessSession decodeStateless(String secret, String hostname, int timeout, String data) throws Exception
+  {
+    int host = 0;
+    long time = 0;
+    String user = null;
+    boolean priv = false;
+    boolean proxy = false;
+    byte[] bytes = decrypt(secret,data);
+
+    time = unHash(bytes,5,8);
+    host = (int) unHash(bytes,1,4);
+
+    priv = ((bytes[0] & (1 << 0)) != 0);
+    proxy = ((bytes[0] & (1 << 1)) != 0);
+
+    if (bytes.length > 13)
+      user = new String(bytes,13,bytes.length-13,"UTF-8");
+
+    if (hostname.hashCode() != host)
+      throw new Exception("Session origins from different host");
+
+    if (System.currentTimeMillis() - time > timeout * 1000)
+      throw new Exception("Session has timed out");
+
+    return(new StatelessSession(time,user,priv,proxy));
+  }
+
+  static byte[] hash(int data)
+  {
+    byte[] hash = BigInteger.valueOf(data).toByteArray();
+    return(hash);
+  }
+
+
+  static byte[] hash(long data)
+  {
+    byte[] hash = new byte[8];
+    byte[] hval = BigInteger.valueOf(data).toByteArray();
+    System.arraycopy(hval,0,hash,hash.length-hval.length,hval.length);
+    return(hash);
+  }
+
+
+  static byte[] hash(String data)
+  {
+    byte[] hash = new byte[4];
+    byte[] hval = BigInteger.valueOf(data.hashCode()).toByteArray();
+    System.arraycopy(hval,0,hash,0,hval.length);
+    return(hash);
+  }
+
+
+  static long unHash(byte[] data, int pos, int len)
+  {
+    return(new BigInteger(data,pos,len).longValue());
+  }
+
+
+  static String secret(Config config) throws Exception
+  {
+    String secret = config.getSecurity().secret();
+
+    if (secret.length() < 32)
+    {
+      for (int i = 0; secret.length() % 16 != 0; i++)
+        secret += (char) ('a' + i);
+    }
+
+    if (secret.length() > 32)
+      secret = secret.substring(0,32);
+
+    if (secret.length() < 32)
+      secret = secret.substring(0,16);
+
+    return(secret);
+  }
+
+
+  static String encrypt(String secret, byte[] data) throws Exception
+  {
+    byte[]    salt = secret.getBytes("UTF-8");
+    Cipher    ciph = Cipher.getInstance("AES");
+    SecretKey skey = new SecretKeySpec(salt,"AES");
+
+    ciph.init(Cipher.ENCRYPT_MODE,skey);
+    data = ciph.doFinal(data);
+
+    data = Base64.getEncoder().encode(data);
+
+    int len = data.length;
+    while(data[len-1] == '=') len--;
+
+    String encr = new String(data,0,len);
+    encr = encr.replaceAll("/","@");
+
+    return("*"+encr);
+  }
+
+
+  static byte[] decrypt(String secret, String data) throws Exception
+  {
+    byte[]    salt = secret.getBytes("UTF-8");
+    Cipher    ciph = Cipher.getInstance("AES");
+    SecretKey skey = new SecretKeySpec(salt,"AES");
+
+    data = data.substring(1);
+    ciph.init(Cipher.DECRYPT_MODE,skey);
+
+    data = data.replaceAll("@","/");
+    while(data.length() % 4 != 0) data += "=";
+    byte[] bytes = Base64.getDecoder().decode(data);
+
+    bytes = ciph.doFinal(bytes);
+    return(bytes);
   }
 
 
@@ -1286,6 +1470,25 @@ public class Rest
 
     json.success(false);
     json.add("message",message);
+
+    return(json.toString());
+  }
+
+
+  private String ncerror()
+  {
+    JSONFormatter json = new JSONFormatter();
+    Date[] hist = SessionManager.trace(request.sesid);
+
+    json.success(false);
+    json.add("message","Not connected");
+
+    json.add("path",request.path);
+    json.add("sesid",request.sesid);
+
+    json.add("connected",hist[0]);
+    json.add("disconnected",hist[1]);
+
 
     return(json.toString());
   }
@@ -1339,6 +1542,7 @@ public class Rest
     Session session = null;
     boolean exclusive = false;
     Savepoint savepoint = null;
+    StatelessSession stateless = null;
 
 
     SessionState(Rest rest)
@@ -1356,6 +1560,18 @@ public class Rest
     void session(Session session)
     {
       this.session = session;
+    }
+
+
+    StatelessSession stateless()
+    {
+      return(this.stateless);
+    }
+
+
+    void stateless(StatelessSession info)
+    {
+      this.stateless = info;
     }
 
 
@@ -1482,6 +1698,28 @@ public class Rest
       {
         rest.error(e);
       }
+    }
+  }
+
+
+  private static class StatelessSession
+  {
+    private long time;
+    private String user;
+    private boolean priv;
+    private boolean proxy;
+
+    StatelessSession(long time, String user, boolean priv, boolean proxy)
+    {
+      this.time = time;
+      this.user = user;
+      this.priv = priv;
+      this.proxy = proxy;
+    }
+
+    public String toString()
+    {
+      return("age: "+(System.currentTimeMillis()-time)/1000+" user: "+user+" priv: "+priv+" proxy: "+proxy);
     }
   }
 }

@@ -44,16 +44,16 @@
 				<tr>
 					<td>Job</td>
 					<td style="display:inline-flex">
-						<input name="job_id" from="Employees" size="10" upper required>
-						<input name="job_title" from="Employees" size="20" derived readonly query="false">
+						<input name="job_id" from="Employees" lov="/lovs/jobs" size="10" upper required>
+						<input name="job_title" from="Employees" lov="/lovs/jobs" size="20" derived readonly query="false">
 						<span onclick="this.showListOfValues('Employees','job_id')">&#x2807;</span>
 					</td>
 				</tr>
 				<tr>
 					<td>Department</td>
 					<td style="display:inline-flex">
-						<input name="department_id" from="Employees" size="10" integer required>
-						<input name="department_name" from="Employees" size="20" derived readonly query="false">
+						<input name="department_id" from="Employees" lov="/lovs/departments" size="10" integer required>
+						<input name="department_name" from="Employees" lov="/lovs/departments" size="20" derived readonly query="false">
 						<span onclick="this.showListOfValues('Employees','department_id')">&#x2807;</span>
 					</td>
 				</tr>

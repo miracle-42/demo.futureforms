@@ -42,6 +42,7 @@ public abstract class Database
   private final int id;
   private Connection conn;
   private long touched = 0;
+  private boolean dangling = false;
 
   private static String url;
   private static String teststmt;
@@ -95,6 +96,18 @@ public abstract class Database
   public final long touched()
   {
     return(touched);
+  }
+
+
+  public boolean dangling()
+  {
+    return(dangling);
+  }
+
+
+  public void dangling(boolean flag)
+  {
+    dangling = flag;
   }
 
 

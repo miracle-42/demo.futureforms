@@ -48,7 +48,6 @@ export class Block
 	private row$:number = -1;
 	private form$:Form = null;
 	private name$:string = null;
-	private focus$:boolean = null;
 	private model$:ModelBlock = null;
 	private finalized$:boolean = false;
 	private fieldnames$:string[] = null;
@@ -215,35 +214,19 @@ export class Block
 			return(false);
 		}
 
-		if (this.form.block != this && this.form.current)
+		if (this.form.current)
 		{
-			if (!await this.form.current.field.validate(this.form.current))
-				return(false);
-
-			if (!await this.form.leave(this.form.current))
-				return(false);
-
 			this.form.current.blur(true);
-		}
-
-		else
-
-		if (this.curinst$)
-		{
-			if (!await this.curinst$.field.validate(this.curinst$))
+			if (!await this.form.leave(this.form.current,true))
 				return(false);
-
-			if (!await this.form.leave(this.curinst$))
-				return(false);
-
-			this.curinst$.blur(true);
 		}
-
-		if (!await this.form.enter(inst))
-			return(false);
 
 		inst.focus(true);
-		return(true);
+
+		if (inst.hasFocus())
+			return(this.form.enter(inst));
+
+		return(false);
 	}
 
 	public empty(rownum?:number) : boolean
@@ -427,9 +410,6 @@ export class Block
 
 	public getRecordProperties(record:Record, field:string, clazz:string) : BasicProperties
 	{
-		if (field == null)
-			field = this.current.name;
-
 		let props:BasicProperties = this.recprops$.get(record,field,clazz);
 
 		if (props == null)
@@ -687,37 +667,24 @@ export class Block
 		if (this.getRow(row).status == Status.na)
 			return(false);
 
-		if (this.form.block != this && this.form.current)
-		{
-			if (!await this.form.validate())
-				return(false);
-
-			if (!await this.form.leave(this.form.current))
-				return(false);
-
-			this.form.current.blur(true);
-		}
-
-		else
-
-		if (this.curinst$)
-		{
-			if (!await this.getCurrentRow().validate())
-				return(false);
-
-			if (!await this.form.leave(this.curinst$))
-				return(false);
-
-			this.curinst$.blur(true);
-		}
-
 		let idx:number = this.getCurrentRow().getFieldIndex(this.current);
 		let inst:FieldInstance = this.getRow(row)?.getFieldByIndex(idx);
 
 		if (inst)
 		{
-			inst.focus();
-			return(true);
+			if (this.form.current)
+			{
+				this.form.current.blur(true);
+
+				if (!await this.form.leave(this.form.current,true))
+					return(false);
+			}
+
+			inst.focus(true);
+
+			if (inst.hasFocus())
+				return(this.form.enter(inst));
+
 		}
 
 		return(false);
@@ -1510,7 +1477,7 @@ export class Block
 			case RecordState.New 			: return(Status.new);
 			case RecordState.Insert 		: return(Status.insert);
 			case RecordState.Delete 		: return(Status.delete);
-			case RecordState.Inserted 		: return(Status.update);
+			case RecordState.Inserted 		: return(Status.insert);
 			case RecordState.Update 		: return(Status.update);
 			case RecordState.Updated 		: return(Status.update);
 			case RecordState.Consistent 	: return(Status.update);

@@ -1,7 +1,7 @@
 {
   "database": {
     "type": "oracle",
-    "test": "select {} config.json database ssoconfig.json topology from dual",
+    "test": "select config.json database ssoconfig.json topology from dual",
     "jdbc": "jdbc:oracle:thin:[username]/[password]@localhost:1521:XE"
   },
   "repository": {

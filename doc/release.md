@@ -52,6 +52,10 @@ Bump version with a script and an editor
     ./util/set-version.sh $NEWREL
     vi ChangeLog.md playbooks/release/release.yml 
 
+Clean up up old build files
+
+    ansible-playbook playbooks/remove-build-files.yml
+
 Run release playbook
 
     ansible-playbook playbooks/release/release.yml 

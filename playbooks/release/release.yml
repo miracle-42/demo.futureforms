@@ -1,7 +1,7 @@
 - hosts: localhost
 
   vars:
-    - relver: 0.6
+    - relver: 0.7
     - install_path: ../../build
     - download_path: ../../download
 
@@ -25,6 +25,16 @@
         - node-typescript
         - openjdk-19-jre
         - maven
+
+    - name: Create dir core+demo
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      tags:
+        - create-demo-openrestdb
+      loop:
+        - "{{ install_path }}/core"
+        - "{{ install_path }}/demo/data"
 
     - name: Check core is build
       stat:

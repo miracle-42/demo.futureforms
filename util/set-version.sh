@@ -29,7 +29,7 @@ sed -i -e "s/\(console.log(\".*Version\) [.0-9]\+\(.\+\)$/\1 $NEW\2/i" src/*/src
 # src/openrestdb/src/main/java/database/Version.java:5:   public static String number = "3.0.1";
 sed -i -e "s/\(public static String number = \"\)[.0-9]\+/\1$NEW/" src/openrestdb/src/main/java/database/Version.java
 
-# src/core/index.ts:1:const version = "3.16.8";
+# Core
 # src/core/version.ts:1:const version = "3.16.8";
 sed -i -e "s/\(const version = \"\)[.0-9]\+/\1$NEW/" src/core/version.ts
 

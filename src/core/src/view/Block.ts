@@ -659,16 +659,30 @@ export class Block
 		return(success);
 	}
 
-	public async goRow(row:number) : Promise<boolean>
+	public async goRow(rownum:number) : Promise<boolean>
 	{
-		if (row > this.rows)
+		if (!rownum)
+			rownum = this.row;
+
+		if (!(typeof rownum === "number"))
+			rownum = +rownum;
+
+		if (rownum == this.row)
+			return(true);
+
+		if (rownum > this.rows)
 			return(false);
 
-		if (this.getRow(row).status == Status.na)
+		let row:Row = this.getRow(rownum);
+
+		if (!row)
+			return(false);
+
+		if (row.status == Status.na)
 			return(false);
 
 		let idx:number = this.getCurrentRow().getFieldIndex(this.current);
-		let inst:FieldInstance = this.getRow(row)?.getFieldByIndex(idx);
+		let inst:FieldInstance = this.getRow(rownum)?.getFieldByIndex(idx);
 
 		if (inst)
 		{

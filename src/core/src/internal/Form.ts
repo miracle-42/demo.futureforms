@@ -171,19 +171,19 @@ export class Form implements CanvasComponent
 	}
 
 	/** Show the datepicker popup */
-	public showDatePicker(block:string, field:string) : void
+	public showDatePicker(block:string, field:string, row?:number) : void
 	{
 		block = block?.toLowerCase();
 		field = field?.toLowerCase();
-		FormBacking.getViewForm(this).showDatePicker(block,field);
+		FormBacking.getViewForm(this).showDatePicker(block,field,row);
 	}
 
 	/** Show the LOV associated with the block, field. Normally only 1 LOV can be active, force overrules this rule */
-	public showListOfValues(block:string, field:string, force?:boolean) : void
+	public showListOfValues(block:string, field:string, row?:number) : void
 	{
 		block = block?.toLowerCase();
 		field = field?.toLowerCase();
-		FormBacking.getViewForm(this).showListOfValues(block,field,force);
+		FormBacking.getViewForm(this).showListOfValues(block,field,row);
 	}
 
 	/** Simulate keystroke from a field. The field is located from the block, field an optionally css-class*/

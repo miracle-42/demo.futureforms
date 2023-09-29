@@ -22,4 +22,4 @@
 import { FormsModule } from "./FormsModule";
 
 new FormsModule();
-console.log("2-Countries Version 0.6");
+console.log("2-Countries Version 0.7");

@@ -13,15 +13,6 @@
     "files.tmpnames": false
   },
   "security": {
-    "oauth2": {
-      "url": "https://oauth2.provider.com:443/token",
-      "headers": [
-        {
-          "Authorization": ""
-        }
-      ],
-      "user.attr": "username"
-    },
     "identity": {
       "type": "pkcs12",
       "alias": "demo",
@@ -32,7 +23,19 @@
       "type": "pkcs12",
       "keystore": "./security/trust.p12",
       "password": "Manager1"
-    }
+    },
+    "authenticators": {
+      "database": true,
+      "pool-tokens": false,
+      "custom": [
+        {
+          "name": "test",
+          "class": "ccc",
+          "enabled": true
+        }
+      ]
+    },
+    "shared_secret": "e448a598-9833-4732-8616-e6960a83c50c"
   },
   "http": {
     "Host": null,

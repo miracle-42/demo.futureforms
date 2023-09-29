@@ -110,7 +110,7 @@ export class FormsModule extends FormsCoreModule
 		InternalFormsConfig.close = "&#215;";
 
 		// Be aware of FormProperties
-		FormProperties.DateFormat = "YYYY-MM-DD";
+		FormProperties.DateFormat = "DD-MM-YYYY";
 
 		// Demo custom tag
 		FormProperties.TagLibrary.set("AppHeader",AppHeader);
@@ -128,7 +128,7 @@ export class FormsModule extends FormsCoreModule
 		Connection.TRXTIMEOUT = 240;
 		Connection.CONNTIMEOUT = 120;
 
-		FormsModule.DATABASE = new Connection(document.documentURI.match(/^.*\//)[0]);
+		FormsModule.DATABASE = new Connection("http://localhost:9002");
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
 		infomation.appendChild(KeyMapPage.show(keymap));

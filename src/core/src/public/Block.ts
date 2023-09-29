@@ -191,14 +191,14 @@ export class Block
 	public showDatePicker(field:string, row?:number) : void
 	{
 		field = field?.toLowerCase();
-		FormBacking.getViewForm(this.form).showDatePicker(this.name,field);
+		FormBacking.getViewForm(this.form).showDatePicker(this.name,field,row);
 	}
 
 	/** Show the LOV associated with the field. Normally only 1 LOV can be active, force overrules this rule */
-	public showListOfValues(field:string, row?:number, force?:boolean) : void
+	public showListOfValues(field:string, row?:number) : void
 	{
 		field = field?.toLowerCase();
-		FormBacking.getViewForm(this.form).showListOfValues(this.name,field,force);
+		FormBacking.getViewForm(this.form).showListOfValues(this.name,field,row);
 	}
 
 	/** Simulate keystroke @param key: the keystroke @param field: send from field @param clazz: narrow in field */

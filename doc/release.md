@@ -28,6 +28,12 @@ release, these tasks will be done:
 
 Run the following commands on your local command line.
 
+Set environment variable `NEWREL` to the new version number
+so copy/paste can be used.
+Example:
+
+    export NEWREL=1.2.3
+
 Get last minut changes
 
     git pull
@@ -40,46 +46,45 @@ If you have any changes which should be added do that
 
 Create a release branch which can be shared with other testers
 
-    git checkout -b release-1.2.4 dev
+    git checkout -b release-$NEWREL dev
 
 Bump version with a script and an editor
 
-    ./util/set-version.sh <new-version-number>
+    ./util/set-version.sh $NEWREL
     vi ChangeLog.md playbooks/release/release.yml 
 
 Run release playbook
 
     ansible-playbook playbooks/release/release.yml 
 
-Pack the binaries which 
+Pack the binaries with pre-compiled libraries
 
     git add -f download/*.zip
 
 Publish the release branch to other testers
 
-    git add -A
-    git commit -a -m "Bumped version number to 1.2.4"
+    git commit -a -m "Bumped version number to $NEWREL"
 
 If someone should test this release candidate, it can
 be pushed.
 
-    git push --set-upstream origin release-1.2.4
+    git push --set-upstream origin release-$NEWREL
 
 Now the release is finished and can be merged in to
 `main` and `dev`.
 Tag `main` so it can be checked out agian.
 
     git checkout main
-    git merge --no-ff release-1.2.4
+    git merge --no-ff release-$NEWREL
 
 Merge the last minute changes back into `dev`.
 
     git checkout dev
-    git merge --no-ff release-1.2.4
+    git merge --no-ff release-$NEWREL
 
 The release is now finished and the branch can be deleted.
 
-    git branch -d release-1.2.4
+    git branch -d release-$NEWREL
 
 Make a pull in case the developers has added more code.
 

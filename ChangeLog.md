@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v0.7 2023-09-29 10:00
+* Update from Alex
+* Improve release procedure
+
 ## v0.6 2023-09-28 14:00
 * Update from Alex
 

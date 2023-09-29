@@ -40,8 +40,7 @@ Get last minut changes
 
 If you have any changes which should be added do that
 
-    git add -A
-    git commit
+    git commit -a
     git push
 
 Create a release branch which can be shared with other testers

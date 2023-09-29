@@ -917,16 +917,20 @@ export class Form implements EventListenerObject
 		return(true);
 	}
 
-	public async showDatePicker(block:string, field:string) : Promise<boolean>
+	public async showDatePicker(block:string, field:string, row?:number) : Promise<boolean>
 	{
 		let blk:Block = this.getBlock(block);
 		let type:DataType = blk.fieldinfo.get(field)?.type;
+
+		if (!blk)
+			return(false);
 
 		if (!this.model.getBlock(block)?.getRecord())
 			return(false);
 
 		if (type == DataType.date || type == DataType.datetime)
 		{
+			if (!await blk.goRow(row)) return(false);
 			let value:Date = blk.model.getValue(field);
 			let params:Map<string,any> = new Map<string,any>();
 			let backing:FormBacking = FormBacking.getBacking(this.parent);
@@ -945,13 +949,17 @@ export class Form implements EventListenerObject
 		return(false);
 	}
 
-	public async showListOfValues(block:string, field:string, force?:boolean) : Promise<boolean>
+	public async showListOfValues(block:string, field:string, row?:number, force?:boolean) : Promise<boolean>
 	{
+		let blk:Block = this.getBlock(block);
 		let params:Map<string,any> = new Map<string,any>();
 		let backing:FormBacking = FormBacking.getBacking(this.parent);
 		let lov:ListOfValues = backing.getListOfValues(block,field);
 
-		if (!this.model.getBlock(block)?.getRecord())
+		if (!blk)
+			return(false);
+
+		if (!blk.model?.getRecord())
 			return(false);
 
 		if (lov != null)
@@ -962,6 +970,9 @@ export class Form implements EventListenerObject
 				if (FormBacking.getChildForms(this.parent,Classes.ListOfValuesClass).length > 0)
 					return(false);
 			}
+
+			if (!await blk.goRow(row))
+				return(false);
 
 			params.set("field",field);
 			params.set("block",block);

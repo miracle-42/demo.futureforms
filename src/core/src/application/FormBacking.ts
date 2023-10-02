@@ -107,7 +107,7 @@ export class FormBacking
 		}
 		else
 		{
-			currw?.blur(true);
+			currw?.blur(true,true);
 		}
 
 		if (container == null)

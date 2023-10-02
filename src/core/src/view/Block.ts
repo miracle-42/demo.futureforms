@@ -217,7 +217,8 @@ export class Block
 		if (this.form.current)
 		{
 			this.form.current.blur(true);
-			if (!await this.form.leave(this.form.current,true))
+
+			if (!await this.form.leave(this.form.current))
 				return(false);
 		}
 
@@ -667,6 +668,9 @@ export class Block
 		if (!(typeof rownum === "number"))
 			rownum = +rownum;
 
+		if (rownum < 0)
+			return(false);
+
 		if (rownum == this.row)
 			return(true);
 
@@ -674,31 +678,74 @@ export class Block
 			return(false);
 
 		let row:Row = this.getRow(rownum);
+		let inst:FieldInstance = this.current;
+		if (!inst) inst = this.getFieldInstances()[0];
 
 		if (!row)
+			return(false);
+
+		if (!inst)
 			return(false);
 
 		if (row.status == Status.na)
 			return(false);
 
-		let idx:number = this.getCurrentRow().getFieldIndex(this.current);
-		let inst:FieldInstance = this.getRow(rownum)?.getFieldByIndex(idx);
+		if (inst.row >= 0)
+		{
+			let idx:number = this.getCurrentRow().getFieldIndex(this.current);
+			inst = this.getRow(rownum)?.getFieldByIndex(idx);
 
-		if (inst)
+			if (inst)
+			{
+				if (this.form.current)
+				{
+					this.form.current.blur(true);
+
+					if (!await this.form.leave(this.form.current))
+						return(false);
+				}
+
+				inst.focus(true);
+
+				if (inst.hasFocus())
+					return(this.form.enter(inst));
+			}
+		}
+		else
 		{
 			if (this.form.current)
 			{
 				this.form.current.blur(true);
 
-				if (!await this.form.leave(this.form.current,true))
+				if (!await this.form.leave(this.form.current))
+					return(false);
+
+				if (!await this.form.leaveRecord(this))
 					return(false);
 			}
 
+			let move:number = rownum - this.row;
+			this.setIndicators(this.row,null);
+
+			this.move(move);
+			this.model.move(move);
+
+			this.refresh(this.model.getRecord());
 			inst.focus(true);
 
 			if (inst.hasFocus())
-				return(this.form.enter(inst));
+			{
+				if (!await this.form.enterRecord(this,0))
+					return(false);
 
+				if (!await this.form.enterField(inst,0,true))
+					return(false);
+
+				if (!await this.form.onRecord(this))
+					return(false);
+			}
+
+			return(true);
 		}
 
 		return(false);

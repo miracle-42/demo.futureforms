@@ -208,10 +208,11 @@ export class Form implements EventListenerObject
 		this.current?.skip();
 	}
 
-	public blur(ignore?:boolean) : void
+	public blur(ignore?:boolean, stay?:boolean) : void
 	{
 		this.current?.blur(ignore);
-		this.lastinst$ = this.current;
+		// Should postfield trigger or not
+		if (!stay) this.lastinst$ = this.current;
 	}
 
 	public async focus() : Promise<boolean>
@@ -465,9 +466,9 @@ export class Form implements EventListenerObject
 		return(true);
 	}
 
-	public async leave(inst:FieldInstance, force?:boolean) : Promise<boolean>
+	public async leave(inst:FieldInstance) : Promise<boolean>
 	{
-		if (!await this.leaveField(inst,0,force))
+		if (!await this.leaveField(inst))
 		{
 			Form.current().focus();
 			return(false);

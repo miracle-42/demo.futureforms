@@ -324,6 +324,8 @@ public class SessionManager
           for(Map.Entry<String,Session> entry : sessions.entrySet())
           {
             Session session = entry.getValue();
+            int age = (int) (time - session.touched());
+            logger.warning("Testing "+session.sesid()+" "+session.username()+" age "+age+" timeout "+timeout);
 
             if (time - session.touched() > timeout)
             {

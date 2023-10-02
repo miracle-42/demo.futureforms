@@ -22,6 +22,7 @@
 package database.rest.handlers.rest;
 
 import java.util.Map;
+import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.Savepoint;
 import java.util.ArrayList;
@@ -108,6 +109,12 @@ public class Session
   {
     return(scope);
   }
+  
+  
+  public String username()
+  {
+    return(username);
+  }
 
 
   public void setPool(Pool pool)
@@ -166,6 +173,7 @@ public class Session
   public synchronized void touch()
   {
     touched = System.currentTimeMillis();
+    logger.warning(sesid+" "+username+" touched "+new Date(touched));
   }
 
 

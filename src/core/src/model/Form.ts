@@ -403,10 +403,9 @@ export class Form
 		inst = block.view.getQBEInstance(inst);
 		if (!inst) inst = block.view.findFirstEditable(block.qberec);
 
-		inst?.focus();
-
 		if (inst)
 		{
+			inst.focus(true);
 			block.view.form.current = null;
 
 			if (!await this.view.enterRecord(inst.field.block,0))
@@ -419,7 +418,7 @@ export class Form
 		block.view.current = inst;
 		block.view.form.current = inst;
 
-		this.view.onRecord(block.view);
+		await this.view.onRecord(block.view);
 		return(true);
 	}
 

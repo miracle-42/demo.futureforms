@@ -75,12 +75,4 @@ export class Locations extends BaseForm
 
 		return(true);
 	}
-
-	public async listCountries(row:number) : Promise<boolean>
-	{
-		if (await this.getBlock("Locations").goRow(row-1))
-			this.showListOfValues("locations","country_id");
-
-		return(true);
-	}
 }

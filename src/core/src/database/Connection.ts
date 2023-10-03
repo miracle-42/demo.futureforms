@@ -646,6 +646,7 @@ export class Connection extends BaseConnection
 			return;
 		}
 
+		let start:Date = new Date();
 		let conn:string = this.conn$;
 		let response:any = await this.post(this.conn$+"/ping",{keepalive: true});
 
@@ -667,6 +668,11 @@ export class Connection extends BaseConnection
 			this.running$ = false;
 			return(response);
 		}
+
+		let end:Date = new Date();
+		let time:number = end.getTime() - start.getTime();
+		let tod:string = start.getHours()+":"+start.getMinutes()+":"+start.getSeconds();
+		console.log("keepalive "+tod+" request: "+(time/1000)+" secs");
 
 		if (response["session"])
 			this.conn$ = response.session;

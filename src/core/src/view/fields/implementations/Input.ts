@@ -758,6 +758,13 @@ export class Input implements FieldImplementation, EventListenerObject
 			return(true);
 		}
 
+		if (this.event.key == "Enter")
+		{
+			this.setElementValue(this.formatter.finish());
+			if (this.formatter.isNull()) this.clear();
+			return(true);
+		}
+
 		// Change should not fire because of preventDefault etc
 		if (this.event.type == "blur" || this.event.type == "change")
 		{

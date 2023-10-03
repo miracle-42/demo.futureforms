@@ -22,8 +22,8 @@
 package database.rest.handlers.rest;
 
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import database.rest.config.Config;
@@ -325,7 +325,7 @@ public class SessionManager
           {
             Session session = entry.getValue();
             int age = (int) (time - session.touched());
-            logger.warning("Testing "+session.sesid()+" "+session.username()+" age "+age+" timeout "+timeout);
+            logger.warning("Testing "+session.sesid()+" "+session.username()+" age "+age/1000+" timeout "+timeout/1000);
 
             if (time - session.touched() > timeout)
             {

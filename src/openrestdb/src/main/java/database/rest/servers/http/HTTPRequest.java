@@ -36,6 +36,7 @@ public class HTTPRequest
 
   private String host = null;
   private String path = null;
+  private String remote = null;
   private String method = null;
   private String version = null;
   private boolean parsed = false;
@@ -66,6 +67,7 @@ public class HTTPRequest
   {
     this.key = null;
     this.host = host;
+    this.remote = host;
     this.waiter = null;
     this.channel = null;
     this.server = server;
@@ -80,7 +82,7 @@ public class HTTPRequest
     this.key = key;
     this.waiter = waiter;
     this.channel = channel;
-    this.host = channel.remote();
+    this.host =  channel.remote();
     this.server = channel.server();
     this.redirect = channel.redirect();
   }
@@ -113,7 +115,7 @@ public class HTTPRequest
 
   public String remote()
   {
-    return(host);
+    return(remote);
   }
 
   public String header()
@@ -258,6 +260,9 @@ public class HTTPRequest
         this.cookies.put(name,value);
       }
     }
+
+    remote = getClientIpAddr(this);
+    if (remote == null) remote = host;
   }
 
 
@@ -400,6 +405,47 @@ public class HTTPRequest
     }
 
     return(null);
+  }
+
+
+  public static String getClientIpAddr(HTTPRequest request)
+  {
+    String ip = request.getHeader("X-Forwarded-For");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("Proxy-Client-IP");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("WL-Proxy-Client-IP");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_X_FORWARDED");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_X_CLUSTER_CLIENT_IP");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_CLIENT_IP");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_FORWARDED_FOR");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_FORWARDED");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("HTTP_VIA");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = request.getHeader("REMOTE_ADDR");
+
+    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown"))
+      ip = null;
+
+    return(ip);
   }
 
 

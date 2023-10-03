@@ -109,8 +109,8 @@ public class Session
   {
     return(scope);
   }
-  
-  
+
+
   public String username()
   {
     return(username);

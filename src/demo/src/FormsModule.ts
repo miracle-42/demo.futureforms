@@ -130,7 +130,8 @@ export class FormsModule extends FormsCoreModule
 
 		let port:number = +window.location.port;
 		// Hack. If page origins from live-server, then assume OpenRestDB is on localhost
-		let backend:string = (port >= 5500 && port < 5600) ? "http://localhost:9002" : null;
+		let backend:string = (port >= 5500 && port < 5600) ? "http://localhost:9002" : document.documentURI.match(/^.*\//)[0];
+		console.log("Backend: "+backend);
 
 		FormsModule.DATABASE = new Connection(backend);
 

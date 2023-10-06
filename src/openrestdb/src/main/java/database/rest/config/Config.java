@@ -37,7 +37,6 @@ public class Config
   private final String dataconf;
   private final JSONObject config;
 
-  private SSO sso = null;
   private Java java = null;
   private Rest rest = null;
   private HTTP http = null;
@@ -89,7 +88,6 @@ public class Config
     this.topconf = get("topology");
     this.dataconf = get("database");
 
-    sections.put("sso",getSection("sso"));
     sections.put("http",getSection("http"));
     sections.put("rest",getSection("rest"));
     sections.put("logger",getSection("logger"));
@@ -104,14 +102,6 @@ public class Config
   public String instance()
   {
     return(inst);
-  }
-
-
-  public synchronized SSO getSSO() throws Exception
-  {
-    if (sso != null) return(sso);
-    this.sso = new SSO(sections.get("sso"));
-    return(sso);
   }
 
 

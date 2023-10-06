@@ -18,15 +18,6 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-/*
-
-
- * Add API class
- * Add pool-token-auth
- * After database auth add connection to pool if less than max
- */
-
 package database.rest.handlers.rest;
 
 import java.io.File;
@@ -183,6 +174,12 @@ public class Rest
       failed = true;
       return(error(e));
     }
+  }
+
+
+  public boolean failed()
+  {
+    return(failed);
   }
 
 
@@ -1305,10 +1302,12 @@ public class Rest
 
   static String encodeStateless(String secret, String host, boolean priv, boolean proxy, String user) throws Exception
   {
-    byte ctrl = 0;
+    byte[] ctrl = new byte[4];
 
-    if (priv) ctrl |= 1 << 0;
-    if (proxy) ctrl |= 1 << 1;
+    if (priv) ctrl[0] |= 1 << 0;
+    if (proxy) ctrl[0] |= 1 << 1;
+
+    System.arraycopy(secret.getBytes(),1,ctrl,1,3);
 
     long time = System.currentTimeMillis();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -1332,14 +1331,22 @@ public class Rest
     boolean proxy = false;
     byte[] bytes = decrypt(secret,data);
 
-    time = unHash(bytes,5,8);
-    host = (int) unHash(bytes,1,4);
+    time = unHash(bytes,8,8);
+    host = (int) unHash(bytes,4,4);
 
     priv = ((bytes[0] & (1 << 0)) != 0);
     proxy = ((bytes[0] & (1 << 1)) != 0);
 
-    if (bytes.length > 13)
-      user = new String(bytes,13,bytes.length-13,"UTF-8");
+    byte[] hello = secret.getBytes();
+
+    for (int i = 1; i < 4; i++)
+    {
+      if (bytes[i] != hello[i])
+        throw new Exception("Session has been tampered with");
+    }
+
+    if (bytes.length > 16)
+      user = new String(bytes,16,bytes.length-16,"UTF-8");
 
     if (hostname.hashCode() != host)
       throw new Exception("Session origins from different host");
@@ -1385,17 +1392,11 @@ public class Rest
   {
     String secret = config.getSecurity().secret();
 
-    if (secret.length() < 32)
-    {
-      for (int i = 0; secret.length() % 16 != 0; i++)
-        secret += (char) ('a' + i);
-    }
+    for (int i = 0; secret.length() < 32; i++)
+      secret += (char) ('a' + (i%26));
 
     if (secret.length() > 32)
       secret = secret.substring(0,32);
-
-    if (secret.length() < 32)
-      secret = secret.substring(0,16);
 
     return(secret);
   }

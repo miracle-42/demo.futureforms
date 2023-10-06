@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v0.9 2023-10-06 16:00
+* Version number not bumped
+* Add missing zip-files
+
 ## v0.8 2023-10-06 12:30
 * Update from Alex
 * Fix stateless ops in core

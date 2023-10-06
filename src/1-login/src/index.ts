@@ -22,4 +22,4 @@
 import { FormsModule } from "./FormsModule";
 
 new FormsModule();
-console.log("1-login Version 0.7");
+console.log("1-login Version 0.8");

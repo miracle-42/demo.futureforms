@@ -131,6 +131,17 @@ Type a new tag in "Find or create a new tag".
 
 Type the new release name i.e. "v0.7".
 
+Write release title i.e. "Release v0.7".
+
+![Type release title](../img/rel-10.png)
+
+Click attach binaries and select files.
+
+![Attach binaries](../img/rel-9.png)
+
+![Select files](../img/rel-11.png)
+
+
 At the buttom click "Save draft" and "Publish release".
 
 ![Publish](../img/rel-5.png)

@@ -1,5 +1,6 @@
 #! /bin/bash
 set -e
+#set -x
 
 # Files to update manually
 #  README.md

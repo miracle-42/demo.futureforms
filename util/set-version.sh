@@ -10,7 +10,7 @@ set -e
 #   <version>2.1</version>
 
 
-NEW=$1
+NEW=${1:-$NEWREL}
 
 if [[ -z $NEW ]]
 then
@@ -19,6 +19,7 @@ then
 	echo \ $0 1.2
 	exit 1
 fi
+echo $NEW $NEWREL ; exit 1
 
 sed -i -e "s/^\(\*Release \).*/\1$NEW*/" README.md
 

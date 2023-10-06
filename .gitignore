@@ -9,6 +9,7 @@ src/openrestdb/target
 
 # Log file
 *.log
+*.session
 
 # BlueJ files
 *.ctxt

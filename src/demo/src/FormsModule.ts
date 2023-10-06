@@ -110,7 +110,7 @@ export class FormsModule extends FormsCoreModule
 		InternalFormsConfig.close = "&#215;";
 
 		// Be aware of FormProperties
-		FormProperties.DateFormat = "DD-MM-YYYY";
+		FormProperties.DateFormat = "YYYY-MM-DD";
 
 		// Demo custom tag
 		FormProperties.TagLibrary.set("AppHeader",AppHeader);
@@ -128,7 +128,12 @@ export class FormsModule extends FormsCoreModule
 		Connection.TRXTIMEOUT = 240;
 		Connection.CONNTIMEOUT = 120;
 
-		FormsModule.DATABASE = new Connection("http://localhost:9002");
+		let port:number = +window.location.port;
+		// Hack. If page origins from live-server, then assume OpenRestDB is on localhost
+		let backend:string = (port >= 5500 && port < 5600) ? "http://localhost:9002" : document.documentURI.match(/^.*\//)[0];
+		console.log("Backend: "+backend);
+
+		FormsModule.DATABASE = new Connection(backend);
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
 		infomation.appendChild(KeyMapPage.show(keymap));

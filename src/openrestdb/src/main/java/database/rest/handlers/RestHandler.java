@@ -157,9 +157,10 @@ public class RestHandler extends Handler
     if (qret != null) returning = Boolean.parseBoolean(qret);
 
     Rest rest = new Rest(server,savepoint,remote);
-    response.setContentType(json);
 
+    response.setContentType(json);
     response.setBody(rest.execute(path,payload,returning));
+    if (rest.failed()) response.setResponse(500);
 
     if (rest.isConnectRequest())
       request.scramble();

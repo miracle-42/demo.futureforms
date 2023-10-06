@@ -22,8 +22,8 @@
 package database.rest.handlers.rest;
 
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import database.rest.config.Config;
@@ -254,15 +254,17 @@ public class SessionManager
               logger.fine("SSO: "+sso.guid+" timed out");
             }
           }
+
+          for(String guid : remove)
+            preauth.remove(guid);
+
+          remove = new ArrayList<String>();
         }
       }
       catch (Exception e)
       {
         logger.log(Level.SEVERE,e.getMessage(),e);
       }
-
-      for(String guid : remove)
-        preauth.remove(guid);
     }
   }
 
@@ -324,6 +326,8 @@ public class SessionManager
           for(Map.Entry<String,Session> entry : sessions.entrySet())
           {
             Session session = entry.getValue();
+            int age = (int) (time - session.touched());
+            logger.warning("Testing "+session.sesid()+" "+session.username()+" age "+age/1000+" timeout "+timeout/1000);
 
             if (time - session.touched() > timeout)
             {

@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v0.8 2023-10-06 12:30
+* Update from Alex
+* Fix stateless ops in core
+
 ## v0.7 2023-09-29 10:00
 * Update from Alex
 * Improve release procedure

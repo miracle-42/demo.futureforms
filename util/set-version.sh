@@ -10,7 +10,7 @@ set -e
 #   <version>2.1</version>
 
 
-NEW=$1
+NEW=${1:-$NEWREL}
 
 if [[ -z $NEW ]]
 then

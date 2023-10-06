@@ -325,8 +325,6 @@ export class Field
 				this.distribute(inst,value,this.dirty);
 				this.block.distribute(this,value,this.dirty);
 			}
-
-			return;
 		}
 
 		if (brwevent.onScrollUp) {key = KeyMap.nextrecord; inst = this.block.form.current;}

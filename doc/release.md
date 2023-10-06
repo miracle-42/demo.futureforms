@@ -101,6 +101,18 @@ Go to Github and tag the new release.
 
     firefox https://github.com/miracle-42/futureforms
 
+The new release is presented. Compare & pull request.
+
+![Compare](../img/rel-6.png)
+
+Click "Create pull request".
+
+![Pull request](../img/rel-7.png)
+
+Click "Merge pull request".
+
+![Merge pull request](../img/rel-8.png)
+
 Click "Release" in the right side.
 
 ![Release](../img/rel-1.png)
@@ -116,6 +128,8 @@ Click "Choose a tag" in the left side.
 Type a new tag in "Find or create a new tag".
 
 ![Create a new tag](../img/rel-4.png)
+
+Type the new release name i.e. "v0.7".
 
 At the buttom click "Save draft" and "Publish release".
 

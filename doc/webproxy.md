@@ -66,6 +66,8 @@ Here a full Nginx example:
         location /errcode { }
     
         location /s0 {
+            proxy_pass_header Set-Cookie;
+            proxy_cookie_path / "/; secure; HttpOnly; SameSite=strict";
             rewrite ^(/[^/]+)$ $1/ permanent; # If more than one proxy is used add this rewrite
             proxy_pass http://127.0.0.1:9002/; # Need trailing slash '/'
         }

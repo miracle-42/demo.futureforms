@@ -183,6 +183,14 @@ export class Record
 		else console.error("field '"+field+"' was not found in record");
 	}
 
+	/** Set required state for a given field */
+	public setRequired(field:string, flag:boolean) : void
+	{
+		let props:FieldProperties = this.getProperties(field);
+		if (props) this.setProperties(props.setRequired(flag),field);
+		else console.error("field '"+field+"' was not found in record");
+	}
+
 	/** Set enabled state for a given field */
 	public setEnabled(field:string, flag:boolean) : void
 	{

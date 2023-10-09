@@ -169,7 +169,12 @@ export class Field
 	public setInstanceValidity(flag:boolean) : void
 	{
 		this.valid = flag;
-		this.instances$.forEach((inst) => {inst.valid = flag});
+
+		for (let i = 0; i < this.instances$.length; i++)
+		{
+			this.instances$[i].valid = flag;
+			if (flag && i == 0) this.block.setValidated(this.instances$[i]);
+		}
 	}
 
 	public addInstance(instance:FieldInstance) : void
@@ -386,7 +391,7 @@ export class Field
 
 		this.row.invalidate();
 
-		if (!await this.block.validateField(inst,inst.getValue()))
+		if (!await this.block.validateField(inst))
 		{
 			inst.valid = false;
 			this.valid = false;

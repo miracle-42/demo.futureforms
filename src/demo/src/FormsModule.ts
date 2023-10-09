@@ -53,7 +53,7 @@ import { AppHeader } from './tags/AppHeader';
 import { LinkMapper } from './fields/LinkMapper';
 import { TrueFalseMapper } from './fields/TrueFalseMapper';
 
-import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, InternalFormsConfig } from 'forms42core';
+import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, InternalFormsConfig, ConnectionScope } from 'forms42core';
 
 @FormsPathMapping(
 	[
@@ -130,10 +130,13 @@ export class FormsModule extends FormsCoreModule
 
 		let port:number = +window.location.port;
 		// Hack. If page origins from live-server, then assume OpenRestDB is on localhost
-		let backend:string = (port >= 5500 && port < 5600) ? "http://localhost:9002" : document.documentURI.match(/^.*\//)[0];
-		console.log("Backend: "+backend);
+		let backend:string = (port >= 5500 && port < 5600) ? "http://localhost:9002" : null;
+
+		// In case loadbalancer/multi-site, get up to last /
+		if (!backend) backend = document.documentURI.match("/^.*\\//")[0];
 
 		FormsModule.DATABASE = new Connection(backend);
+		FormsModule.DATABASE.scope = ConnectionScope.stateless;
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
 		infomation.appendChild(KeyMapPage.show(keymap));

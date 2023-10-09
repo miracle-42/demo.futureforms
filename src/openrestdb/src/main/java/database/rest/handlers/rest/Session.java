@@ -22,7 +22,6 @@
 package database.rest.handlers.rest;
 
 import java.util.Map;
-import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.Savepoint;
 import java.util.ArrayList;
@@ -173,7 +172,6 @@ public class Session
   public synchronized void touch()
   {
     touched = System.currentTimeMillis();
-    logger.warning(sesid+" "+username+" touched "+new Date(touched));
   }
 
 

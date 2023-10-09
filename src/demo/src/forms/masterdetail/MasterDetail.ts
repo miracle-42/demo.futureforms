@@ -21,7 +21,7 @@
 
 import content from './MasterDetail.html';
 
-import { Key } from 'forms42core';
+import { EventType, FormEvent, formevent, Key } from 'forms42core';
 import { BaseForm } from "../../BaseForm";
 import { Sorter } from '../../utils/Sorter';
 import { Employees } from "../../blocks/Employees";
@@ -45,6 +45,17 @@ export class MasterDetail extends BaseForm
 		let deptkey:Key = new Key("departments","department_id");
 
 		this.link(deptkey,empkey);
+	}
+
+	@formevent()
+	public async trgs(event:FormEvent) : Promise<boolean>
+	{
+		let desc:string = "";
+		if (event.block == "departments") desc = this.dept.getValue("department_id");
+		else										 desc = this.emp.getValue("first_name");
+
+		if (!event.mouse) console.log(EventType[event.type]+" "+desc);
+		return(true);
 	}
 
 	public sort(block:string, field:string) : void

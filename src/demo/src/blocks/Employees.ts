@@ -49,30 +49,30 @@ export class Employees extends Block
 	{
 		let code:string = null;
 		let title:string = null;
-		let field:string = null;
+		let desc:string = null;
 
-		field = "job_title";
+		desc = "job_title";
 
-		if (this.hasField(field))
+		if (this.hasField(desc))
 		{
 			code = this.getValue("job_id");
 
 			if (code != null)
 				title = await JobTable.getTitle(code);
 
-			this.setValue(field,title);
+			this.setValue(desc,title);
 		}
 
-		field = "department_name";
+		desc = "department_name";
 
-		if (this.hasField(field))
+		if (this.hasField(desc))
 		{
 			code = this.getValue("department_id");
 
 			if (code != null)
 				title = await DepartmentTable.getTitle(code);
 
-			this.setValue(field,title);
+			this.setValue(desc,title);
 		}
 
 		return(true);

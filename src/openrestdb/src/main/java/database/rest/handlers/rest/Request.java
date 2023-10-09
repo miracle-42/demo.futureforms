@@ -35,6 +35,7 @@ public class Request
   public final String func;
   public final String sesid;
   public final String session;
+  public final String returning;
   public final JSONObject payload;
   public final ArrayList<String> args;
 
@@ -101,38 +102,42 @@ public class Request
         break;
       }
 
-      String syn = args[i];
+      String spec = args[i];
 
-      if (syn.equals("sql")) syn = "exec";
-      if (syn.equals("execute")) syn = "exec";
+      if (spec.equals("sql")) spec = "exec";
+      if (spec.equals("execute")) spec = "exec";
 
-      if (commands.contains(syn))
+      if (commands.contains(spec))
       {
         pos = i;
-        cmd = syn;
+        cmd = spec;
         break;
       }
     }
 
-    if (pos < 0 || pos > 1 || cmd == null)
-      throw new Exception("Unknown rest path \""+path+"\"");
+    if (pos > 1 || cmd == null)
+      throw new Exception("Unknown rest path: '/"+path+"'");
 
     if (func == null)
     {
       if (pos < args.length - 1)
       {
         if (function.contains(args[pos+1]))
-          func = args[++pos];
+          func = args[pos+1];
       }
     }
 
     if (func == null && cmd.equals("exec"))
       func = peek(rest,payload);
 
-    if (pos > 0)
-    {
-      sesid = args[0];
+    if (func == null && cmd.equals("exec"))
+      throw new Exception("Unknown rest path: '/"+path+"'");
 
+    if (pos > 0) sesid = args[0];
+    else sesid = get(payload,"session");
+
+    if (sesid != null)
+    {
       if (sesid.startsWith("*")) session = sesid;
       else                       session = rest.decode(sesid);
     }
@@ -144,6 +149,7 @@ public class Request
     this.func = func;
     this.sesid = sesid;
     this.session = session;
+    this.returning = get(payload,"returning");
   }
 
 
@@ -186,6 +192,13 @@ public class Request
   }
 
 
+  private String get(JSONObject payload, String entry)
+  {
+    if (!payload.has(entry)) return(null);
+    return(payload.get(entry)+"");
+  }
+
+
   private String peek(Rest rest, JSONObject payload) throws Exception
   {
     if (payload.has("batch"))
@@ -195,7 +208,7 @@ public class Request
       return("script");
 
     String sql = rest.getStatement(payload);
-    if (sql == null) throw new Exception("Attribute \"sql\" is missing");
+    if (sql == null) return(null);
 
     sql = sql.trim();
     if (sql.length() > 6)

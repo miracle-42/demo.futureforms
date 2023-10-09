@@ -100,6 +100,22 @@ public class Pool
   }
 
 
+  public boolean test()
+  {
+    try
+    {
+      Database c = getConnection();
+      if (c == null) return(false);
+      return(c.validate(false));
+    }
+    catch (Throwable e)
+    {
+      logger.log(Level.SEVERE,"Connection Test Failed",e);
+      return(false);
+    }
+  }
+
+
   public synchronized void add(Database database)
   {
     pool.add(database);

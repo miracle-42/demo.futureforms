@@ -176,7 +176,7 @@ export class Connection extends BaseConnection
 		this.touched$ = new Date();
 
 		Logger.log(Type.database,"disconnect");
-		let response:any = await this.post(this.conn$+"/disconnect");
+		let response:any = await this.post("disconnect",{session: this.conn$});
 
 		if (response.success)
 		{
@@ -200,7 +200,7 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"commit");
 		let thread:number = FormsModule.get().showLoading("Comitting");
-		let response:any = await this.post(this.conn$+"/commit");
+		let response:any = await this.post("commit",{session: this.conn$});
 		FormsModule.get().hideLoading(thread);
 
 		if (response.success)
@@ -231,7 +231,7 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"rollback");
 		let thread:number = FormsModule.get().showLoading("Rolling back");
-		let response:any = await this.post(this.conn$+"/rollback");
+		let response:any = await this.post("rollback",{session: this.conn$});
 		FormsModule.get().hideLoading(thread);
 
 		if (response.success)
@@ -274,6 +274,7 @@ export class Connection extends BaseConnection
 			compact: true,
 			dateformat: "UTC",
 			describe: describe,
+			session: this.conn$,
 
 			sql: sql.stmt,
 			bindvalues: this.convert(sql.bindvalues)
@@ -292,7 +293,7 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"select");
 		let thread:number = FormsModule.get().showLoading("Querying");
-		let response:any = await this.post(this.conn$+"/select",payload);
+		let response:any = await this.post("select",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -332,9 +333,9 @@ export class Connection extends BaseConnection
 		}
 
 		Logger.log(Type.database,"fetch");
-		let payload:any = {cursor: cursor.name};
+		let payload:any = {session: this.conn$, cursor: cursor.name};
 		let thread:number = FormsModule.get().showLoading("Fetching data");
-		let response:any = await this.post(this.conn$+"/exec/fetch",payload);
+		let response:any = await this.post("fetch",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -362,8 +363,15 @@ export class Connection extends BaseConnection
 		if (cursor.trx == this.trx$)
 		{
 			Logger.log(Type.database,"close cursor");
-			let payload:any = {cursor: cursor.name, close: true};
-			response = await this.post(this.conn$+"/exec/fetch",payload);
+
+			let payload:any =
+			{
+				close: true,
+				session: this.conn$,
+				cursor: cursor.name
+			};
+
+			response = await this.post("fetch",payload);
 
 			if (!response.success)
 			{
@@ -378,11 +386,11 @@ export class Connection extends BaseConnection
 
 	public async lock(sql:SQLRest) : Promise<Response>
 	{
-		let response:any = null;
-		let trxstart:boolean = this.modified$ == null;
-
 		if (this.scope == ConnectionScope.stateless)
 			return({success: true, message: null, rows: []});
+
+		let response:any = null;
+		let trxstart:boolean = this.modified$ == null;
 
 		let payload:any =
 		{
@@ -390,6 +398,7 @@ export class Connection extends BaseConnection
 			compact: true,
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
@@ -398,7 +407,7 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"lock");
 		let thread:number = FormsModule.get().showLoading("Locking");
-		response = await this.post(this.conn$+"/select",payload);
+		response = await this.post("select",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -429,6 +438,7 @@ export class Connection extends BaseConnection
 			compact: true,
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
@@ -437,7 +447,7 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"refresh");
 		let thread:number = FormsModule.get().showLoading("Refresh row");
-		response = await this.post(this.conn$+"/select",payload);
+		response = await this.post("select",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -452,22 +462,26 @@ export class Connection extends BaseConnection
 
 	public async insert(sql:SQLRest) : Promise<Response>
 	{
-		let trxstart:boolean = this.modified$ == null;
+		let trxstart:boolean =
+			this.modified$ == null && this.transactional;
 
 		let payload:any =
 		{
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
+
+		if (sql.returnclause)
+			payload.returning = true;
 
 		this.tmowarn$ = false;
 		this.touched$ = new Date();
 
 		Logger.log(Type.database,"insert");
 		let thread:number = FormsModule.get().showLoading("Insert");
-		let returnclause:string = sql.returnclause ? "?returning=true" : "";
-		let response:any = await this.post(this.conn$+"/insert"+returnclause,payload);
+		let response:any = await this.post("insert",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -489,22 +503,26 @@ export class Connection extends BaseConnection
 
 	public async update(sql:SQLRest) : Promise<Response>
 	{
-		let trxstart:boolean = this.modified$ == null;
+		let trxstart:boolean =
+			this.modified$ == null && this.transactional;
 
 		let payload:any =
 		{
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
+
+		if (sql.returnclause)
+			payload.returning = true;
 
 		this.tmowarn$ = false;
 		this.touched$ = new Date();
 
 		Logger.log(Type.database,"update");
 		let thread:number = FormsModule.get().showLoading("Update");
-		let returnclause:string = sql.returnclause ? "?returning=true" : "";
-		let response:any = await this.post(this.conn$+"/update"+returnclause,payload);
+		let response:any = await this.post("update",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -526,22 +544,26 @@ export class Connection extends BaseConnection
 
 	public async delete(sql:SQLRest) : Promise<Response>
 	{
-		let trxstart:boolean = this.modified$ == null;
+		let trxstart:boolean =
+			this.modified$ == null && this.transactional;
 
 		let payload:any =
 		{
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
+
+		if (sql.returnclause)
+			payload.returning = true;
 
 		this.tmowarn$ = false;
 		this.touched$ = new Date();
 
 		Logger.log(Type.database,"delete");
 		let thread:number = FormsModule.get().showLoading("Delete");
-		let returnclause:string = sql.returnclause ? "?returning=true" : "";
-		let response:any = await this.post(this.conn$+"/delete"+returnclause,payload);
+		let response:any = await this.post("delete",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -564,12 +586,15 @@ export class Connection extends BaseConnection
 	public async call(patch:boolean, sql:SQLRest) : Promise<Response>
 	{
 		let response:any = null;
-		let trxstart:boolean = this.modified$ == null;
+
+		let trxstart:boolean =
+			this.modified$ == null && this.transactional;
 
 		let payload:any =
 		{
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
@@ -578,8 +603,8 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"call");
 		let thread:number = FormsModule.get().showLoading("Call procedure");
-		if (patch) response = await this.patch(this.conn$+"/exec",payload);
-		else 		  response = await this.post(this.conn$+"/exec",payload);
+		if (patch) response = await this.patch("call",payload);
+		else 		  response = await this.post("call",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -602,12 +627,15 @@ export class Connection extends BaseConnection
 	public async execute(patch:boolean, sql:SQLRest) : Promise<Response>
 	{
 		let response:any = null;
-		let trxstart:boolean = this.modified$ == null;
+		
+		let trxstart:boolean =
+			this.modified$ == null && this.transactional;
 
 		let payload:any =
 		{
 			sql: sql.stmt,
 			dateformat: "UTC",
+			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
@@ -616,8 +644,8 @@ export class Connection extends BaseConnection
 
 		Logger.log(Type.database,"execute");
 		let thread:number = FormsModule.get().showLoading("Execute procedure");
-		if (patch) response = await this.patch(this.conn$+"/exec",payload);
-		else 		  response = await this.post(this.conn$+"/exec",payload);
+		if (patch) response = await this.patch("call",payload);
+		else 		  response = await this.post("call",payload);
 		FormsModule.get().hideLoading(thread);
 
 		if (!response.success)
@@ -648,9 +676,8 @@ export class Connection extends BaseConnection
 			return;
 		}
 
-		let start:Date = new Date();
 		let conn:string = this.conn$;
-		let response:any = await this.post(this.conn$+"/ping",{keepalive: true});
+		let response:any = await this.post("ping",{session: this.conn$, keepalive: true});
 
 		if (this.conn$ != conn)
 		{
@@ -670,11 +697,6 @@ export class Connection extends BaseConnection
 			this.running$ = false;
 			return(response);
 		}
-
-		let end:Date = new Date();
-		let time:number = end.getTime() - start.getTime();
-		let tod:string = start.getHours()+":"+start.getMinutes()+":"+start.getSeconds();
-		console.log("keepalive "+tod+" request: "+(time/1000)+" secs");
 
 		if (response["session"])
 			this.conn$ = response.session;

@@ -18,32 +18,30 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 package database.rest.handlers.rest;
 
 import java.io.File;
 import java.util.Date;
+import database.Version;
 import java.util.Base64;
 import java.util.HashMap;
 import org.json.JSONArray;
 import java.sql.Savepoint;
 import org.json.JSONObject;
+import javax.crypto.Cipher;
 import java.util.ArrayList;
 import java.math.BigInteger;
+import javax.crypto.SecretKey;
 import java.io.FileInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import database.Version;
 import database.rest.config.Config;
 import database.rest.database.Pool;
 import database.rest.servers.Server;
+import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Constructor;
+import javax.crypto.spec.SecretKeySpec;
 import database.rest.custom.SQLRewriter;
 import database.rest.database.BindValue;
 import database.rest.database.SQLParser;
@@ -53,6 +51,7 @@ import database.rest.custom.Authenticator;
 import database.rest.cluster.PreAuthRecord;
 import database.rest.database.BindValueDef;
 import database.rest.database.NameValuePair;
+import java.util.concurrent.ConcurrentHashMap;
 import database.rest.servers.http.HTTPRequest.Pair;
 import database.rest.config.Security.CustomAuthenticator;
 import static database.rest.handlers.rest.JSONFormatter.Type.*;
@@ -128,6 +127,9 @@ public class Rest
         ptok = config.getDatabase().proxy.token();
 
       request = new Request(this,path,payload);
+
+      if (request.returning != null)
+        returning = Boolean.parseBoolean(request.returning);
 
       if (request.session != null)
       {
@@ -433,8 +435,41 @@ public class Rest
 
   private String status()
   {
+    String message = null;
+
+    try
+    {
+      Pool fpool = config.getDatabase().fixed;
+      Pool ppool = config.getDatabase().proxy;
+
+      if (fpool != null)
+      {
+        if (!fpool.test())
+          message = "Fixed pool test failed";
+      }
+
+      if (ppool != null)
+      {
+        if (!ppool.test())
+          message = "Proxy pool test failed";
+      }
+    }
+    catch (Throwable e)
+    {
+      message = e.getMessage();
+
+      if (message == null)
+        message = "An unexpected error occured";
+    }
+
+    boolean success = (message == null);
+
     JSONFormatter json = new JSONFormatter();
-    json.success(true);
+    json.success(success);
+
+    if (message != null)
+      json.add("cause",message);
+
     return(json.toString());
   }
 

@@ -327,13 +327,12 @@ public class SessionManager
           {
             Session session = entry.getValue();
             int age = (int) (time - session.touched());
-            logger.warning("Testing "+session.sesid()+" "+session.username()+" age "+age/1000+" timeout "+timeout/1000);
 
-            if (time - session.touched() > timeout)
+            if (age > timeout)
             {
               session.disconnect(true);
               SessionManager.history(session,false);
-              logger.fine("Session: "+session.sesid()+" timed out");
+              logger.fine("Session: "+session.sesid()+" timed out (age: "+age+")");
             }
           }
         }

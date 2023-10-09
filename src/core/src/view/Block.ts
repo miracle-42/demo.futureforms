@@ -518,12 +518,32 @@ export class Block
 		return(success);
 	}
 
-	public async validateField(inst:FieldInstance, value?:any) : Promise<boolean>
+	public async setValidated(inst:FieldInstance) : Promise<boolean>
 	{
-		if (this.model.getValue(inst.name) == inst.getValue())
+		let value:any = inst.getValue();
+
+		if (this.model.getValue(inst.name) == value)
 			return(true);
 
-		if (!await this.validateDate(inst.name,inst.getValue()))
+		let success:boolean = this.model.setValue(inst.name,value);
+
+		if (success)
+		{
+			if (this.model.querymode) this.model.setFilter(inst.name);
+			else success = await this.model.form.queryFieldDetails(this.name,inst.name);
+		}
+
+		return(true);
+	}
+
+	public async validateField(inst:FieldInstance) : Promise<boolean>
+	{
+		let value:any = inst.getValue();
+
+		if (this.model.getValue(inst.name) == value)
+			return(true);
+
+		if (!await this.validateDate(inst.name,value))
 			return(false);
 
 		await this.setEventTransaction(EventType.WhenValidateField);
@@ -532,6 +552,7 @@ export class Block
 
 		if (success)
 		{
+			// refresh
 			value = inst.getValue();
 			success = this.model.setValue(inst.name,value);
 

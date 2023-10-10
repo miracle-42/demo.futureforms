@@ -109,8 +109,6 @@ public class Rest
 
   public String execute(String path, String payload, boolean returning)
   {
-    boolean stateless = false;
-
     try
     {
       String ftok = null;
@@ -135,7 +133,6 @@ public class Rest
       {
         if (request.session.startsWith("*"))
         {
-          stateless = true;
           StatelessSession sses = null;
           int timeout = config.getREST().timeout;
           sses = decodeStateless(this.secret,this.host,timeout,request.session);
@@ -145,6 +142,7 @@ public class Rest
 
           session = new Session(this.config,AuthMethod.PoolToken,pool,"stateless",sses.user,token);
 
+          session.share();
           state.stateless(sses);
           state.session(session);
         }
@@ -166,8 +164,8 @@ public class Rest
 
       String response = exec(request,returning);
 
-      if (stateless)
-        session.release(failed);
+      if (state.session != null && !state.session.stateful())
+        state.session.disconnect(true);
 
       return(response);
     }
@@ -548,10 +546,7 @@ public class Rest
       boolean usepool = false;
 
       if (method == AuthMethod.Custom)
-      {
         usepool = true;
-        method = AuthMethod.PoolToken;
-      }
 
       if (method == AuthMethod.SSO)
       {
@@ -1347,10 +1342,26 @@ public class Rest
     long time = System.currentTimeMillis();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+    //Scramble user to harden hacking
+
+    if (user != null)
+    {
+      byte[] salt = (time+"").getBytes();
+      byte[] scrambled = user.getBytes("UTF-8");
+
+      for (int i = 0; i < scrambled.length; i++)
+      {
+        byte s = salt[i % salt.length];
+        scrambled[i] = (byte) (scrambled[i] ^ s);
+      }
+
+      user = new String(scrambled);
+    }
+
     out.write(ctrl);
     out.write(hash(host));
     out.write(hash(time));
-    if (user != null) out.write(user.getBytes("UTF-8"));
+    if (user != null) out.write(user.getBytes());
 
     byte[] bytes = out.toByteArray();
     return(encrypt(secret,bytes));
@@ -1381,7 +1392,20 @@ public class Rest
     }
 
     if (bytes.length > 16)
-      user = new String(bytes,16,bytes.length-16,"UTF-8");
+    {
+      user = new String(bytes,16,bytes.length-16);
+
+      byte[] salt = (time+"").getBytes();
+      byte[] scrambled = user.getBytes();
+
+      for (int i = 0; i < scrambled.length; i++)
+      {
+        byte s = salt[i % salt.length];
+        scrambled[i] = (byte) (scrambled[i] ^ s);
+      }
+
+      user = new String(scrambled,"UTF-8");
+    }
 
     if (hostname.hashCode() != host)
       throw new Exception("Session origins from different host");

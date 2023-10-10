@@ -77,22 +77,28 @@ export class DatabaseConnection
 		this.conn$.scope = scope;
 	}
 
+	/** The authorization method */
+	public get authmethod() : string
+	{
+		return(this.conn$.authmethod);
+	}
+
+	/** The authorization method */
+	public set authmethod(method:string)
+	{
+		this.conn$.authmethod = method;
+	}
+
 	/** Is connection scope transactional */
 	public get transactional() : boolean
 	{
 		return(this.conn$.transactional);
 	}
 
-	/** Set secret for non database connections */
-	public set preAuthenticated(secret:string)
-	{
-		this.conn$.preAuthenticated = secret;
-	}
-
 	/** Connect to database */
-	public async connect(username?:string, password?:string) : Promise<boolean>
+	public async connect(username?:string, password?:string, custom?:Map<string,any>) : Promise<boolean>
 	{
-		return(this.conn$.connect(username,password));
+		return(this.conn$.connect(username,password,custom));
 	}
 
 	/** Disconnect from database */

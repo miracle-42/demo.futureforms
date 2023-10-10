@@ -22,10 +22,25 @@
 package database.rest.custom;
 
 import org.json.JSONObject;
+import java.util.logging.Logger;
 
 
-public interface Authenticator
+public class CustomAuthenticator implements Authenticator
 {
-   String user();
-   boolean authenticate(JSONObject payload) throws Exception;
+  private String user = null;
+  private final static Logger logger = Logger.getLogger("rest");
+
+  @Override
+  public String user()
+  {
+    return(user);
+  }
+
+  @Override
+  public boolean authenticate(JSONObject payload) throws Exception
+  {
+    this.user = payload.getString(("username"));
+    logger.warning("CustomAuthenticator authentication attempt ["+this.user+"]");
+    return(false);
+  }
 }

@@ -332,7 +332,7 @@ public class SessionManager
             {
               session.disconnect(true);
               SessionManager.history(session,false);
-              logger.fine("Session: "+session.sesid()+" timed out (age: "+age+")");
+              logger.fine("Session: "+session.sesid()+" timed out (age: "+(age/1000)+" secs)");
             }
           }
         }

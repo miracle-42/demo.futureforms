@@ -50,7 +50,7 @@ Create a release branch which can be shared with other testers
 Bump version with a script and an editor
 
     ./util/set-version.sh $NEWREL
-    vi ChangeLog.md playbooks/release/release.yml 
+    vi ChangeLog.md
 
 Clean up up old build files
 

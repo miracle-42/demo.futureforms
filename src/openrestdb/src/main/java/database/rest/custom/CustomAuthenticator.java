@@ -19,7 +19,28 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "./FormsModule";
+package database.rest.custom;
 
-new FormsModule();
-console.log("2-Countries Version 0.11");
+import org.json.JSONObject;
+import java.util.logging.Logger;
+
+
+public class CustomAuthenticator implements Authenticator
+{
+  private String user = null;
+  private final static Logger logger = Logger.getLogger("rest");
+
+  @Override
+  public String user()
+  {
+    return(user);
+  }
+
+  @Override
+  public boolean authenticate(JSONObject payload) throws Exception
+  {
+    this.user = payload.getString(("username"));
+    logger.warning("CustomAuthenticator authentication attempt ["+this.user+"]");
+    return(false);
+  }
+}

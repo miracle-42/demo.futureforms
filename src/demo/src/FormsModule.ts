@@ -133,7 +133,7 @@ export class FormsModule extends FormsCoreModule
 		let backend:string = (port >= 5500 && port < 5600) ? "http://localhost:9002" : null;
 
 		// In case loadbalancer/multi-site, get up to last /
-		if (!backend) backend = document.documentURI.match("/^.*\\//")[0];
+		if (!backend) backend = document.documentURI.match(/^.*\//)[0];
 
 		FormsModule.DATABASE = new Connection(backend);
 		FormsModule.DATABASE.scope = ConnectionScope.stateless;

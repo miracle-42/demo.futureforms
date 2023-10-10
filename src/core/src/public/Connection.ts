@@ -28,10 +28,9 @@ import { FlightRecorder } from "../application/FlightRecorder.js";
 export class Connection
 {
 	private base$:URL = null;
-	private usr$:string = null;
-	private pwd$:string = null;
 	private headers$:any = {};
 	private method$:string = null;
+	private authmeth$:string = null;
 	private success$:boolean = true;
 
 	/** Create connection. If no url specified, the Origin of the page is used */
@@ -52,28 +51,16 @@ export class Connection
 		return(this.base$);
 	}
 
-	/** Not used in base class */
-	public get username() : string
+	/** The authorization method. Not used in base class */
+	public get authmethod() : string
 	{
-		return(this.usr$);
+		return(this.authmeth$);
 	}
 
-	/** Not used in base class */
-	public set username(username:string)
+	/** The authorization method. Not used in base class */
+	public set authmethod(method:string)
 	{
-		this.usr$ = username;
-	}
-
-	/** Not used in base class */
-	public get password() : string
-	{
-		return(this.pwd$);
-	}
-
-	/** Not used in base class */
-	public set password(password:string)
-	{
-		this.pwd$ = password;
+		this.authmeth$ = method;
 	}
 
 	/** Whether the last request was successfull */

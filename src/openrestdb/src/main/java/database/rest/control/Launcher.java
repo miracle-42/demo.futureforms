@@ -38,6 +38,9 @@ import database.rest.config.Topology;
 import database.rest.handlers.Handler;
 import database.rest.database.Database;
 import database.rest.cluster.Statistics;
+import database.rest.custom.SQLRewriter;
+import database.rest.custom.SQLValidator;
+import database.rest.custom.Authenticator;
 import database.rest.servers.rest.RESTClient;
 import database.rest.servers.rest.RESTServer;
 import database.rest.handlers.file.Deployment;
@@ -423,7 +426,10 @@ public class Launcher implements ILauncher
         Database.class,
         ILauncher.class,
         RESTClient.class,
-        RESTServer.class
+        RESTServer.class,
+        SQLRewriter.class,
+        SQLValidator.class,
+        Authenticator.class,
       };
 
       Loader loader = new Loader(keep);

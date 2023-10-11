@@ -80,3 +80,17 @@ Here a full Nginx example:
         }
     }
 
+Load balancing setup:
+
+    upstream lbopenrestdb {
+	server ordb7.example.com:9022;
+	server ordb8.example.com:9032;
+    }
+
+    server {
+    ...
+        location /loadbalance {
+            rewrite ^(/[^/]+)$ $1/ permanent; # If more than one proxy is used add this line
+            proxy_pass http://lbopenrestdb/; # Need trailing '/'
+        }
+    }

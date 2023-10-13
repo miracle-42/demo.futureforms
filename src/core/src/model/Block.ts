@@ -508,7 +508,7 @@ export class Block
 
 		if (!await this.form.view.onCreateRecord(this.view,record))
 		{
-			this.wrapper.delete(record);
+			await this.wrapper.delete(record);
 			return(false);
 		}
 
@@ -532,13 +532,13 @@ export class Block
 
 				if (init && !await this.form.view.leaveField(null,offset))
 				{
-					this.wrapper.delete(record);
+					await this.wrapper.delete(record);
 					return(false);
 				}
 
 				if (init && !await this.form.view.leaveRecord(this.view,offset))
 				{
-					this.wrapper.delete(record);
+					await this.wrapper.delete(record);
 					return(false);
 				}
 			}
@@ -549,7 +549,7 @@ export class Block
 
 			if (inst == null)
 			{
-				this.wrapper.delete(record);
+				await this.wrapper.delete(record);
 				Alert.warning("'"+this.name+"' has no allowed input fields","Insert Record");
 				return(false);
 			}
@@ -573,19 +573,19 @@ export class Block
 
 			if (!await this.form.view.enterRecord(this.view,0))
 			{
-				this.wrapper.delete(record);
+				await this.wrapper.delete(record);
 				return(false);
 			}
 
 			if (!await this.form.view.enterField(inst,0,true))
 			{
-				this.wrapper.delete(record);
+				await this.wrapper.delete(record);
 				return(false);
 			}
 
 			if (!await this.form.view.onRecord(this.view))
 			{
-				this.wrapper.delete(record);
+				await this.wrapper.delete(record);
 				return(false);
 			}
 

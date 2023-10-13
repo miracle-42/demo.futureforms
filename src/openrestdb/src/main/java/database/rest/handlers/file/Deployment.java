@@ -175,6 +175,10 @@ public class Deployment
 
     Date modified = new Date();
     File home = new File(this.home);
+
+    if (!home.exists())
+      throw new Exception(this.home+" does not exist");
+
     modified.setTime(home.lastModified());
 
     String dep = this.deploy + sep + home.lastModified();
@@ -305,7 +309,7 @@ public class Deployment
   }
 
 
-  public void sync()
+  public void sync() throws Exception
   {
     long synched = System.currentTimeMillis();
     if (synched - this.synched < grace*1000) return;
@@ -318,8 +322,11 @@ public class Deployment
   }
 
 
-  private long latest(File folder)
+  private long latest(File folder) throws Exception
   {
+    if (!folder.exists())
+      throw new Exception(folder+" does not exist");
+
     long latest = folder.lastModified();
     File[] content = folder.listFiles();
 
@@ -344,6 +351,8 @@ public class Deployment
     long latest = modified;
 
     File deployed = new File(this.deploy);
+
+    if (!deployed.exists()) return(0);
     File[] deployments = deployed.listFiles();
 
     for(File deployment : deployments)

@@ -71,6 +71,8 @@ public class Rest
   private final String secret;
   private final String dateform;
 
+  private final String instance;
+
   private final boolean compact;
   private final boolean savepoint;
 
@@ -98,6 +100,7 @@ public class Rest
     this.state     = new SessionState(this);
 
     this.secret    = secret(config);
+    this.instance  = server.config().instance();
 
     this.compact   = config.getDatabase().compact;
     this.rewriter  = config.getDatabase().rewriter;
@@ -136,6 +139,9 @@ public class Rest
           StatelessSession sses = null;
           int timeout = config.getREST().timeout;
           sses = decodeStateless(this.secret,this.host,timeout,request.session);
+
+          if (sses.time < 0)
+            return(error("Session has timed out"));
 
           Pool pool = sses.proxy ? ppool : fpool;
           String token = sses.proxy ? ptok : ftok;
@@ -427,32 +433,45 @@ public class Rest
     if (sesid != null)
       json.add("session",sesid);
 
+    json.add("instance",instance);
     return(json.toString());
   }
 
 
   private String status()
   {
+    boolean fp = true;
+    boolean pp = true;
+
     String message = null;
+
+    Pool fpool = null;
+    Pool ppool = null;
 
     try
     {
-      Pool fpool = config.getDatabase().fixed;
-      Pool ppool = config.getDatabase().proxy;
+      fpool = config.getDatabase().fixed;
+      ppool = config.getDatabase().proxy;
 
       if (fpool != null)
       {
         if (!fpool.test())
+        {
+          fp = false;
           message = "Fixed pool test failed";
+        }
       }
 
       if (ppool != null)
       {
         if (!ppool.test())
+        {
+          pp = false;
           message = "Proxy pool test failed";
+        }
       }
     }
-    catch (Throwable e)
+    catch(Throwable e)
     {
       message = e.getMessage();
 
@@ -465,9 +484,16 @@ public class Rest
     JSONFormatter json = new JSONFormatter();
     json.success(success);
 
+    if (ppool != null)
+      json.add("proxy-pool",pp);
+
+    if (fpool != null)
+      json.add("fixed-pool",fp);
+
     if (message != null)
       json.add("cause",message);
 
+    json.add("instance",instance);
     return(json.toString());
   }
 
@@ -617,6 +643,7 @@ public class Rest
     json.add("scope",state.session().scope());
     json.add("session",sesid);
     json.add("version",Version.number);
+    json.add("instance",instance);
 
     state.session().sesid(sesid);
     SessionManager.history(state.session(),true);
@@ -650,6 +677,7 @@ public class Rest
     json.success(true);
     json.add("disconnected",true);
 
+    json.add("instance",instance);
     return(json.toString());
   }
 
@@ -686,6 +714,7 @@ public class Rest
     JSONFormatter json = new JSONFormatter();
     json.success(true);
     json.add("result",success);
+    json.add("instance",instance);
     return(json.toString());
   }
 
@@ -788,6 +817,7 @@ public class Rest
       if (cursor.name == null)
         state.session().closeCursor(cursor);
 
+      json.add("instance",instance);
       return(json.toString());
     }
     catch (Throwable e)
@@ -856,6 +886,7 @@ public class Rest
         for(Object[] row : table) json.add(columns,row);
         json.pop();
 
+        json.add("instance",instance);
         return(json.toString());
       }
       else
@@ -871,6 +902,7 @@ public class Rest
         json.success(true);
         json.add("affected",rows);
 
+        json.add("instance",instance);
         return(json.toString());
       }
     }
@@ -933,6 +965,7 @@ public class Rest
       for(NameValuePair<Object> nvp : values)
         json.add(nvp.getName(),nvp.getValue());
 
+      json.add("instance",instance);
       return(json.toString());
     }
     catch (Throwable e)
@@ -970,6 +1003,7 @@ public class Rest
         json.success(true);
         json.add("closed",true);
         state.release();
+        json.add("instance",instance);
         return(json.toString());
       }
 
@@ -1001,6 +1035,7 @@ public class Rest
         json.pop();
       }
 
+      json.add("instance",instance);
       return(json.toString());
     }
     catch (Throwable e)
@@ -1038,6 +1073,7 @@ public class Rest
     if (!success)
       json.add("message","Transaction already comitted");
 
+    json.add("instance",instance);
     return(json.toString());
   }
 
@@ -1069,6 +1105,7 @@ public class Rest
     if (!success)
       json.add("message","Transaction already rolled back");
 
+    json.add("instance",instance);
     return(json.toString());
   }
 
@@ -1411,7 +1448,7 @@ public class Rest
       throw new Exception("Session origins from different host");
 
     if (System.currentTimeMillis() - time > timeout * 1000)
-      throw new Exception("Session has timed out");
+      time = -1;
 
     return(new StatelessSession(time,user,priv,proxy));
   }
@@ -1519,6 +1556,7 @@ public class Rest
     json.set(err);
     json.success(false);
     json.fatal(message);
+    json.add("instance",instance);
 
     return(json.toString());
   }
@@ -1530,6 +1568,7 @@ public class Rest
 
     json.success(false);
     json.add("message",message);
+    json.add("instance",instance);
 
     return(json.toString());
   }
@@ -1549,6 +1588,7 @@ public class Rest
     json.add("connected",hist[0]);
     json.add("disconnected",hist[1]);
 
+    json.add("instance",instance);
 
     return(json.toString());
   }

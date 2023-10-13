@@ -80,6 +80,11 @@ Here a full Nginx example:
         }
     }
 
+## Load balancing
+
+To configure and maintain a load balancing setup is more complex than
+a single setup. So if not required keep it simple.
+
 Load balancing setup:
 
     upstream lbopenrestdb {
@@ -94,3 +99,42 @@ Load balancing setup:
             proxy_pass http://lbopenrestdb/; # Need trailing '/'
         }
     }
+
+When having multiple OpenRestDb they should be configured to be unique identified
+by the tree parameters: Hostname, Port number and Instance.
+
+The instance name and port number are configured in `conf/config.json`:
+
+    {
+      "instance": "ord-a",
+      ...
+      "http": {
+        "ports": {
+          "plain": 9002,
+      ...
+    }
+
+Nginx can make a reverse proxy to either instances
+on the same server or instances on other serveres 
+on the net.
+
+Two OpenRestDb on the same server.
+Port and instance name has to be unique.
+The application can be upgraded without downtime.
+OS upgrade will result in downtime.
+
+| App   | Hostname  | Port | Instance |
+| ----- | --------- | ---- | -------- |
+| App-1 | localhost | 9002 | ord-a    |
+| App-2 | localhost | 9012 | ord-b    |
+
+Two servers with each one or more OpenRestDb instances.
+Instance name could be the same on each different host 
+but it is recommended to give them global unique
+names to identify them for debug in the browser.
+
+| App   | Hostname  | Port | Instance |
+| ----- | --------- | ---- | -------- |
+| App-1 | webserv-1 | 9002 | ord-a    |
+| App-2 | webserv-2 | 9002 | ord-b    |
+| App-3 | webserv-2 | 9012 | ord-c    |

@@ -138,3 +138,9 @@ names to identify them for debug in the browser.
 | App-1 | webserv-1 | 9002 | ord-a    |
 | App-2 | webserv-2 | 9002 | ord-b    |
 | App-3 | webserv-2 | 9012 | ord-c    |
+
+The instance name can be seen in Firefox by going to 
+the *hamburger button* ☰ in upper right corner ⮕  More Tools ⮕ Web Developer Tools 
+⮕ Network (tab sheet) ⮕ Responce:
+
+![Firefox network monitor](../img/firefox-net-monitor.png)

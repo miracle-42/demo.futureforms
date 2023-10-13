@@ -6,3 +6,4 @@
 * [Nginx as web proxy](webproxy.md) running multiple instances on same server
 * [Release procedure](release.md) for maintainers
 * [FutureForms.pptx](FutureForms.pptx) Powerpoint presentation
+* [Stateless or stateful](stateless.md) configuration and load balancing

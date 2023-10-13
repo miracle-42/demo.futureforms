@@ -50,6 +50,11 @@ application code is written in here.
 
 ![Figure: Compare Business Logic](img/compare-business-logic.svg)
 
+Complete network setup with two or more OpenRestDb REST servers
+with Nginx as load balancer connecting to a database cluster.
+
+![Figure: Complete network setup](img/netoverview.svg)
+
 ## Security
 
 FutureForms is primarily ment to be used for intranet.

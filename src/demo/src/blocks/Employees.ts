@@ -147,7 +147,8 @@ export class Employees extends Block
 				return(false);
 			}
 
-			success = await this.validateSalary();
+			if (!await this.validateSalary())
+				this.setValid("salary",false);
 		}
 
 		return(success);

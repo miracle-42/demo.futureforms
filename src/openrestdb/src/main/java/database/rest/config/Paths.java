@@ -84,7 +84,6 @@ public class Paths
       path = path.replaceAll("/",escape+sep);
     }
 
-
     File cw = new File(".");
     Path abs = java.nio.file.Paths.get(path);
     Path base = java.nio.file.Paths.get(cw.getAbsolutePath());

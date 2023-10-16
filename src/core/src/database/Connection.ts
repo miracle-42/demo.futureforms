@@ -168,8 +168,6 @@ export class Connection extends BaseConnection
 		this.keepalive$ = (+response.timeout * 4/5)*1000;
 		await FormEvents.raise(FormEvent.AppEvent(EventType.Connect));
 
-		console.log("connected '"+this.conn$+"'")
-
 		if (!this.running$)
 			this.keepalive();
 

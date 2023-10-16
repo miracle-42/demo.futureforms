@@ -244,7 +244,7 @@ export class FormsModule extends FormsCoreModule
 				}
 
 				this.login();
-				return(false);
+				return(true);
 			}
 
 			BaseForm.connectNeddle();

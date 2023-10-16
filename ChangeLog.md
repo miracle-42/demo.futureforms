@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v0.12 2023-10-16 13:00
+* Update from Alex
+* Prepared for load balancing
+
 ## v0.11 2023-10-10 15:00
 * Update from Alex
 

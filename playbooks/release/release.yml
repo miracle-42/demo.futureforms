@@ -1,7 +1,7 @@
 - hosts: localhost
 
   vars:
-    - relver: 0.11
+    - relver: 0.12
     - install_path: ../../build
     - download_path: ../../download
 

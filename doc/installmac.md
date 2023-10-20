@@ -62,11 +62,7 @@ In Visual Code, delete the dist directory, which is a symbolic link, and build t
 ```
 npm run build
 ```
-After that run the live server again:
-```
-npm run server
-```
-Now the web service is also running on port 5500
+Now the web service is running on port 5500
 and can be seen at http://127.0.0.1:5500/
 
 

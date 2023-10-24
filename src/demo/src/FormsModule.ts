@@ -136,7 +136,7 @@ export class FormsModule extends FormsCoreModule
 		if (!backend) backend = document.documentURI.match(/^.*\//)[0];
 
 		FormsModule.DATABASE = new Connection(backend);
-		FormsModule.DATABASE.scope = ConnectionScope.stateless;
+		//FormsModule.DATABASE.scope = ConnectionScope.stateless;
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
 		infomation.appendChild(KeyMapPage.show(keymap));

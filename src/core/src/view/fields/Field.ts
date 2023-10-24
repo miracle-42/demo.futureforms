@@ -325,6 +325,9 @@ export class Field
 
 			if (!await this.block.onEdit(inst))
 			{
+				// Data has been refreshed
+				if (this.value$ != before) return;
+
 				value = before;
 				inst.setValue(value);
 				this.distribute(inst,value,this.dirty);

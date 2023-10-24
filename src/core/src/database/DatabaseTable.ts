@@ -349,15 +349,9 @@ export class DatabaseTable extends SQLSource implements DataSource
 			if (lv instanceof Date) lv = lv.getTime();
 			if (cv instanceof Date) cv = cv.getTime();
 
-			if (typeof lv === "string")
-				lv = lv?.trim();
-
-			if (typeof cv === "string")
-				cv = cv?.trim();
-
 			if (lv != cv)
 			{
-				console.log(this.columns[i]+" -> '"+lv+"' != '"+cv+"'");
+				console.log("Inconsistency: "+this.columns[i]+" -> '"+lv+"' != '"+cv+"'");
 				Alert.warning("Record has been changed by another user","Lock Record");
 				return(false);
 			}

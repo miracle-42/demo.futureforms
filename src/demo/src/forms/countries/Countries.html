@@ -1,6 +1,6 @@
 <include src="/html/formheader"></include>
 
-<div class="form middle">
+<div class="form">
 	<div class="block">
 		<div class="needle red"></div>
 		<table>
@@ -11,7 +11,7 @@
 			</tr>
 			<tr class="row" foreach="row in 1..5">
 				<td class="indicator"><span from="CountryDS" row="$row" type="row-indicator"></span></td>
-				<td><input name="country_id" from="CountryDS" row="$row" size="4" maxlength="2" upper required></td>
+				<td><input name="country_id" from="CountryDS" row="$row" size="4" maxlength="3" upper required></td>
 				<td><input name="country_name" from="CountryDS" row="$row" initcap required advquery="false"></td>
 			</tr>
 		</table>

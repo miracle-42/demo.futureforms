@@ -418,7 +418,6 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			console.error(response);
-			console.error(new Error().stack);
 			return(response);
 		}
 

@@ -52,16 +52,15 @@ and can be seen at http://127.0.0.1:9002/
 
 
 ### Live server setup for Visual Code IDEA
-`Live server`detects changes in your project files and restarts the web server, so you can see the result of the changes imediately:
-```
-npm run server
-```
+`Live server`detects changes in your project files and restarts the web server, so you can see the result of the changes imediately.
+
 Live server has a problem with symbolic links in the code, which results in inifinite loop in the detection of changes. This can be addressed with following work around:
 
 In Visual Code, delete the dist directory, which is a symbolic link, and build the code again. This will create a new dist directory whit the needed code, which is no a symbolic link.
 ```
 npm run build
 ```
+
 Now the web service is running on port 5500
 and can be seen at http://127.0.0.1:5500/
 

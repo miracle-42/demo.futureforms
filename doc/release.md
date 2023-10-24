@@ -113,7 +113,7 @@ Click "Merge pull request".
 
 ![Merge pull request](../img/rel-8.png)
 
-Click "Release" in the right side.
+Go to project front page and click "Release" in the right side.
 
 ![Release](../img/rel-1.png)
 
@@ -146,3 +146,5 @@ At the buttom click "Save draft" and "Publish release".
 
 ![Publish](../img/rel-5.png)
 
+New release completed.
+Announce by e-mail.

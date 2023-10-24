@@ -19,10 +19,17 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package database;
+import { FormsModule } from "../../FormsModule";
+import { DatabaseTable, LockMode } from "forms42core";
 
-
-public class Version
+export class CountryTable extends DatabaseTable
 {
-   public static final String number = "3.0.1";
+	constructor()
+	{
+		super(FormsModule.DATABASE,"countries");
+
+		this.sorting = "country_id";
+		this.primaryKey = "country_id";
+		this.rowlocking = LockMode.Pessimistic;
+	}
 }

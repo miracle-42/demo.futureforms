@@ -25,6 +25,7 @@ import { EventType, MenuComponent, MenuEvent } from 'forms42core';
 export class Menu extends MenuComponent
 {
 	private displayed:boolean = false;
+	private folder:HTMLElement = null;
 	private menuelem:HTMLElement = null;
 	private container:HTMLElement = null;
 
@@ -35,10 +36,11 @@ export class Menu extends MenuComponent
 		this.menuelem = document.createElement("div");
 		this.menuelem.classList.value = "left-menu-container";
 
-		this.container = document.getElementById("main-menu");
+		this.container = document.getElementById("main-menu") as HTMLElement;
 
 		this.menuelem = this.container.appendChild(this.menuelem);
 		this.target = this.menuelem;
+
 
 		this.addEventListener(this.hideSideBar,{type: EventType.WhenMenuBlur})
 		this.addEventListener(this.showSideBar,{type: EventType.WhenMenuFocus})
@@ -52,7 +54,9 @@ export class Menu extends MenuComponent
 			return(true);
 
 		this.displayed = true;
-		this.container.style.minWidth = "150px";
+
+		this.folder?.classList.add("active");
+		this.container.style.minWidth = "185px";
 		this.container.classList.add("menu-left-open");
 
 		return(true);
@@ -64,6 +68,7 @@ export class Menu extends MenuComponent
 			return(true);
 
 		this.displayed = false;
+		this.folder?.classList.remove("active");
 		this.container.style.minWidth = "0px";
 		this.container.classList.remove("menu-left-open");
 
@@ -72,14 +77,20 @@ export class Menu extends MenuComponent
 
 	public async togglemenu() : Promise<boolean>
 	{
+
+		this.folder = document.querySelector(".left-menu-container li") as HTMLElement;
+
 		if (this.displayed)
 		{
+			this.folder?.classList.remove("active");
 			this.container.style.minWidth = "0px";
 			this.container.classList.remove("menu-left-open");
 		}
 		else
 		{
-			this.container.style.minWidth = "150px";
+
+			this.folder?.classList.add("active");
+			this.container.style.minWidth = "185px";
 			this.container.classList.add("menu-left-open");
 		}
 

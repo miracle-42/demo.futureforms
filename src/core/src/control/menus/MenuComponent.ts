@@ -357,7 +357,7 @@ export class MenuComponent extends EventListenerClass implements EventListenerOb
 
 			if (this.open$.has(npath))
 			{
-				page += "<li type='"+type+"'>";
+				page += "<li type='"+type+"' open>";
 				page += "  <a "+tabidx+" path='"+npath+"' "+cmd+disabled+">"+entries[i].display+"</a>";
 				if (entries[i].hinttext) page += "  <div>"+entries[i].hinttext+"</div>";
 

@@ -2,22 +2,42 @@
 
 ### First follow the installation instructions in the install section of the following link:
 
-https://github.com/miracle-42/futureforms#install-futureforms-featured-demo-and-tutorial-installation
+[FutureForms Installation](../README.md#install-futureforms-featured-demo-and-tutorial-installation)
 
+But instead of using the Ubuntu apt package manager to install ansible, use [Homebrew](https://brew.sh/)
+
+After Homebrew is installed, you can install Ansible like this:
+```
+brew install ansible
+```
 Then you need to clone FutureForms from Github to your Mac:
-
 ```
 git clone https://github.com/miracle-42/futureforms futureforms
 ```
-
 Then go to your new futureforms directory:
-
 ```
 cd futureforms
 ```
-### Then install the Postgres database on your Mac:
-Follow the instuctions on the following link:
+### Install the Postgres database on your Mac:
+You have a couple of options regarding the way you install the Postgres database:
+You can either install it as Option 1 describes, or you can run the database in a Docker container as Option 2 describes.
+Option 1: Follow the instuctions on the following link:
 https://www.enterprisedb.com/postgres-tutorials/installation-postgresql-mac-os
+
+Option 2: Install the Docker Desktop app on your Mac by follwing the instructions on the following link:
+[Install Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)
+Then go to the docker-postgres-db directory:
+```
+cd docker-postgres-db
+```
+And build the Postgres database image, that you will use for your FutureForms development:
+```
+docker build -t futureforms:latest .
+```
+Then run your Postgres database container with the following command:
+```
+docker run -d --name futureforms -p 5432:5432 -e POSTGRES_PASSWORD=postgres --rm futureforms:latest
+```
 
 ### Install Maven
 Next you need to install Maven on your Mac, if you don't already have it installed. Check that the Maven installation is using the same Java version that your are using on your Mac. If you don't already have Java installed, just let the Maven installation install it for you:
@@ -29,9 +49,9 @@ brew install maven
 This Ansible script will install FutureForms with the extended demo.
 This demo will show what a lot of the classes in FutureForms can do.
 
-Next run the Ansible Playbook in the FutureForms project:
+Next run the Ansible Playbook in the FutureForms project, note that --ask-become-pass ensures that you will be prompted for you sudo password:
 ```
-ansible-playbook playbooks/demo/install-demo.yml --skip-tags install_package,create-hr-user,create-hr-db,install-hr-schema-objects
+ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass
 ```
 The installation, download and compilation takes about 3 minutes
 and will take up about 1.1GB disk space.

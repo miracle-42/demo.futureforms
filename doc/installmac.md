@@ -26,9 +26,9 @@ https://www.enterprisedb.com/postgres-tutorials/installation-postgresql-mac-os
 
 Option 2: Install the Docker Desktop app on your Mac by follwing the instructions on the following link:
 [Install Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)
-Then go to the docker-postgres-db directory:
+Then go to the container directory:
 ```
-cd docker-postgres-db
+cd container
 ```
 And build the Postgres database image, that you will use for your FutureForms development:
 ```

@@ -4,6 +4,33 @@
 
   vars:
     - install_path: ../../build
+    - Brew_packages: 
+      - python
+      - npm
+      - typescript
+      - openjdk
+      - maven
+      - postgresql@15
+    - install_homebrew_if_missing: false
+
+  pre_tasks:
+      - name: Ensuring Homebrew Is Installed
+        stat:
+          path: /opt/homebrew/bin/brew
+        register: homebrew_check
+
+      - name: Fail If Homebrew Is Not Installed and install_homebrew_if_missing Is False
+        fail:
+          msg: Homebrew is missing, install from http://brew.sh
+        when:
+          - not homebrew_check.stat.exists
+          - not install_homebrew_if_missing
+
+      - name: Installing Homebrew
+        shell: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        when:
+          - not homebrew_check.stat.exists
+          - install_homebrew_if_missing
 
   tasks:
     - name: Install packages
@@ -11,6 +38,7 @@
         name: "{{ item }}"
       become: true
       become_method: sudo
+      when: ansible_distribution=="Ubuntu"
       tags:
         - install_package
       loop:
@@ -21,6 +49,23 @@
         - openjdk-19-jre
         - maven
         - postgresql
+
+    - name: Install packages Mac OS
+      homebrew:
+        name: "{{ item }}"
+        state: present
+      #become: true
+      #become_method: sudo
+      when: ansible_distribution=="MacOSX"
+      tags:
+        - install_package
+      loop:
+        - python
+        - npm
+        - typescript
+        - openjdk
+        - maven
+        # - postgresql@16
 
     - name: Create dir core+demo
       ansible.builtin.file:
@@ -68,6 +113,8 @@
 
     - name: Create the postgres database user hr
       community.postgresql.postgresql_user:
+        login_host: localhost
+        login_password: postgres
         name: hr
         password: hr
         state: present
@@ -79,6 +126,8 @@
 
     - name: Create the postgres database hr
       community.postgresql.postgresql_db:
+        login_host: localhost
+        login_password: postgres
         name: hr
         owner: hr
         state: present

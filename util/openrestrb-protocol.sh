@@ -11,6 +11,7 @@ then
   echo Usage:
   echo -e "\t$0 connect <user> <password>"
   echo -e "\t$0 ping"
+  echo -e "\t$0 status"
   echo -e "\t$0 select"
   echo -e "\t$0 insert <country-code> <country-name>"
   echo -e "\t$0 commit"
@@ -45,77 +46,49 @@ SESSION_FILE=$0.session
 
 request ()
 {
-    case "${1}" in
+    command=${1}
+    URL=${FFHOST}/${command}
+
+    case "${command}" in
         connect)
             [[ -z $3 ]] && missingArg 3
-            URL=$FFHOST/$SESSION/${1}
-            echo URL: $URL
             DATA="{\"scope\":\"transaction\",\"auth.method\":\"database\",\"auth.secret\":\"$3\",\"username\":\"$2\"}"
-            echo POST: $DATA
-            RES=$(curl --silent --data "$DATA" $URL )
-            echo Response: $RES
-            export SESSION=$(echo $RES | tr , '\n' | grep session | cut -d\" -f4)
-            echo export SESSION=$SESSION
-            echo $SESSION > $SESSION_FILE
             ;;
         ping)
-            URL=$FFHOST/$SESSION/${1}
-            echo URL: $URL
-            DATA='{"keepalive":true}'
-            echo POST: $DATA
-            RES=$(\
-              curl \
-              --silent \
-              --data "$DATA" \
-              $URL )
-            echo Response: "$RES"
+            DATA="{\"session\":\"${SESSION}\",\"keepalive\":true}"
             ;;
         select)
-            URL=$FFHOST/$SESSION/${1}
-            echo URL: $URL
-            DATA='{"rows":32,"skip":0,"compact":true,"dateformat":"UTC","describe":false,"sql":"select country_id,country_name from countries order by country_id","bindvalues":[],"cursor":"2"}'
-            echo POST: $DATA
-            RES=$(\
-              curl \
-              --silent \
-              --data "$DATA" \
-              $URL )
-            echo Response: "$RES"
+            DATA="{\"session\":\"${SESSION}\",\"rows\":32,\"skip\":0,\"compact\":true,\"dateformat\":\"UTC\",\"describe\":false,\"sql\":\"select country_id,country_name from countries order by country_id\",\"bindvalues\":[],\"cursor\":\"2\"}"
             ;;
         insert)
             [[ -z $3 ]] && missingArg 3
-            URL=$FFHOST/$SESSION/${1}
-            echo URL: $URL
-            DATA="{\"sql\":\"insert into countries(country_id,country_name)values(:country_id,:country_name)\",\"dateformat\":\"UTC\",\"bindvalues\":[{\"name\":\"country_id\",\"value\":\"$2\",\"type\":\"string\"},{\"name\":\"country_name\",\"value\":\"$3\",\"type\":\"string\"}]}"
-            echo POST: $DATA
-            RES=$(\
-              curl \
-              --silent \
-              --data "$DATA" \
-              $URL )
-            echo Response: "$RES"
+            DATA="{\"session\":\"${SESSION}\",\"sql\":\"insert into countries(country_id,country_name)values(:country_id,:country_name)\",\"dateformat\":\"UTC\",\"bindvalues\":[{\"name\":\"country_id\",\"value\":\"$2\",\"type\":\"string\"},{\"name\":\"country_name\",\"value\":\"$3\",\"type\":\"string\"}]}"
             ;;
         commit)
-            URL=$FFHOST/$SESSION/${1}
-            echo URL: $URL
-            RES=$(\
-              curl \
-              --silent \
-              --data "" \
-              $URL )
-            echo Response: "$RES"
+            DATA="{\"session\":\"${SESSION}\"}"
             ;;
         status)
-            RES=$(\
-              curl \
-              --silent \
-              --data "" \
-              $FFHOST/$SESSION/commit )
-            echo Response: "$RES"
+            DATA="{\"session\":\"${SESSION}\"}"
             ;;
         *)
           echo "Error: unknown command: $1"
     esac
+
+    echo Command:
+    echo \ curl --silent --data \"$(echo $DATA | sed -e 's/"/\\"/g')\" $URL
+    echo
+    RES=$(curl --silent --data "$DATA" $URL)
+    echo Response:
+    echo "$RES"
+
+    if [[ connect = $command ]]
+    then
+        export SESSION=$(echo $RES | tr , '\n' | grep session | cut -d\" -f4)
+        echo $SESSION > $SESSION_FILE
+    else
+        touch $SESSION_FILE
+    fi
+
     echo
 }
 

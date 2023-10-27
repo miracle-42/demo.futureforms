@@ -17,18 +17,21 @@
       - name: Ensuring Homebrew Is Installed
         stat:
           path: /opt/homebrew/bin/brew
+        when: ansible_distribution=="MacOSX"
         register: homebrew_check
 
       - name: Fail If Homebrew Is Not Installed and install_homebrew_if_missing Is False
         fail:
           msg: Homebrew is missing, install from http://brew.sh
         when:
+          - when: ansible_distribution=="MacOSX"
           - not homebrew_check.stat.exists
           - not install_homebrew_if_missing
 
       - name: Installing Homebrew
         shell: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         when:
+          - when: ansible_distribution=="MacOSX"
           - not homebrew_check.stat.exists
           - install_homebrew_if_missing
 

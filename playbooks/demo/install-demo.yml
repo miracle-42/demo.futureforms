@@ -4,6 +4,7 @@
 
   vars:
     - install_path: ../../build
+    - db_host: localhost
     - Brew_packages: 
       - python
       - npm
@@ -75,7 +76,7 @@
         path: "{{ item }}"
         state: directory
       tags:
-        - create-demo-openrestdb
+        - create_demo_openrestdb
       loop:
         - "{{ install_path }}/core"
         - "{{ install_path }}/demo/data"
@@ -116,8 +117,6 @@
 
     - name: Create the postgres database user hr
       community.postgresql.postgresql_user:
-        #login_host: localhost
-        #login_password: postgres
         name: hr
         password: hr
         state: present
@@ -125,12 +124,10 @@
       become_method: sudo
       become_user: postgres
       tags:
-        - create-hr-user
+        - create_hr_user
 
     - name: Create the postgres database hr
       community.postgresql.postgresql_db:
-        #login_host: localhost
-        #login_password: postgres
         name: hr
         owner: hr
         state: present
@@ -138,23 +135,26 @@
       become_method: sudo
       become_user: postgres
       tags:
-        - create-hr-db
+        - create_hr_db
 
     - name: Copy initial data.sql for archive
       ansible.builtin.copy:
         src: ../../src/demo/data/datademo.sql
         dest: "{{ install_path }}/demo/data/"
       tags:
-        - copy-data-sql
+        - copy_data_sql
 
     - name: Install the postgres hr schema objects
-      ansible.builtin.shell:
-        cmd: psql -h 127.0.0.1 -U hr -d hr -f "../../src/demo/data/datademo.sql" && touch "{{ install_path }}/demo/dbloaded.true"
-        creates: "{{ install_path }}/demo/dbloaded.true"
+      community.postgresql.postgresql_db:
+        name: hr
+        state: restore
+        target: ../../src/demo/data/datademo.sql
+        login_user: hr
+        login_host: "{{ db_host }}"
       environment:
         PGPASSWORD: hr
       tags:
-        - install-hr-schema-objects
+        - install_hr_schema_objects
 
     - name: Check database.js template exists
       stat:

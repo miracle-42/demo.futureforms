@@ -53,6 +53,13 @@ Next run the Ansible Playbook in the FutureForms project, note that --ask-become
 ```
 ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass
 ```
+If you want to run your postgres test database in a docker container, you will have to skip the create database user and create database part, to have the test data populated on the docker database.
+If you don't do this, you will get an error, because the ansible script will try to access the postgres user on you developer laptop, which does not exist, since you have decided to run the postgrs database in a docker container. Use the following command to run the playbook:
+ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass -v --skip-tags create-hr-user,create-hr-db
+```
+ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass --skip-tags create-hr-user,create-hr-db
+``````
+
 The installation, download and compilation takes about 3 minutes
 and will take up about 1.1GB disk space.
 

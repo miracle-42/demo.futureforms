@@ -116,8 +116,6 @@
 
     - name: Create the postgres database user hr
       community.postgresql.postgresql_user:
-        login_host: localhost
-        login_password: postgres
         name: hr
         password: hr
         state: present
@@ -129,8 +127,6 @@
 
     - name: Create the postgres database hr
       community.postgresql.postgresql_db:
-        login_host: localhost
-        login_password: postgres
         name: hr
         owner: hr
         state: present
@@ -149,7 +145,7 @@
 
     - name: Install the postgres hr schema objects
       ansible.builtin.shell:
-        cmd: psql -h 127.0.0.1 -U hr -d hr -f "../../src/demo/data/datademo.sql" && touch "{{ install_path }}/demo/dbloaded.true"
+        cmd: psql -h localhost -U hr -d hr -f "../../src/demo/data/datademo.sql" && touch "{{ install_path }}/demo/dbloaded.true"
         creates: "{{ install_path }}/demo/dbloaded.true"
       environment:
         PGPASSWORD: hr

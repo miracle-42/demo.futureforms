@@ -46,7 +46,7 @@ Next you need to install Maven on your Mac, if you don't already have it install
 brew install maven
 ```
 
-## If you experience problems with you Maven installation
+#### If you experience problems with you Maven installation
 In my case I ran into the above mentioned problem where I already was running Java 11 on my Mac, and the Homebrew Maven was bundled with Java 21 and used Java 21 automatically. This can be fixed the following way:
 
 First update the Path in you bash profile:

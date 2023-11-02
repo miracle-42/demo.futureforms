@@ -24,14 +24,14 @@
         fail:
           msg: Homebrew is missing, install from http://brew.sh
         when:
-          - when: ansible_distribution=="MacOSX"
+          - ansible_distribution=="MacOSX"
           - not homebrew_check.stat.exists
           - not install_homebrew_if_missing
 
       - name: Installing Homebrew
         shell: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         when:
-          - when: ansible_distribution=="MacOSX"
+          - ansible_distribution=="MacOSX"
           - not homebrew_check.stat.exists
           - install_homebrew_if_missing
 
@@ -144,11 +144,13 @@
         - copy-data-sql
 
     - name: Install the postgres hr schema objects
-      ansible.builtin.shell:
-        cmd: psql -h localhost -U hr -d hr -f "../../src/demo/data/datademo.sql" && touch "{{ install_path }}/demo/dbloaded.true"
-        creates: "{{ install_path }}/demo/dbloaded.true"
-      environment:
-        PGPASSWORD: hr
+      community.postgresql.postgresql_db:
+        name: hr
+        state: restore
+        target: ../../src/demo/data/datademo.sql
+        login_user: hr
+        login_host: "{{ db_host }}"
+        login_password: hr
       tags:
         - install-hr-schema-objects
 

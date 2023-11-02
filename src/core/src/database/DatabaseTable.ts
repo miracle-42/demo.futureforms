@@ -709,7 +709,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!response.success)
 		{
-			Alert.warning("Unable to describe table '"+this.table$+"'","Database");
+			Alert.warning("Unable to describe table '"+this.table$+"' : ["+response.message+"]","Database");
 			return(false);
 		}
 

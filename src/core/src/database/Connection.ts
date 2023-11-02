@@ -44,7 +44,9 @@ export class Connection extends BaseConnection
 	private authmethod$:string = null;
 	private scope$:ConnectionScope = ConnectionScope.transactional;
 
+	public static MAXLOCKS:number = 32;
 	public static TRXTIMEOUT:number = 240;
+	public static LOCKTIMEOUT:number = 120;
 	public static CONNTIMEOUT:number = 120;
 
 
@@ -66,6 +68,14 @@ export class Connection extends BaseConnection
 	public get locks() : number
 	{
 		return(this.locks$);
+	}
+
+	public set locks(locks:number)
+	{
+		if (!this.modified)
+			this.modified = new Date();
+
+		this.locks$ = locks;
 	}
 
 	public get scope() : ConnectionScope
@@ -105,7 +115,7 @@ export class Connection extends BaseConnection
 
 	public hasTransactions() : boolean
 	{
-		return(this.modified$ != null);
+		return(this.modified != null);
 	}
 
 	public hasKeepAlive() : boolean
@@ -115,8 +125,8 @@ export class Connection extends BaseConnection
 
 	public async connect(username?:string, password?:string, custom?:Map<string,any>) : Promise<boolean>
 	{
-		this.touched$ = null;
-		this.tmowarn$ = false;
+		this.touched = null;
+		this.tmowarn = false;
 
 		let scope:string = null;
 
@@ -166,6 +176,10 @@ export class Connection extends BaseConnection
 		this.trx$ = new Object();
 		this.conn$ = response.session;
 		this.keepalive$ = (+response.timeout * 4/5)*1000;
+
+		if (this.keepalive$ > 4/5*Connection.LOCKTIMEOUT*1000)
+			this.keepalive$ = 4/5*Connection.LOCKTIMEOUT*1000;
+
 		await FormEvents.raise(FormEvent.AppEvent(EventType.Connect));
 
 		if (!this.running$)
@@ -176,9 +190,9 @@ export class Connection extends BaseConnection
 
 	public async disconnect() : Promise<boolean>
 	{
-		this.tmowarn$ = false;
-		this.trx$ = new Object();
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.trx = new Object();
+		this.touched = new Date();
 
 		Logger.log(Type.database,"disconnect");
 		let response:any = await this.post("disconnect",{session: this.conn$});
@@ -186,8 +200,8 @@ export class Connection extends BaseConnection
 		if (response.success)
 		{
 			this.conn$ = null;
-			this.touched$ = null;
-			this.modified$ = null;
+			this.touched = null;
+			this.modified = null;
 		}
 
 		await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
@@ -196,12 +210,12 @@ export class Connection extends BaseConnection
 
 	public async commit() : Promise<boolean>
 	{
-		if (this.modified$ == null)
+		if (this.modified == null)
 			return(true);
 
-		this.tmowarn$ = false;
-		this.trx$ = new Object();
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.trx = new Object();
+		this.touched = new Date();
 
 		Logger.log(Type.database,"commit");
 		let thread:number = FormsModule.get().showLoading("Comitting");
@@ -211,8 +225,8 @@ export class Connection extends BaseConnection
 		if (response.success)
 		{
 			this.locks$ = 0;
-			this.touched$ = null;
-			this.modified$ = null;
+			this.touched = null;
+			this.modified = null;
 		}
 
 		if (!response.success)
@@ -227,12 +241,10 @@ export class Connection extends BaseConnection
 
 	public async rollback() : Promise<boolean>
 	{
-		if (this.modified$ == null)
+		if (!this.modified)
 			return(true);
 
-		this.tmowarn$ = false;
-		this.trx$ = new Object();
-		this.touched$ = new Date();
+		this.tmowarn = false;
 
 		Logger.log(Type.database,"rollback");
 		let thread:number = FormsModule.get().showLoading("Rolling back");
@@ -242,8 +254,35 @@ export class Connection extends BaseConnection
 		if (response.success)
 		{
 			this.locks$ = 0;
-			this.touched$ = null;
-			this.modified$ = null;
+			this.touched = null;
+			this.modified = null;
+			this.trx = new Object();
+		}
+
+		if (!response.success)
+		{
+			console.error(response);
+			Alert.fatal(response.message,"Database Connection");
+			return(false);
+		}
+
+		return(true);
+	}
+
+	public async release() : Promise<boolean>
+	{
+		this.tmowarn = false;
+
+		Logger.log(Type.database,"rollback");
+		let thread:number = FormsModule.get().showLoading("Releasing connection");
+		let response:any = await this.post("release",{session: this.conn$});
+		FormsModule.get().hideLoading(thread);
+
+		if (response.success)
+		{
+			this.locks$ = 0;
+			this.touched = null;
+			this.modified = null;
 		}
 
 		if (!response.success)
@@ -262,9 +301,9 @@ export class Connection extends BaseConnection
 			describe = false;
 
 		let skip:number = 0;
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		if (this.modified$) this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		if (this.modified) this.modified = new Date();
 
 		if (cursor && cursor.trx != this.trx$)
 			skip = cursor.pos;
@@ -316,10 +355,10 @@ export class Connection extends BaseConnection
 
 	public async fetch(cursor:Cursor) : Promise<Response>
 	{
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 		let restore:boolean = false;
-		if (this.modified$) this.modified$ = new Date();
+		if (this.modified) this.modified = new Date();
 
 		if (cursor.trx != this.trx$)
 			restore = true;
@@ -358,14 +397,14 @@ export class Connection extends BaseConnection
 
 	public async close(cursor:Cursor) : Promise<Response>
 	{
-		this.tmowarn$ = false;
+		this.tmowarn = false;
 		let response:any = null;
-		if (this.modified$) this.modified$ = new Date();
+		if (this.modified) this.modified = new Date();
 
 		if (this.scope == ConnectionScope.stateless)
 			return({success: true, message: null, rows: []});
 
-		if (cursor.trx == this.trx$)
+		if (cursor.trx == this.trx)
 		{
 			Logger.log(Type.database,"close cursor");
 
@@ -395,7 +434,7 @@ export class Connection extends BaseConnection
 			return({success: true, message: null, rows: []});
 
 		let response:any = null;
-		let trxstart:boolean = this.modified$ == null;
+		let trxstart:boolean = this.modified == null;
 
 		let payload:any =
 		{
@@ -407,8 +446,8 @@ export class Connection extends BaseConnection
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"lock");
 		let thread:number = FormsModule.get().showLoading("Locking");
@@ -422,9 +461,9 @@ export class Connection extends BaseConnection
 		}
 
 		this.locks$++;
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		this.modified = new Date();
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -446,8 +485,8 @@ export class Connection extends BaseConnection
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"refresh");
 		let thread:number = FormsModule.get().showLoading("Refresh row");
@@ -467,7 +506,7 @@ export class Connection extends BaseConnection
 	public async insert(sql:SQLRest) : Promise<Response>
 	{
 		let trxstart:boolean =
-			this.modified$ == null && this.transactional;
+			this.modified == null && this.transactional;
 
 		let payload:any =
 		{
@@ -480,8 +519,8 @@ export class Connection extends BaseConnection
 		if (sql.returnclause)
 			payload.returning = true;
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"insert");
 		let thread:number = FormsModule.get().showLoading("Insert");
@@ -495,9 +534,9 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		this.modified = new Date();
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -508,7 +547,7 @@ export class Connection extends BaseConnection
 	public async update(sql:SQLRest) : Promise<Response>
 	{
 		let trxstart:boolean =
-			this.modified$ == null && this.transactional;
+			this.modified == null && this.transactional;
 
 		let payload:any =
 		{
@@ -521,8 +560,8 @@ export class Connection extends BaseConnection
 		if (sql.returnclause)
 			payload.returning = true;
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"update");
 		let thread:number = FormsModule.get().showLoading("Update");
@@ -536,9 +575,9 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		this.modified = new Date();
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -549,7 +588,7 @@ export class Connection extends BaseConnection
 	public async delete(sql:SQLRest) : Promise<Response>
 	{
 		let trxstart:boolean =
-			this.modified$ == null && this.transactional;
+			this.modified == null && this.transactional;
 
 		let payload:any =
 		{
@@ -562,8 +601,8 @@ export class Connection extends BaseConnection
 		if (sql.returnclause)
 			payload.returning = true;
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"delete");
 		let thread:number = FormsModule.get().showLoading("Delete");
@@ -577,9 +616,9 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		this.modified = new Date();
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -592,7 +631,7 @@ export class Connection extends BaseConnection
 		let response:any = null;
 
 		let trxstart:boolean =
-			this.modified$ == null && this.transactional;
+			this.modified == null && this.transactional;
 
 		let payload:any =
 		{
@@ -602,8 +641,8 @@ export class Connection extends BaseConnection
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"call");
 		let thread:number = FormsModule.get().showLoading("Call procedure");
@@ -618,9 +657,9 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		if (patch) this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		if (patch) this.modified = new Date();
 
 		if (trxstart && patch)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -633,7 +672,7 @@ export class Connection extends BaseConnection
 		let response:any = null;
 
 		let trxstart:boolean =
-			this.modified$ == null && this.transactional;
+			this.modified == null && this.transactional;
 
 		let payload:any =
 		{
@@ -643,8 +682,8 @@ export class Connection extends BaseConnection
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
 
 		Logger.log(Type.database,"execute");
 		let thread:number = FormsModule.get().showLoading("Execute procedure");
@@ -659,14 +698,54 @@ export class Connection extends BaseConnection
 			return(response);
 		}
 
-		this.tmowarn$ = false;
-		this.touched$ = new Date();
-		if (patch) this.modified$ = new Date();
+		this.tmowarn = false;
+		this.touched = new Date();
+		if (patch) this.modified = new Date();
 
 		if (trxstart && patch)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
 
 		return(response);
+	}
+
+	private get trx() : object
+	{
+		return(this.trx$);
+	}
+
+	private set trx(trx:object)
+	{
+		this.trx$ = trx;
+	}
+
+	private get tmowarn() : boolean
+	{
+		return(this.tmowarn$);
+	}
+
+	private set tmowarn(flag:boolean)
+	{
+		this.tmowarn$ = flag;
+	}
+
+	private get touched() : Date
+	{
+		return(this.touched$);
+	}
+
+	private set touched(date:Date)
+	{
+		this.touched$ = date;
+	}
+
+	private get modified() : Date
+	{
+		return(this.modified$);
+	}
+
+	private set modified(date:Date)
+	{
+		this.modified$ = date;
 	}
 
 	private async keepalive() : Promise<void>
@@ -685,9 +764,9 @@ export class Connection extends BaseConnection
 
 		if (this.conn$ != conn)
 		{
-			this.touched$ = null;
-			this.modified$ = null;
-			this.tmowarn$ = false;
+			this.touched = null;
+			this.modified = null;
+			this.tmowarn = false;
 			this.keepalive();
 			return;
 		}
@@ -705,34 +784,53 @@ export class Connection extends BaseConnection
 		if (response["session"])
 			this.conn$ = response.session;
 
+		let idle:number = 0;
+
+		if (this.modified)
+			idle = ((new Date()).getTime() - this.modified.getTime())/1000;
+
+		if (this.scope != ConnectionScope.stateless)
+		{
+			if (this.locks >= Connection.MAXLOCKS)
+			{
+				if (!this.tmowarn$)
+				{
+					this.tmowarn = true;
+					Alert.warning("Maximum number of locks reached. Transaction will be rolled back in "+Connection.TRXTIMEOUT+" seconds","Database Connection");
+				}
+				else
+				{
+					Alert.warning("Transaction is being rolled back","Database Connection");
+					await FormBacking.rollback();
+				}
+			}
+		}
+
 		if (this.scope == ConnectionScope.transactional)
 		{
-			if (this.modified$)
+			if (this.modified)
 			{
-				let idle:number = ((new Date()).getTime() - this.modified$.getTime())/1000;
-
-				if (idle > Connection.TRXTIMEOUT && this.tmowarn$)
+				if (idle > Connection.TRXTIMEOUT && this.tmowarn)
 				{
 					Alert.warning("Transaction is being rolled back","Database Connection");
 					await FormBacking.rollback();
 				}
 				else
 				{
-					if (idle > Connection.TRXTIMEOUT*2/3 && !this.tmowarn$)
+					if (idle > Connection.TRXTIMEOUT*2/3 && !this.tmowarn)
 					{
-						this.tmowarn$ = true;
+						this.tmowarn = true;
 						Alert.warning("Transaction will be rolled back in "+Connection.TRXTIMEOUT+" seconds","Database Connection");
 					}
 				}
 			}
 
-			if (this.touched$ && !this.modified$)
-			{
-				if ((new Date()).getTime() - this.touched$.getTime() > 1000 * Connection.CONNTIMEOUT)
-					await this.rollback();
+			else
 
-				this.touched$ = null;
-				this.modified$ = null;
+			if (this.touched)
+			{
+				idle = ((new Date()).getTime() - this.touched.getTime())/1000;
+				if (idle > Connection.CONNTIMEOUT) await this.release();
 			}
 		}
 

@@ -45,47 +45,8 @@ Next you need to install Maven on your Mac, if you don't already have it install
 ```
 brew install maven
 ```
-### Run the Ansible Playbook
-This Ansible script will install FutureForms with the extended demo.
-This demo will show what a lot of the classes in FutureForms can do.
 
-Next run the Ansible Playbook in the FutureForms project, note that --ask-become-pass ensures that you will be prompted for you sudo password:
-```
-ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass
-```
-The installation, download and compilation takes about 3 minutes
-and will take up about 1.1GB disk space.
-
-### Start OpenRESTDB
-`openrestdb` is a Java program which is the actual web server.
-Go to the directory and start the webserver:
-```
-cd build/demo
-bin/openrestdb start
-```
-Check that openrestdb is runing correctly:
-```
-bin/openrestdb status
-```
-Now the web service is running on port 9002
-and can be seen at http://127.0.0.1:9002/
-
-
-### Live server setup for Visual Code IDEA
-`Live server`detects changes in your project files and restarts the web server, so you can see the result of the changes imediately.
-
-Live server has a problem with symbolic links in the code, which results in inifinite loop in the detection of changes. This can be addressed with following work around:
-
-In Visual Code, delete the dist directory, which is a symbolic link, and build the code again. This will create a new dist directory whit the needed code, which is no a symbolic link.
-```
-npm run build
-```
-
-Now the web service is running on port 5500
-and can be seen at http://127.0.0.1:5500/
-
-
-## If you experience problems with you Maven installation
+#### If you experience problems with you Maven installation
 In my case I ran into the above mentioned problem where I already was running Java 11 on my Mac, and the Homebrew Maven was bundled with Java 21 and used Java 21 automatically. This can be fixed the following way:
 
 First update the Path in you bash profile:
@@ -156,3 +117,50 @@ Check that openrestdb is runing correctly:
 ```
 bin/openrestdb status
 ```
+
+### Run the Ansible Playbook
+This Ansible script will install FutureForms with the extended demo.
+This demo will show what a lot of the classes in FutureForms can do.
+
+Next run the Ansible Playbook in the FutureForms project, note that --ask-become-pass ensures that you will be prompted for you sudo password:
+```
+ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass
+```
+If you want to run your postgres test database in a docker container, you will have to skip the create database user and create database part, to have the test data populated on the docker database.
+If you don't do this, you will get an error, because the ansible script will try to become the postgres user on you developer laptop, which does not exist, since you have decided to run the postgres database in a docker container. Use the following command to run the playbook instead:
+```
+ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass --skip-tags create_hr_user,create_hr_db
+``````
+
+The installation, download and compilation takes about 3 minutes
+and will take up about 1.1GB disk space.
+The Ansible script will automatically install and start up everything you need, but if run into problems, you can read through the following sections that describes how you manually can start up OpenRestDB and troubleshoot Live server setup for Visual Code IDEA. 
+
+### Start OpenRESTDB
+`openrestdb` is a Java program which is the actual web server.
+Go to the directory and start the webserver:
+```
+cd build/demo
+bin/openrestdb start
+```
+Check that openrestdb is runing correctly:
+```
+bin/openrestdb status
+```
+Now the web service is running on port 9002
+and can be seen at http://127.0.0.1:9002/
+
+
+### Live server setup for Visual Code IDEA
+`Live server`detects changes in your project files and restarts the web server, so you can see the result of the changes imediately.
+
+Live server has a problem with symbolic links in the code, which results in inifinite loop in the detection of changes. This can be addressed with following work around:
+
+In Visual Code, delete the dist directory, which is a symbolic link, and build the code again. This will create a new dist directory whit the needed code, which is no a symbolic link.
+```
+npm run build
+```
+
+Now the web service is running on port 5500
+and can be seen at http://127.0.0.1:5500/
+

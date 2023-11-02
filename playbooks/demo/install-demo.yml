@@ -18,6 +18,7 @@
       - name: Ensuring Homebrew Is Installed
         stat:
           path: /opt/homebrew/bin/brew
+        when: ansible_distribution=="MacOSX"
         register: homebrew_check
         when: ansible_distribution=="MacOSX"
 

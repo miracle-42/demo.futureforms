@@ -64,6 +64,7 @@ public class Request
     commands.add("status");
     commands.add("commit");
     commands.add("connect");
+    commands.add("release");
     commands.add("rollback");
     commands.add("disconnect");
   }

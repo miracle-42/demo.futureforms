@@ -135,7 +135,7 @@ public class PoolManager extends Thread
     int size = conns.size();
     long idle = pool.idle() * 1000;
 
-    for (int i = conns.size() - 1; i >= 0 && size > min; i--)
+    for (int i = size - 1; i >= 0 && size > min; i--)
     {
       Database conn = conns.get(i);
       long touched = conn.touched();

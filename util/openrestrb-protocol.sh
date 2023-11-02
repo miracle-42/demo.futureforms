@@ -4,6 +4,9 @@
 # Compact JSON 
 # tr -d '\n\t' < x | sed -e 's/\([^a-z0-9]\) \+/\1/gi' -e 's/ \+\([^a-z0-9]\)/\1/gi' -e 's/"/\\"/g'
 
+# All build in commands
+#   egrep -o 'public async.*' src/core/src/database/Connection.ts
+
 set -e
 
 if [[ -z $1 ]]
@@ -13,8 +16,10 @@ then
   echo -e "\t$0 ping"
   echo -e "\t$0 status"
   echo -e "\t$0 select"
+  echo -e "\t$0 release"
   echo -e "\t$0 insert <country-code> <country-name>"
   echo -e "\t$0 commit"
+  echo -e "\t$0 disconnect"
   echo
   echo Eaxmple:
   echo -e "\t$0 connect hr hr"
@@ -50,12 +55,12 @@ request ()
     URL=${FFHOST}/${command}
 
     case "${command}" in
+        ping|commit|status|disconnect|release)
+            DATA="{\"session\":\"${SESSION}\"}"
+            ;;
         connect)
             [[ -z $3 ]] && missingArg 3
             DATA="{\"scope\":\"transaction\",\"auth.method\":\"database\",\"auth.secret\":\"$3\",\"username\":\"$2\"}"
-            ;;
-        ping)
-            DATA="{\"session\":\"${SESSION}\",\"keepalive\":true}"
             ;;
         select)
             DATA="{\"session\":\"${SESSION}\",\"rows\":32,\"skip\":0,\"compact\":true,\"dateformat\":\"UTC\",\"describe\":false,\"sql\":\"select country_id,country_name from countries order by country_id\",\"bindvalues\":[],\"cursor\":\"2\"}"
@@ -63,12 +68,6 @@ request ()
         insert)
             [[ -z $3 ]] && missingArg 3
             DATA="{\"session\":\"${SESSION}\",\"sql\":\"insert into countries(country_id,country_name)values(:country_id,:country_name)\",\"dateformat\":\"UTC\",\"bindvalues\":[{\"name\":\"country_id\",\"value\":\"$2\",\"type\":\"string\"},{\"name\":\"country_name\",\"value\":\"$3\",\"type\":\"string\"}]}"
-            ;;
-        commit)
-            DATA="{\"session\":\"${SESSION}\"}"
-            ;;
-        status)
-            DATA="{\"session\":\"${SESSION}\"}"
             ;;
         *)
           echo "Error: unknown command: $1"

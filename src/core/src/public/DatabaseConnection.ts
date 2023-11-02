@@ -41,6 +41,18 @@ export class DatabaseConnection
 		RestConnection.TRXTIMEOUT = timeout;
 	}
 
+	/** Lock timeout in seconds, only with scope!=stateless */
+	public static get LOCKTIMEOUT() : number
+	{
+		return(RestConnection.LOCKTIMEOUT);
+	}
+
+	/** Lock timeout in seconds, only with scope!=stateless */
+	public static set LOCKTIMEOUT(timeout:number)
+	{
+		RestConnection.LOCKTIMEOUT = timeout;
+	}
+
 	/** Connection timeout in seconds, only with scope=transactional */
 	public static get CONNTIMEOUT() : number
 	{
@@ -63,6 +75,12 @@ export class DatabaseConnection
 	public get locks() : number
 	{
 		return(this.conn$.locks);
+	}
+
+	/** Number of row locks */
+	public set locks(locks:number)
+	{
+		this.conn$.locks = locks;
 	}
 
 	/** The connection scope */

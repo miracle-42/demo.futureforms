@@ -338,6 +338,9 @@ public class Rest
       case "commit" :
         response = commit(); break;
 
+      case "release" :
+        response = release(); break;
+
       case "rollback" :
         response = rollback(); break;
 
@@ -1110,6 +1113,38 @@ public class Rest
   }
 
 
+  private String release()
+  {
+    boolean success = true;
+
+    if (state.session() == null)
+    {
+      failed = true;
+      return(ncerror());
+    }
+
+    try
+    {
+      success = state.session().releaseConnection();
+    }
+    catch (Exception e)
+    {
+      failed = true;
+      return(state.release(e));
+    }
+
+    JSONFormatter json = new JSONFormatter();
+
+    json.success(success);
+
+    if (!success)
+      json.add("message","Unable to release connection");
+
+    json.add("instance",instance);
+    return(json.toString());
+  }
+
+
   private void map(String latest, JSONObject payload) throws Exception
   {
     try
@@ -1689,6 +1724,9 @@ public class Rest
 
     void prepare(JSONObject payload) throws Exception
     {
+      if (session == null)
+        return;
+
       if (dept == 0)
       {
         boolean savepoint = rest.getSavepoint(payload);
@@ -1706,6 +1744,9 @@ public class Rest
 
     void release() throws Exception
     {
+      if (session == null)
+        return;
+
       if (--dept > 0)
         return;
 
@@ -1714,6 +1755,7 @@ public class Rest
         if (!session.releaseSavePoint(savepoint))
           throw new Exception("Could not release savepoint");
 
+        savepoint = null;
         unlock(true);
       }
 

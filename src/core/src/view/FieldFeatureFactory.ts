@@ -397,8 +397,8 @@ export class FieldFeatureFactory
 		else
 
 		{
-			if (flag) tag.setAttribute("disabled","");
-			else		 tag.removeAttribute("disabled");
+			if (!flag) tag.setAttribute("disabled","");
+			else 		  tag.removeAttribute("disabled");
 		}
 	}
 

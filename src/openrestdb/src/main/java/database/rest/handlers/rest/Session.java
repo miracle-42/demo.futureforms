@@ -361,6 +361,24 @@ public class Session
   }
 
 
+  public boolean releaseConnection() throws Exception
+  {
+    if (database == null)
+      return(false);
+
+    try {database.rollback();}
+    catch (Exception e) {;}
+
+    if (scope == Scope.Transaction)
+    {
+      disconnect(1,false);
+      clients--;
+    }
+
+    return(true);
+  }
+
+
   public Savepoint setSavePoint() throws Exception
   {
     return(database.setSavePoint());
@@ -549,7 +567,7 @@ public class Session
   @Override
   public String toString()
   {
-    String str = "";
+    String str = this.sesid() + " ";
 
     str += "Scope: " + scope + ", Connected: " + (database != null)+", Clients: "+clients;
 

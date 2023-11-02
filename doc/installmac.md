@@ -129,7 +129,7 @@ ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass
 If you want to run your postgres test database in a docker container, you will have to skip the create database user and create database part, to have the test data populated on the docker database.
 If you don't do this, you will get an error, because the ansible script will try to become the postgres user on you developer laptop, which does not exist, since you have decided to run the postgres database in a docker container. Use the following command to run the playbook instead:
 ```
-ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass --skip-tags create-hr-user,create-hr-db
+ansible-playbook playbooks/demo/install-demo.yml --ask-become-pass --skip-tags create_hr_user,create_hr_db
 ``````
 
 The installation, download and compilation takes about 3 minutes

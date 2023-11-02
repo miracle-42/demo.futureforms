@@ -151,8 +151,7 @@
         target: ../../src/demo/data/datademo.sql
         login_user: hr
         login_host: "{{ db_host }}"
-      environment:
-        PGPASSWORD: hr
+        login_password: hr
       tags:
         - install_hr_schema_objects
 

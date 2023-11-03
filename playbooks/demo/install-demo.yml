@@ -165,7 +165,8 @@
       stat:
         path: "{{ install_path }}/demo/bin"
       register: build_demo_openrestdb_bin
-      tags: build_demo_openrestdb_bin
+      tags:
+        - build_demo_openrestdb_bin
 
     - name: Copy openrestdb template
       ansible.builtin.copy:
@@ -173,7 +174,8 @@
         dest: "{{ install_path }}/demo"
         mode: preserve
       when: build_demo_openrestdb_bin.stat.exists == false
-      tags: copy_openrestdb_template
+      tags:
+        - copy_openrestdb_template
 
     - name: Build openrestdb.jar
       ansible.builtin.command:
@@ -188,7 +190,8 @@
       stat:
         path: "{{ install_path }}/demo/lib/openrestdb-2.1.jar"
       register: check_demo_openrestdb_jar
-      tags: check_demo_openrestdb_jar
+      tags:
+        - check_demo_openrestdb_jar
 
     - name: Copy openrestdb.jar
       ansible.builtin.copy:
@@ -196,7 +199,8 @@
         dest: "{{ install_path }}/demo/lib"
         mode: preserve
       when: check_demo_openrestdb_jar.stat.exists == false
-      tags: copy_openrestdb_jar
+      tags:
+        - copy_openrestdb_jar
 
     - name: Build Futureforms demo app
       ansible.builtin.command:
@@ -206,16 +210,6 @@
         chdir: "../../src/demo"
       tags:
         - npm_build_demo
-
-#    - name: Pack demo archive for deploy
-#      community.general.archive:
-#        path:
-#          - "{{ install_path }}/demo"
-#        dest: "{{ install_path }}/demo.tar.gz"
-#        format: gz
-#        exclude_path: [ "{{ install_path }}/demo/dbloaded.true" ]
-#      tags:
-#        - pack_archive
 
     - name: Start openrestdb web-server
       ansible.builtin.command:

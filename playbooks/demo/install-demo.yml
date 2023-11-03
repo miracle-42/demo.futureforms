@@ -5,6 +5,8 @@
   vars:
     - install_path: ../../build
     - db_host: localhost
+    - db_user: hr
+    - db_pass: hr
     - Brew_packages: 
       - python
       - npm
@@ -118,25 +120,39 @@
 
     - name: Create the postgres database user hr
       community.postgresql.postgresql_user:
-        name: hr
-        password: hr
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
         state: present
       become: true
       become_method: sudo
       become_user: postgres
       tags:
         - create_hr_user
+        - create_db
 
     - name: Create the postgres database hr
       community.postgresql.postgresql_db:
-        name: hr
-        owner: hr
+        name: "{{ db_user }}"
+        owner: "{{ db_user }}"
         state: present
       become: true
       become_method: sudo
       become_user: postgres
       tags:
         - create_hr_db
+        - create_db
+
+    - name: Install the postgres hr schema objects
+      community.postgresql.postgresql_db:
+        name: hr
+        state: restore
+        target: ../../src/demo/data/datademo.sql
+        login_host: "{{ db_host }}"
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_pass }}"
+      tags:
+        - install_hr_schema_objects
+        - create_db
 
     - name: Copy initial data.sql for archive
       ansible.builtin.copy:
@@ -144,17 +160,6 @@
         dest: "{{ install_path }}/demo/data/"
       tags:
         - copy_data_sql
-
-    - name: Install the postgres hr schema objects
-      community.postgresql.postgresql_db:
-        name: hr
-        state: restore
-        target: ../../src/demo/data/datademo.sql
-        login_user: hr
-        login_host: "{{ db_host }}"
-        login_password: hr
-      tags:
-        - install_hr_schema_objects
 
     - name: Check database.js template exists
       stat:

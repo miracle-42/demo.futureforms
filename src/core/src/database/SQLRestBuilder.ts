@@ -367,4 +367,15 @@ export class SQLRestBuilder
 
 		return(sql);
 	}
+
+	public static assert(sql:SQLRest, columns:string[], record:Record) : void
+	{
+		let binds:BindValue[] = [];
+
+		columns.forEach((column) =>
+		{binds.push(new BindValue(column,record.getValue(column)))});
+
+		if (binds.length> 0)
+			sql.assertions = binds;
+	}
 }

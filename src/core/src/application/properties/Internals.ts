@@ -42,7 +42,7 @@ export class Internals
 		<div name="popup-footer"></div>
 	`;
 
-	public static PopupHeaderStyle =
+	public static PopupHeaderStyle:string =
 	`
 		width: 100%;
 		height: 20px;
@@ -50,7 +50,7 @@ export class Internals
 		position: relative;
 	`;
 
-	public static PopupStyle =
+	public static PopupStyle:string =
 	`
 		gap:2px;
 		display:grid;
@@ -62,14 +62,16 @@ export class Internals
 		overflow-wrap: break-word;
 	`;
 
-	public static PopupStyleDiv =
+	public static PopupStyleDiv:string =
 	`
 		margin-top:10px;
 	`;
 
-	public static PopupStyleLabel =
+	public static PopupStyleLabel:string =
 	`
-		margin-right: 8px;
+		margin-top: 10px;
+		font-weight: bold;
+		user-select: none;
 	`;
 
 	public static PopupStyleLogin:string =
@@ -77,7 +79,7 @@ export class Internals
 		display:grid;
 	`;
 
-	public static PopupStyleButtonArea =
+	public static PopupStyleButtonArea:string =
 	`
 		gap:3px;
 		right:0;
@@ -86,15 +88,22 @@ export class Internals
 		position: absolute;
 	`;
 
-	public static PopupStyleLowerRight =
+	public static PopupStyleLowerRight:string =
 	`
 		height:30px;
 		padding-top:10px;
 	`;
 
-	public static PopupFooterStyle = null;
+	public static PopupStyleIndexing:string = 
+	`
+		display:grid;
+		margin-top:0px;
+		grid-template-columns: 1fr 1fr;
+	`;
 
-	public static PopupCloseButton =
+	public static PopupFooterStyle:string = null;
+
+	public static PopupCloseButton:string =
 	`
 		top: 0px;
 		right: 0px;
@@ -103,6 +112,7 @@ export class Internals
 		display: flex;
 		font-size:20px;
 		cursor: default;
+		line-height: 15px;
 		position: absolute;
 		justify-content: center;
 	`;
@@ -123,9 +133,12 @@ export class Internals
 
 	public static stylePopupWindow(view:HTMLElement, title?:string, height?:number, width?:number) : void
 	{
+		let scope:HTMLElement = view.querySelector('div[name="scope"]');
 		let login:HTMLElement = view.querySelector('div[name="login"]');
 		let loading:HTMLElement = view.querySelector('div[name="loading"]');
 		let body:HTMLElement = view.querySelector('div[name="popup-body"]');
+		let indexing:HTMLElement = view.querySelector('div[name="indexing"]');
+		let database:HTMLElement = view.querySelector('div[name="database"]');
 		let close:HTMLElement = view.querySelector('div[name="close-button"]');
 		let header:HTMLElement = view.querySelector('div[name="popup-header"]');
 		let footer:HTMLElement = view.querySelector('div[name="popup-footer"]');
@@ -141,11 +154,23 @@ export class Internals
 		if (close && Internals.PopupCloseButton) close.style.cssText = Internals.PopupCloseButton;
 		if (header && Internals.PopupHeaderStyle) header.style.cssText = Internals.PopupHeaderStyle;
 		if (footer && Internals.PopupFooterStyle) footer.style.cssText = Internals.PopupFooterStyle;
+		if (indexing && Internals.PopupStyleIndexing) indexing.style.cssText = Internals.PopupStyleIndexing;
 
 		if (close && Internals.close)
 			close.innerHTML = Internals.close;
 
-
+		if (scope != null)
+		{
+			if (scope.hasAttribute("true")) scope.style.display = "grid";
+			else scope.style.display = "none";
+		}
+			
+		if (database != null)
+		{
+			if (database.hasAttribute("true")) database.style.display = "grid";
+			else database.style.display = "none";
+		}
+	
 		if (login && Internals.PopupStyleLogin) login.style.cssText = Internals.PopupStyleLogin;
 		if (lowerright && Internals.PopupStyleLowerRight) lowerright.style.cssText = Internals.PopupStyleLowerRight;
 		if (buttonarea && Internals.PopupStyleButtonArea) buttonarea.style.cssText = Internals.PopupStyleButtonArea;

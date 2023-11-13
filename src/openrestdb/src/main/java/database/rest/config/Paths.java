@@ -87,7 +87,9 @@ public class Paths
     File cw = new File(".");
     Path abs = java.nio.file.Paths.get(path);
     Path base = java.nio.file.Paths.get(cw.getAbsolutePath());
+
     path = base.relativize(abs).toString();
+    if (path.length() == 0) path = abs.toString();
 
     // Back until conf folder
 

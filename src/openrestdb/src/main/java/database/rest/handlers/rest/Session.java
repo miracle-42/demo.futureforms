@@ -47,10 +47,10 @@ public class Session
   private String sesid;
 
   private final String guid;
-  private final Scope scope;
   private final String username;
   private final SessionLock lock;
 
+  private Scope scope;
   private Pool pool = null;
   private String secret = null;
   private AuthMethod method = null;
@@ -110,6 +110,12 @@ public class Session
   }
 
 
+  public void scope(Scope scope)
+  {
+    this.scope = scope;
+  }
+
+
   public String username()
   {
     return(username);
@@ -143,10 +149,11 @@ public class Session
       try
       {
         this.rollback();
+        database.setAutoCommit(autocommit());
       }
       catch (Exception e)
       {
-        if (method == AuthMethod.Database || scope == Scope.Dedicated)
+        if (scope == Scope.Dedicated)
         {
           database.disconnect();
         }
@@ -155,8 +162,14 @@ public class Session
           pool.remove(database,-1);
         }
 
+        database = null;
         SessionManager.remove(guid);
-        return("disconnected");
+        String message = e.getMessage();
+
+        if (message == null)
+          message = "a fatal error occured";
+
+        return(message);
       }
 
       return("transaction rolled back");
@@ -208,6 +221,12 @@ public class Session
   public boolean autocommit()
   {
     return(scope == Scope.Stateless);
+  }
+
+
+  public void autocommit(boolean flag) throws Exception
+  {
+    database.setAutoCommit(flag);
   }
 
 
@@ -302,7 +321,7 @@ public class Session
   private synchronized boolean disconnect(int expected, boolean rb)
   {
     if (expected >= 0 && clients != expected)
-      logger.severe("Releasing connection while clients connected");
+      logger.severe("Releasing connection while clients connected ("+clients+")");
 
     if (database != null)
     {
@@ -580,7 +599,7 @@ public class Session
   }
 
 
-  private static enum Scope
+  public static enum Scope
   {
     Dedicated,
     Stateless,

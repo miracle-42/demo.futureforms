@@ -26,10 +26,10 @@ import java.sql.Date;
 
 public class BindValueDef
 {
-  final int type;
-  final String name;
-  final Object value;
-  final boolean outval;
+  public final int type;
+  public final String name;
+  public final Object value;
+  public final boolean outval;
 
   public BindValueDef(String name, Object value)
   {

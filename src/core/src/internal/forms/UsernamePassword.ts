@@ -35,6 +35,8 @@ export class UsernamePassword extends Form
     public username:string = null;
     public password:string = null;
 	 public accepted:boolean = false;
+	 public static scope:boolean = false;
+	 public static database:boolean = false;
 
 	constructor()
 	{
@@ -81,6 +83,7 @@ export class UsernamePassword extends Form
 			this.title = "Login";
 
 		Internals.stylePopupWindow(view,this.title);
+		
 		return(true);
 	}
 
@@ -95,6 +98,16 @@ export class UsernamePassword extends Form
 				<input from="login" tabindex="0" name="username"/>
 				<label for="password">Password</label>
 				<input type="password" tabindex="1" from="login" name="password"/>
+				<div name="indexing"> 
+					<div name="scope" `+ UsernamePassword.scope +`>
+						<label for="scope" false>Scope</label>
+						<select tabindex="2" from="login" name="scope"></select>
+					</div>
+					<div name="database" `+ UsernamePassword.database +`>
+						<label for="database">Database</label>
+						<select  tabindex="3" from="login" name="database"></select>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div name="lowerright">

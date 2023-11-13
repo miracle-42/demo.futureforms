@@ -284,6 +284,9 @@ export class DataSourceWrapper
 		if (!this.source.transactional)
 			return(true);
 
+		if (record.state == RecordState.Deleted)
+			return(false);
+
 		if (this.source.rowlocking == LockMode.None)
 			return(true);
 

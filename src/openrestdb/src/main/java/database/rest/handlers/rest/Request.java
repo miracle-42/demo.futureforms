@@ -87,6 +87,9 @@ public class Request
     String sesid = null;
     String session = null;
 
+    if (payload == null)
+      payload = parse("{}");
+
     if (path.startsWith("/"))
       path = path.substring(1);
 
@@ -173,7 +176,7 @@ public class Request
 
   public String nvlfunc()
   {
-    if (func == null) return("");
+    if (func == null) return(cmd);
     else              return(func);
   }
 

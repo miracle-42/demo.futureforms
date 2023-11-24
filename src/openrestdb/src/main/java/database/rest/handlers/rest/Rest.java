@@ -55,7 +55,6 @@ import database.rest.database.BindValueDef;
 import database.rest.database.NameValuePair;
 import java.util.concurrent.ConcurrentHashMap;
 import database.rest.handlers.rest.Session.Scope;
-import database.rest.servers.http.HTTPRequest.Pair;
 import database.rest.config.Security.CustomAuthenticator;
 import static database.rest.handlers.rest.JSONFormatter.Type.*;
 
@@ -84,7 +83,6 @@ public class Rest
 
   private int code = 200;
   private boolean failed = false;
-  private boolean warning = false;
 
   private final SQLRewriter rewriter;
   private final SQLValidator validator;
@@ -186,7 +184,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(error(e));
+      return(error(e,request));
     }
   }
 
@@ -251,15 +249,21 @@ public class Rest
   private String batch(JSONObject payload)
   {
     Scope scope = null;
+    Request step = null;
     String result = null;
     String response = "[\n";
     boolean connected = false;
+    boolean disconnect = true;
     boolean autocommit = false;
+    Request request = this.request;
 
     try
     {
       this.batch = true;
       JSONArray services = payload.getJSONArray("batch");
+
+      if (payload.has("disconnect"))
+        disconnect = payload.getBoolean("disconnect");
 
       if (state.session() != null)
         state.session().ensure();
@@ -276,9 +280,9 @@ public class Rest
 
         scope = state.session().scope();
         state.session().scope(Scope.Dedicated);
-      }
 
-      state.prepare(payload);
+        state.prepare(true,false);
+      }
 
       for (int i = 0; i < services.length(); i++)
       {
@@ -292,31 +296,24 @@ public class Rest
 
         String path = service.getString("path");
 
-        Command cmd = new Command(path);
-
-        path = cmd.path;
-        boolean returning = false;
-        String ropt = cmd.getQuery("returning");
-        if (ropt != null) returning = Boolean.parseBoolean(ropt);
-
         if (service.has("payload"))
           spload = service.getJSONObject("payload");
 
-        Request request = new Request(this,path,spload);
+        step = new Request(this,path,spload);
 
-        if (request.nvlfunc().equals("connect"))
+        if (step.nvlfunc().equals("connect"))
           connect = true;
 
         if (connect && state.session() != null)
           throw new Exception("Already connected");
 
-        if (request.nvlfunc().equals("disconnect"))
+        if (step.nvlfunc().equals("disconnect"))
           disconn = true;
 
         if (disconn && state.session() == null)
           throw new Exception("Not connected");
 
-        if (request.nvlfunc().equals("map"))
+        if (step.nvlfunc().equals("map"))
         {
           map(result,spload);
           continue;
@@ -325,13 +322,29 @@ public class Rest
         if (disconn)
         {
           spload = Request.parse("{\"guid\": \""+state.session().guid()+"\"}");
-          request = new Request(this,path,spload);
+          step = new Request(this,path,spload);
         }
 
-        result = exec(request,returning);
-        response += result + cont;
+        this.request = step;
+        state.setSavePoint();
 
-        if (failed || warning) break;
+        result = exec(step,false);
+
+        if (this.failed && state.session() != null)
+        {
+          if (state.savepoint == null)
+          {
+            state.lock(true);
+            state.session().ensure();
+
+            state.setSavePoint();
+            state.session().share();
+          }
+        }
+
+        response += result + cont;
+        this.request = request;
+        this.failed = false;
 
         if (connect && state.session() != null)
         {
@@ -344,7 +357,7 @@ public class Rest
           scope = state.session().scope();
           state.session().scope(Scope.Dedicated);
 
-          state.prepare(payload);
+          state.prepare(true,false);
         }
       }
 
@@ -352,21 +365,21 @@ public class Rest
 
       if (!connected && autocommit && state.session() != null)
       {
-        Request request = new Request(this,"commit","{\"guid\": \""+state.session().guid()+"\"}");
-        exec(request,false);
+        Request commit = new Request(this,"commit","{\"guid\": \""+state.session().guid()+"\"}");
+        exec(commit,false);
       }
 
-      if (!connected && state.session() != null)
+      if (disconnect && !connected && state.session() != null)
       {
-        Request request = new Request(this,"disconnect","{\"guid\": \""+state.session().guid()+"\"}");
-        exec(request,false);
+        Request disconn = new Request(this,"disconnect","{\"guid\": \""+state.session().guid()+"\"}");
+        exec(disconn,false);
       }
 
       // Release & remove
       if (state.session() != null)
         state.release(scope,autocommit);
 
-      return(response);
+      return("{\"steps\":\n" + response + "\n}");
     }
     catch (Throwable e)
     {
@@ -375,7 +388,7 @@ public class Rest
       if (state.session() != null)
         state.session().scope(scope);
 
-      return(state.release(e));
+      return(state.release(e,step != null ? step : request));
     }
   }
 
@@ -383,14 +396,20 @@ public class Rest
   private String script(JSONObject payload)
   {
     Scope scope = null;
+    Request step = null;
     String result = null;
     boolean connected = false;
+    boolean disconnect = true;
     boolean autocommit = false;
+    Request request = this.request;
 
     try
     {
       this.batch = true;
       JSONArray services = payload.getJSONArray("script");
+
+      if (payload.has("disconnect"))
+        disconnect = payload.getBoolean("disconnect");
 
       if (state.session() != null)
         state.session().ensure();
@@ -407,9 +426,9 @@ public class Rest
 
         scope = state.session().scope();
         state.session().scope(Scope.Dedicated);
-      }
 
-      state.prepare(payload);
+        state.prepare(payload);
+      }
 
       for (int i = 0; i < services.length(); i++)
       {
@@ -420,31 +439,24 @@ public class Rest
 
         String path = service.getString("path");
 
-        Command cmd = new Command(path);
-
-        path = cmd.path;
-        boolean returning = false;
-        String ropt = cmd.getQuery("returning");
-        if (ropt != null) returning = Boolean.parseBoolean(ropt);
-
         if (service.has("payload"))
           spload = service.getJSONObject("payload");
 
-        Request request = new Request(this,path,spload);
+        step = new Request(this,path,spload);
 
-        if (request.nvlfunc().equals("connect"))
+        if (step.nvlfunc().equals("connect"))
           connect = true;
 
         if (connect && state.session() != null)
           throw new Exception("Already connected");
 
-        if (request.nvlfunc().equals("disconnect"))
+        if (step.nvlfunc().equals("disconnect"))
           disconn = true;
 
         if (disconn && state.session() == null)
           throw new Exception("Not connected");
 
-        if (request.nvlfunc().equals("map"))
+        if (step.nvlfunc().equals("map"))
         {
           map(result,spload);
           continue;
@@ -456,11 +468,18 @@ public class Rest
         if (disconn)
         {
           spload = Request.parse("{\"guid\": \""+state.session().guid()+"\"}");
-          request = new Request(this,path,spload);
+          step = new Request(this,path,spload);
         }
 
-        result = exec(request,returning);
-        if (failed || warning) break;
+        this.request = step;
+        result = exec(step,false);
+        this.request = request;
+
+        JSONObject res = Request.parse(result);
+        result = res.put("step",i).toString();
+
+        if (failed)
+          break;
 
         if (disconn)
           result = last;
@@ -482,15 +501,18 @@ public class Rest
 
       if (!connected && autocommit && state.session() != null)
       {
-        Request request = new Request(this,"commit","{\"guid\": \""+state.session().guid()+"\"}");
-        exec(request,false);
+        Request commit = new Request(this,"commit","{\"guid\": \""+state.session().guid()+"\"}");
+        exec(commit,false);
       }
 
-      if (!connected && state.session() != null)
+      if (disconnect && !connected && state.session() != null)
       {
-        Request request = new Request(this,"disconnect","{\"guid\": \""+state.session().guid()+"\"}");
-        exec(request,false);
+        Request disconn = new Request(this,"disconnect","{\"guid\": \""+state.session().guid()+"\"}");
+        exec(disconn,false);
       }
+
+      JSONObject res = Request.parse(result);
+      result = res.put("success",true).toString();
 
       // Release & remove
       if (state.session() != null)
@@ -505,7 +527,7 @@ public class Rest
       if (state.session() != null)
         state.session().scope(scope);
 
-      return(state.release(e));
+      return(state.release(e, step != null ? step : request));
     }
   }
 
@@ -614,7 +636,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(error(e));
+      return(error(e,request));
     }
 
     JSONFormatter json = new JSONFormatter();
@@ -701,12 +723,14 @@ public class Rest
     String scope = null;
     String secret = null;
     String username = null;
+    boolean nowait = false;
     AuthMethod method = null;
     boolean privateses = true;
 
     try
     {
       timeout = config.getREST().timeout;
+      nowait = this.config.getDatabase().nowait;
       type = config.getDatabase().type.toString();
 
       if (payload.has("username"))
@@ -807,7 +831,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(error(e));
+      return(error(e,request));
     }
 
     String sesid = null;
@@ -827,12 +851,13 @@ public class Rest
       catch (Throwable e)
       {
         failed = true;
-        return(error(e));
+        return(error(e,request));
       }
     }
 
     json.success(true);
     json.add("type",type);
+    json.add("nowait",nowait);
     json.add("timeout",timeout);
     json.add("private",privateses);
     json.add("autocommit",state.session().autocommit());
@@ -865,7 +890,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(error(e));
+      return(error(e,request));
     }
 
     JSONFormatter json = new JSONFormatter();
@@ -904,7 +929,7 @@ public class Rest
     }
     catch (Throwable e)
     {
-      return(state.release(e));
+      return(state.release(e,request));
     }
 
     JSONFormatter json = new JSONFormatter();
@@ -927,11 +952,19 @@ public class Rest
     {
       int rows = 0;
       int skip = 0;
+      boolean lock = false;
+      boolean nowait = true;
       String curname = null;
       boolean describe = false;
       boolean compact = this.compact;
       String dateform = this.dateform;
       HashMap<String,BindValueDef> assertions = null;
+
+      if (payload.has("lock"))
+        lock = payload.getBoolean("lock");
+
+      if (payload.has("nowait"))
+        nowait = payload.getBoolean("nowait");
 
       if (payload.has("assert"))
         assertions = this.getAssertions(payload.getJSONArray("assert"));
@@ -946,7 +979,7 @@ public class Rest
       if (payload.has("dateformat"))
       {
         if (payload.isNull("dateformat")) dateform = null;
-        else   dateform = payload.getString("dateformat");
+        else dateform = payload.getString("dateformat");
       }
 
       if (payload.has("compact")) compact = payload.getBoolean("compact");
@@ -959,6 +992,15 @@ public class Rest
 
       sql = parser.sql();
       ArrayList<BindValue> bindvalues = parser.bindvalues();
+
+      if (!this.config.getDatabase().nowait)
+        nowait = false;
+
+      if (lock)
+        sql += " for update";
+
+      if (lock && nowait)
+        sql += " nowait";
 
       if (rewriter != null)
         sql = rewriter.rewrite(sql,bindvalues);
@@ -979,18 +1021,26 @@ public class Rest
       cursor.compact = compact;
       cursor.dateformat = dateform;
 
-      String[] types = state.session().getColumnTypes(cursor);
+      String[] types = null;
+      Integer[][] precs = null;
+
+      if (describe)
+      {
+        types = state.session().getColumnTypes(cursor);
+        precs = state.session().getColumnPrecision(cursor);
+      }
+
       String[] columns = state.session().getColumnNames(cursor);
       ArrayList<Object[]> table = state.session().fetch(cursor,skip);
 
       state.release();
 
-      String status = null;
+      String assertmsg = null;
       ArrayList<Object[]> failures = new ArrayList<Object[]>();
       String[] asserts = new String[] {"column","assert","value"};
 
       if (assertions != null && table.size() == 0)
-        status = "record was deleted by another user";
+        assertmsg = "Record was deleted by another user";
 
       if (assertions != null && table.size() > 0)
       {
@@ -1022,7 +1072,6 @@ public class Rest
 
               if (a instanceof BigDecimal)
               {
-                logger.warning(c+" "+(((BigDecimal) a).subtract((BigDecimal) b)));
                 if (((BigDecimal) a).compareTo((BigDecimal) b) != 0)
                   failed = true;
               }
@@ -1035,7 +1084,7 @@ public class Rest
 
             if (failed)
             {
-              status = "record was changed by another user";
+              assertmsg = "Record was changed by another user";
               failures.add(new Object[] {c,b,a});
             }
           }
@@ -1044,13 +1093,20 @@ public class Rest
 
       JSONFormatter json = new JSONFormatter();
 
-      json.success(true);
+      json.success(assertmsg == null);
       json.add("more",!cursor.closed);
 
-      if (status != null)
+      if (lock && assertmsg != null)
       {
-        this.warning = true;
-        json.add("warning",status);
+        json.add("lock",false);
+        if (nowait) json.add("nowait",true);
+      }
+
+      if (assertmsg != null)
+      {
+        this.failed = true;
+        json.add("assert",assertmsg);
+        json.add("message","Assertion failed");
       }
 
       if (failures.size() > 0)
@@ -1065,6 +1121,10 @@ public class Rest
       {
         json.push("types",SimpleArray);
         json.add(types);
+        json.pop();
+
+        json.push("precision",Matrix);
+        json.add(precs);
         json.pop();
       }
 
@@ -1094,13 +1154,18 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(state.release(e));
+      return(state.release(e,request));
     }
   }
 
 
   private String update(JSONObject payload, boolean returning)
   {
+    boolean prepared = false;
+    boolean autocommit = false;
+    Request request = this.request;
+    String dateform = this.dateform;
+
     if (state.session() == null)
     {
       failed = true;
@@ -1109,13 +1174,64 @@ public class Rest
 
     try
     {
-      String dateform = this.dateform;
+      state.ensure();
+
+      boolean lock = false;
+
+      if (payload.has("lock"))
+        lock = payload.getBoolean("lock");
+
+      if (lock || payload.has("assert"))
+      {
+        JSONObject sel4upd = makeAssert(payload);
+
+        if (sel4upd != null)
+        {
+          if (state.session().autocommit())
+          {
+            autocommit = true;
+            state.session().autocommit(false);
+          }
+
+          prepared = true;
+          state.prepare(payload);
+
+          this.request = new Request(this,"select",sel4upd);
+          String response = select(sel4upd);
+          this.request = request;
+
+          if (autocommit)
+          {
+            autocommit = false;
+            state.session().autocommit(true);
+          }
+
+          if (failed)
+          {
+            state.release();
+            return(response);
+          }
+
+          logger.fine
+          (
+            "\n-----------------assert--------------------\n" +
+            response+
+            "\n-------------------------------------------\n"
+          );
+        }
+      }
+
+      if (!prepared)
+        state.prepare(payload);
 
       if (payload.has("dateformat"))
       {
         if (payload.isNull("dateformat")) dateform = null;
         else dateform = payload.getString("dateformat");
       }
+
+      if (payload.has("returning"))
+        returning = payload.getBoolean("returning");
 
       if (payload.has("bindvalues"))
         this.getBindValues(payload.getJSONArray("bindvalues"));
@@ -1133,9 +1249,6 @@ public class Rest
 
       if (validator != null)
         validator.validate(sql,bindvalues);
-
-      state.ensure();
-      state.prepare(payload);
 
       if (returning)
       {
@@ -1172,15 +1285,22 @@ public class Rest
 
         json.success(true);
         json.add("affected",rows);
-
         json.add("instance",instance);
+
         return(json.toString());
       }
     }
     catch (Throwable e)
     {
       failed = true;
-      return(state.release(e));
+
+      if (autocommit)
+      {
+        try {state.session().autocommit(true);}
+        catch (Exception ce) {;}
+      }
+
+      return(state.release(e,this.request));
     }
   }
 
@@ -1242,7 +1362,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(state.release(e));
+      return(state.release(e,request));
     }
   }
 
@@ -1312,7 +1432,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      return(state.release(e));
+      return(state.release(e,request));
     }
   }
 
@@ -1334,7 +1454,7 @@ public class Rest
     catch (Exception e)
     {
       failed = true;
-      return(state.release(e));
+      return(state.release(e,request));
     }
 
     JSONFormatter json = new JSONFormatter();
@@ -1366,7 +1486,7 @@ public class Rest
     catch (Exception e)
     {
       failed = true;
-      return(state.release(e));
+      return(state.release(e,request));
     }
 
     JSONFormatter json = new JSONFormatter();
@@ -1398,7 +1518,7 @@ public class Rest
     catch (Exception e)
     {
       failed = true;
-      return(state.release(e));
+      return(state.release(e,request));
     }
 
     JSONFormatter json = new JSONFormatter();
@@ -1441,6 +1561,15 @@ public class Rest
         {
           String bindv = bindvalues[i];
           String pointer = payload.getString(bindv).trim();
+
+          if (pointer.equals("@session"))
+          {
+            String sesid = null;
+            if (state.session() != null) sesid = state.session().sesid();
+            this.bindvalues.put(bindv,new BindValueDef(bindv,sesid));
+            continue;
+          }
+
           this.bindvalues.put(bindv,new BindValueDef(bindv,last.get(pointer)));
         }
       }
@@ -1453,6 +1582,14 @@ public class Rest
           Object value = null;
           String bindv = bindvalues[i];
           String pointer = payload.getString(bindv).trim();
+
+          if (pointer.equals("@session"))
+          {
+            String sesid = null;
+            if (state.session() != null) sesid = state.session().sesid();
+            this.bindvalues.put(bindv,new BindValueDef(bindv,sesid));
+            continue;
+          }
 
           if (pointer.endsWith("]"))
           {
@@ -1500,7 +1637,7 @@ public class Rest
     catch (Throwable e)
     {
       failed = true;
-      error(e);
+      error(e,request);
     }
   }
 
@@ -1589,6 +1726,76 @@ public class Rest
   }
 
 
+  private JSONObject makeAssert(JSONObject payload) throws Exception
+  {
+    String stmt = payload.getString("sql");
+
+    HashMap<String,BindValueDef> assertions =
+      new HashMap<String,BindValueDef>();
+
+    if (payload.has("assert"))
+      assertions = this.getAssertions(payload.getJSONArray("assert"));
+
+    String sql = "select ";
+    String[] columns = assertions.keySet().toArray(new String[assertions.size()]);
+
+    if (columns.length == 0)
+      sql += "'x' as locked";
+
+    for (int i = 0; i < columns.length; i++)
+    {
+      sql += columns[i];
+      if (i < columns.length - 1) sql += ",";
+    }
+
+    String from = null;
+    String where = null;
+    String lstmt = stmt.toLowerCase();
+
+    int fpos = lstmt.indexOf("from");
+    int wpos = lstmt.indexOf("where");
+
+    if (wpos > 0)
+      where = stmt.substring(wpos).trim();
+
+    if (fpos > 0)
+    {
+      if (wpos > fpos)
+        from = stmt.substring(fpos+5,wpos).trim();
+    }
+    else
+    {
+      String[] words = lstmt.split(" ");
+      from = words[1];
+    }
+
+    if (from == null) throw new Exception("no from clause detected in "+stmt);
+    if (where == null) throw new Exception("no where clause detected in "+stmt);
+
+    sql += " from " + from + " " + where;
+
+    JSONObject json = Request.parse("{}");
+
+    json.put("lock",true);
+    json.put("nowait",true);
+
+    if (payload.has("dateformat"))
+      json.put("dateformat",payload.get("dateformat"));
+
+    if (payload.has("compact"))
+      json.put("compact",payload.get("compact"));
+
+    if (payload.has("assert"))
+      json.put("assert",payload.getJSONArray("assert"));
+
+    if (payload.has("bindvalues"))
+      json.put("bindvalues",payload.getJSONArray("bindvalues"));
+
+    json.put("sql",sql);
+    return(json);
+  }
+
+
   private boolean getSavepoint(JSONObject payload)
   {
     boolean defaults = savepoint;
@@ -1604,7 +1811,7 @@ public class Rest
     }
     catch (Throwable e)
     {
-      error(e);
+      error(e,request);
       return(defaults);
     }
   }
@@ -1616,7 +1823,7 @@ public class Rest
   }
 
 
-  String decode(String data)
+  String decode(String data) throws Exception
   {
     return(decode(data,host));
   }
@@ -1659,30 +1866,37 @@ public class Rest
   }
 
 
-  static String decode(String data, String salt)
+  static String decode(String data, String salt) throws Exception
   {
-    byte[] bsalt = salt.getBytes();
-    while(data.length() % 4 != 0) data += "=";
-
-    data = data.replaceAll("@","/");
-    byte[] bdata = Base64.getDecoder().decode(data);
-
-    byte indicator = bdata[0];
-    boolean priv = (indicator >= 'a' && indicator <= 'z');
-
-    byte[] token = new byte[bdata.length-1];
-    System.arraycopy(bdata,1,token,0,token.length);
-
-    if (priv)
+    try
     {
-      for (int i = 0; i < token.length; i++)
-      {
-        byte s = bsalt[(i+1) % bsalt.length];
-        token[i] = (byte) (token[i] ^ s);
-      }
-    }
+      byte[] bsalt = salt.getBytes();
+      while(data.length() % 4 != 0) data += "=";
 
-    return(new String(token));
+      data = data.replaceAll("@","/");
+      byte[] bdata = Base64.getDecoder().decode(data);
+
+      byte indicator = bdata[0];
+      boolean priv = (indicator >= 'a' && indicator <= 'z');
+
+      byte[] token = new byte[bdata.length-1];
+      System.arraycopy(bdata,1,token,0,token.length);
+
+      if (priv)
+      {
+        for (int i = 0; i < token.length; i++)
+        {
+          byte s = bsalt[(i+1) % bsalt.length];
+          token[i] = (byte) (token[i] ^ s);
+        }
+      }
+
+      return(new String(token));
+    }
+    catch (Throwable e)
+    {
+      throw new Exception("Failed decoding session",e);
+    }
   }
 
 
@@ -1856,26 +2070,44 @@ public class Rest
   }
 
 
-  private String error(Throwable err)
+  private String error(Throwable err, Request request)
   {
     String message = err.getMessage();
 
     if (message == null)
       message = "An unexpected error has occured";
 
-    return(error(err,message));
+    return(error(err,message,request));
   }
 
 
-  private String error(Throwable err, String message)
+  private String error(Throwable err, String message, Request request)
   {
+    String path = null;
+    boolean lock = false;
+    boolean nowait = false;
+
     JSONFormatter json = new JSONFormatter();
     logger.log(Level.WARNING,err.getMessage(),err);
+
+    if (request != null)
+    {
+      path = request.path;
+
+      if (request.payload.has("lock"))
+        lock = request.payload.getBoolean("lock");
+
+      if (request.payload.has("nowait"))
+        nowait = request.payload.getBoolean("nowait");
+    }
 
     json.set(err);
     json.success(false);
     json.fatal(message);
     json.add("instance",instance);
+    if (lock) json.add("lock",true);
+    if (nowait) json.add("nowait",true);
+    if (path != null) json.add("path",request.path);
 
     return(json.toString());
   }
@@ -1910,46 +2142,6 @@ public class Rest
     json.add("instance",instance);
 
     return(json.toString());
-  }
-
-
-  private static class Command
-  {
-    String path = null;
-
-    ArrayList<Pair<String,String>> query =
-      new ArrayList<Pair<String,String>>();
-
-
-    Command(String path)
-    {
-      this.path = path;
-      int pos = path.indexOf('?');
-
-      if (pos >= 0)
-      {
-        String query = this.path.substring(pos+1);
-        this.path = this.path.substring(0,pos);
-        String[] parts = query.split("&");
-
-        for(String part : parts)
-        {
-          pos = part.indexOf('=');
-          if (pos < 0) this.query.add(new Pair<String,String>(part,null));
-          else this.query.add(new Pair<String,String>(part.substring(0,pos),part.substring(pos+1)));
-        }
-      }
-    }
-
-    String getQuery(String qstr)
-    {
-      for(Pair<String,String> entry : query)
-      {
-        if (entry.getKey().equals(qstr))
-          return(entry.getValue());
-      }
-      return(null);
-    }
   }
 
 
@@ -2000,11 +2192,23 @@ public class Rest
     }
 
 
+    void setSavePoint() throws Exception
+    {
+      if (session == null) return;
+      this.savepoint = session.setSavePoint();
+    }
+
+
+    void prepare(boolean lock, boolean savepoint) throws Exception
+    {
+      dept++;
+      if (lock) lock(true);
+      if (savepoint) this.savepoint = session.setSavePoint();
+    }
+
+
     void prepare(JSONObject payload) throws Exception
     {
-      if (session == null)
-        return;
-
       if (dept == 0)
       {
         boolean savepoint = rest.getSavepoint(payload);
@@ -2033,7 +2237,6 @@ public class Rest
         if (!session.releaseSavePoint(savepoint))
         {
           unlock(true);
-          savepoint = null;
           throw new Exception("Could not release savepoint");
         }
 
@@ -2058,7 +2261,6 @@ public class Rest
         if (!session.releaseSavePoint(savepoint))
         {
           unlock(true);
-          savepoint = null;
           this.session().scope(scope);
           this.session().autocommit(autocommit);
           throw new Exception("Could not release savepoint");
@@ -2075,8 +2277,9 @@ public class Rest
     }
 
 
-    String release(Throwable err)
+    String release(Throwable err, Request request)
     {
+      dept--;
       String fatal = null;
 
       if (session != null)
@@ -2084,11 +2287,13 @@ public class Rest
         session.releaseSavePoint(savepoint,true);
 
         releaseAll();
+
+        savepoint = null;
         fatal = session.release(true);
         rest.server.poolmanager().validate();
       }
 
-      return(rest.error(err,fatal));
+      return(rest.error(err,fatal,request));
     }
 
 
@@ -2108,7 +2313,7 @@ public class Rest
       }
       catch (Throwable e)
       {
-        rest.error(e);
+        rest.error(e,null);
       }
     }
 
@@ -2133,7 +2338,7 @@ public class Rest
       }
       catch (Throwable e)
       {
-        rest.error(e);
+        rest.error(e,null);
       }
     }
 
@@ -2150,7 +2355,7 @@ public class Rest
       }
       catch (Throwable e)
       {
-        rest.error(e);
+        rest.error(e,null);
       }
     }
   }

@@ -498,6 +498,12 @@ public class Session
   }
 
 
+  public Integer[][] getColumnPrecision(Cursor cursor) throws Exception
+  {
+    return(database.getColumPrecision(cursor.rset));
+  }
+
+
   public ArrayList<Object[]> fetch(Cursor cursor, int skip) throws Exception
   {
     boolean timeconv = false;

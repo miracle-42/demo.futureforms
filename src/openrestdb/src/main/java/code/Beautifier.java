@@ -40,10 +40,9 @@ public class Beautifier
   private static int blanks = 0;
 
 
-  @SuppressWarnings("unused")
   public static void main(String[] args) throws Exception
   {
-    String root = "/Users/alex/Repository/OpenRestDB/projects/openrestdb/src";
+    String root = "/Users/alhof/Repository/OpenRestDB/projects/openrestdb/src";
     next(new File(root));
     System.out.println("lines: "+lines+" blanks: "+blanks+" code: "+(lines-blanks));
   }

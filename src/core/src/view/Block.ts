@@ -491,7 +491,6 @@ export class Block
 		if (!success)
 		{
 			await this.model.refresh();
-			this.display(this.row,this.model.getRecord());
 			return(false);
 		}
 

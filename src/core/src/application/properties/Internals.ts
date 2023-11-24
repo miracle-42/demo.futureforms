@@ -55,7 +55,6 @@ export class Internals
 		gap:2px;
 		display:grid;
 		hyphens:auto;
-		padding:10px 20px;
 		align-items: center;
 		align-content: center;
 		justify-content: center;
@@ -91,7 +90,6 @@ export class Internals
 	public static PopupStyleLowerRight:string =
 	`
 		height:30px;
-		padding-top:10px;
 	`;
 
 	public static PopupStyleIndexing:string = 

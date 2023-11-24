@@ -284,6 +284,9 @@ export class DataSourceWrapper
 		if (!this.source.transactional)
 			return(true);
 
+		if (record.state == RecordState.Deleted)
+			return(false);
+
 		if (this.source.rowlocking == LockMode.None)
 			return(true);
 
@@ -353,7 +356,8 @@ export class DataSourceWrapper
 			this.dirty = true;
 
 			let skip:boolean = false;
-			if (record.state == RecordState.New || record.state == RecordState.Insert) skip = true;
+			if (record.state == RecordState.New) skip = true;
+			if (record.state == RecordState.Insert) skip = true;
 
 			if (!skip && !await this.lock(record,false))
 				return(false);

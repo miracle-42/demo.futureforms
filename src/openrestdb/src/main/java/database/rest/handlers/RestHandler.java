@@ -160,10 +160,10 @@ public class RestHandler extends Handler
 
     response.setContentType(json);
     response.setBody(rest.execute(path,payload,returning));
-    if (rest.failed()) response.setResponse(500);
+    response.setResponse(rest.response());
 
     if (rest.isConnectRequest())
-      request.scramble();
+      request.setBody(rest.removeSecrets());
 
     if (!rest.isPing() || logger.getLevel() == Level.FINEST)
       log(logger,request,response);

@@ -47,7 +47,7 @@ export class KeyMap
 	public static enterquery:KeyMap = new KeyMap({key: KeyCodes.f7},"enter query","start query by example mode");
 	public static executequery:KeyMap = new KeyMap({key: KeyCodes.f8},"execute query","execute query");
 	public static lastquery:KeyMap = new KeyMap({key: KeyCodes.f7, shift: true},"last query","recall last query");
-	public static queryeditor:KeyMap = new KeyMap({key: KeyCodes.f7, ctrl: true},"query editor","enter advanced query criterias");
+	public static queryeditor:KeyMap = new KeyMap({key: KeyCodes.f7, ctrl: true},"advanced query","enter advanced query criterias");
 
 	public static space:KeyMap = new KeyMap({key: ' '});
 	public static enter:KeyMap = new KeyMap({key: KeyCodes.Enter});

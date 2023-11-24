@@ -47,6 +47,7 @@ public class Database
   public final Pool proxy;
   public final Pool fixed;
 
+  public final boolean nowait;
   public final DatabaseType type;
   public final ArrayList<String> urlparts;
 
@@ -63,6 +64,9 @@ public class Database
 
     type = Character.toUpperCase(type.charAt(0))
            + type.substring(1).toLowerCase();
+
+    if (!Config.has(section,"nowait")) nowait = true;
+    else nowait = Config.get(section,"nowait");
 
     this.url = Config.get(section,"jdbc");
     this.test = Config.get(section,"test");

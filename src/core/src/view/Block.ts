@@ -491,7 +491,6 @@ export class Block
 		if (!success)
 		{
 			await this.model.refresh();
-			this.display(this.row,this.model.getRecord());
 			return(false);
 		}
 
@@ -1558,8 +1557,9 @@ export class Block
 			case null							: return(Status.na);
 			case RecordState.New 			: return(Status.new);
 			case RecordState.Insert 		: return(Status.insert);
-			case RecordState.Delete 		: return(Status.delete);
 			case RecordState.Inserted 		: return(Status.insert);
+			case RecordState.Delete 		: return(Status.delete);
+			case RecordState.Deleted 		: return(Status.delete);
 			case RecordState.Update 		: return(Status.update);
 			case RecordState.Updated 		: return(Status.update);
 			case RecordState.Consistent 	: return(Status.update);

@@ -304,7 +304,7 @@ public class JSONFormatter
       String str = lev + "[";
 
       Object elem = node.content.get(0);
-      Object[] values = (String[]) elem;
+      Object[] values = (Object[]) elem;
 
       for (int j = 0; j < values.length; j++)
       {

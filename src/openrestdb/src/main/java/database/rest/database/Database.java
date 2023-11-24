@@ -297,6 +297,18 @@ public abstract class Database
   }
 
 
+  public String[] getColumNames(ResultSet rset) throws Exception
+  {
+    ResultSetMetaData meta = rset.getMetaData();
+    String[] columns = new String[meta.getColumnCount()];
+
+    for (int i = 0; i < columns.length; i++)
+      columns[i] = meta.getColumnName(i+1);
+
+    return(columns);
+  }
+
+
   public String[] getColumTypes(ResultSet rset) throws Exception
   {
     ResultSetMetaData meta = rset.getMetaData();
@@ -309,15 +321,19 @@ public abstract class Database
   }
 
 
-  public String[] getColumNames(ResultSet rset) throws Exception
+  public Integer[][] getColumPrecision(ResultSet rset) throws Exception
   {
     ResultSetMetaData meta = rset.getMetaData();
-    String[] columns = new String[meta.getColumnCount()];
+    Integer[][] precission = new Integer[meta.getColumnCount()][];
 
-    for (int i = 0; i < columns.length; i++)
-      columns[i] = meta.getColumnName(i+1);
+    for (int i = 0; i < precission.length; i++)
+    {
+      precission[i] = new Integer[2];
+      precission[i][1] = meta.getScale(i+1);
+      precission[i][0] = meta.getPrecision(i+1);
+    }
 
-    return(columns);
+    return(precission);
   }
 
 

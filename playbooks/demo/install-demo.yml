@@ -5,6 +5,8 @@
   vars:
     - install_path: ../../build
     - db_host: localhost
+    - db_user: hr
+    - db_pass: hr
     - Brew_packages: 
       - python
       - npm
@@ -118,25 +120,39 @@
 
     - name: Create the postgres database user hr
       community.postgresql.postgresql_user:
-        name: hr
-        password: hr
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
         state: present
       become: true
       become_method: sudo
       become_user: postgres
       tags:
         - create_hr_user
+        - create_db
 
     - name: Create the postgres database hr
       community.postgresql.postgresql_db:
-        name: hr
-        owner: hr
+        name: "{{ db_user }}"
+        owner: "{{ db_user }}"
         state: present
       become: true
       become_method: sudo
       become_user: postgres
       tags:
         - create_hr_db
+        - create_db
+
+    - name: Install the postgres hr schema objects
+      community.postgresql.postgresql_db:
+        name: hr
+        state: restore
+        target: ../../src/demo/data/datademo.sql
+        login_host: "{{ db_host }}"
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_pass }}"
+      tags:
+        - install_hr_schema_objects
+        - create_db
 
     - name: Copy initial data.sql for archive
       ansible.builtin.copy:
@@ -145,22 +161,12 @@
       tags:
         - copy_data_sql
 
-    - name: Install the postgres hr schema objects
-      community.postgresql.postgresql_db:
-        name: hr
-        state: restore
-        target: ../../src/demo/data/datademo.sql
-        login_user: hr
-        login_host: "{{ db_host }}"
-        login_password: hr
-      tags:
-        - install_hr_schema_objects
-
     - name: Check database.js template exists
       stat:
         path: "{{ install_path }}/demo/bin"
       register: build_demo_openrestdb_bin
-      tags: build_demo_openrestdb_bin
+      tags:
+        - build_demo_openrestdb_bin
 
     - name: Copy openrestdb template
       ansible.builtin.copy:
@@ -168,7 +174,8 @@
         dest: "{{ install_path }}/demo"
         mode: preserve
       when: build_demo_openrestdb_bin.stat.exists == false
-      tags: copy_openrestdb_template
+      tags:
+        - copy_openrestdb_template
 
     - name: Build openrestdb.jar
       ansible.builtin.command:
@@ -183,7 +190,8 @@
       stat:
         path: "{{ install_path }}/demo/lib/openrestdb-2.1.jar"
       register: check_demo_openrestdb_jar
-      tags: check_demo_openrestdb_jar
+      tags:
+        - check_demo_openrestdb_jar
 
     - name: Copy openrestdb.jar
       ansible.builtin.copy:
@@ -191,7 +199,8 @@
         dest: "{{ install_path }}/demo/lib"
         mode: preserve
       when: check_demo_openrestdb_jar.stat.exists == false
-      tags: copy_openrestdb_jar
+      tags:
+        - copy_openrestdb_jar
 
     - name: Build Futureforms demo app
       ansible.builtin.command:
@@ -201,16 +210,6 @@
         chdir: "../../src/demo"
       tags:
         - npm_build_demo
-
-#    - name: Pack demo archive for deploy
-#      community.general.archive:
-#        path:
-#          - "{{ install_path }}/demo"
-#        dest: "{{ install_path }}/demo.tar.gz"
-#        format: gz
-#        exclude_path: [ "{{ install_path }}/demo/dbloaded.true" ]
-#      tags:
-#        - pack_archive
 
     - name: Start openrestdb web-server
       ansible.builtin.command:

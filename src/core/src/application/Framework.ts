@@ -345,7 +345,7 @@ export class Framework
 			{
 				for (let i = 0; i < event.length; i++)
 				{
-					let func:DynamicCall = new DynamicCall(this.component, event[i][1]);
+					let func:DynamicCall = new DynamicCall(this.component,event[i][1]);
 					let ename:string = this.eventhandler.addEvent(element,event[i][0],func);
 					element.addEventListener(ename,this.eventhandler);
 				}

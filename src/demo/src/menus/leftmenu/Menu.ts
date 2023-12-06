@@ -79,7 +79,6 @@ export class Menu extends MenuComponent
 	{
 
 		this.folder = document.querySelector(".left-menu-container li") as HTMLElement;
-
 		if (this.displayed)
 		{
 			this.folder?.classList.remove("active");

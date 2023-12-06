@@ -1,13 +1,15 @@
-const version = "0.15";
+const version = "0.16";
 console.log("Library Version "+version);
 export { Form } from './src/public/Form.js';
 export { Block } from './src/public/Block.js';
 export { Record } from './src/public/Record.js';
 export { Key } from './src/model/relations/Key.js';
 export { Alert } from './src/application/Alert.js';
+export { SQLRest } from './src/database/SQLRest.js';
 export { RecordState } from './src/model/Record.js';
 export { Connection } from './src/public/Connection.js';
 export { QueryTable } from './src/database/QueryTable.js';
+export { Step as SQLStep } from './src/database/Connection.js';
 export { DatabaseTable } from './src/database/DatabaseTable.js';
 export { FieldProperties } from './src/public/FieldProperties.js';
 export { ConnectionScope } from './src/database/ConnectionScope.js';

@@ -118,6 +118,31 @@ export class Row
 		this.indicators.push(ind);
 	}
 
+	public setIndicatorState(state:string,failed:boolean) : void
+	{
+		let mode:string = "";
+		if (this.rownum < 0) return;
+
+		this.indicators.forEach((ind) =>
+		{
+			switch(this.status)
+			{
+				case Status.na : mode = "na"; break;
+				case Status.qbe : mode = "query"; break;
+				case Status.new : mode = "insert"; break;
+				case Status.insert : mode = "insert"; break;
+				case Status.update : mode = "update"; break;
+				case Status.delete : mode = "deleted"; break;
+			}
+
+			ind.element.setAttribute("mode",mode);
+			ind.element.setAttribute("state",state);
+
+			if (failed) ind.element.classList.add("failed");
+			else ind.element.classList.remove("failed");
+		})
+	}
+
 	public activateIndicators(flag:boolean) : void
 	{
 		if (flag && this.indicator$) return;
@@ -370,6 +395,7 @@ export class Row
 	public clear() : void
 	{
 		this.activateIndicators(false);
+		this.setIndicatorState("na",false);
 		this.getFields().forEach((fld) => {fld.clear()});
 	}
 

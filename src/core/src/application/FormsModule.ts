@@ -42,71 +42,73 @@ import { ApplicationHandler } from '../control/events/ApplicationHandler.js';
  */
 export class FormsModule
 {
-	private root$:HTMLElement;
-	private showurl$:boolean = true;
-	private static instance:FormsModule;
+	private static root$:HTMLElement;
+	private static flush$:FlushStrategy;
+	private static showurl$:boolean = true;
+	private static instance$:FormsModule = null;
 
 	/** Static method to return the singleton */
 	public static get() : FormsModule
 	{
-		if (FormsModule.instance == null)
-			FormsModule.instance = new FormsModule();
-		return(FormsModule.instance);
-	}
-
-	/** Utility. Use with care since javascript is actually single-threaded */
-	public static sleep(ms:number) : Promise<boolean>
-	{
-		return(new Promise(resolve => setTimeout(resolve,ms)));
-	}
-
-	constructor()
-	{
-		dates.validate();
-		KeyMapping.init();
-		ApplicationHandler.init();
-		FormsModule.instance = this;
+		if (FormsModule.instance$ == null)
+			FormsModule.instance$ = new FormsModule();
+		return(FormsModule.instance$);
 	}
 
 	/** Whether or not to display the active form in the url */
-	public get showurl() : boolean
+	public static get showurl() : boolean
 	{
-		return(this.showurl$);
+		return(FormsModule.showurl$);
 	}
 
 	/** Whether or not to display the active form in the url */
-	public set showurl(flag:boolean)
+	public static set showurl(flag:boolean)
 	{
-		this.showurl$ = flag;
+		FormsModule.showurl$ = flag;
+	}
+
+	/** Flush when leaving row or block */
+	public static get defaultFlushStrategy() : FlushStrategy
+	{
+		if (FormsModule.flush$ == null)
+			FormsModule.flush$ = FlushStrategy.Block;
+
+		return(FormsModule.flush$);
+	}
+
+	/** Flush when leaving row or block */
+	public static set defaultFlushStrategy(strategy:FlushStrategy)
+	{
+		FormsModule.flush$ = strategy;
 	}
 
 	/** The root element to which 'popup' forms will be added (default document.body) */
-	public getRootElement() : HTMLElement
+	public static getRootElement() : HTMLElement
 	{
-		if (!this.root$) return(document.body);
-		return(this.root$);
+		if (!FormsModule.root$) return(document.body);
+		return(FormsModule.root$);
 	}
 
 	/** The root element to which 'popup' forms will be added (default document.body) */
-	public setRootElement(root:HTMLElement) : void
+	public static setRootElement(root:HTMLElement) : void
 	{
-		this.root$ = root;
+		FormsModule.root$ = root;
 	}
 
 	/** Make a Form navigable directly via the URL */
-	public setURLNavigable(name:string, nav:boolean) : void
+	public static setURLNavigable(name:string, nav:boolean) : void
 	{
 		FormBacking.setURLNavigable(name,nav);
 	}
 
 	/** Get the latest javascript event */
-	public getJSEvent() : any
+	public static getJSEvent() : any
 	{
 		return(Framework.getEvent());
 	}
 
 	/** Map a component to string (or the name of the class) */
-	public mapComponent(clazz:Class<any>, path?:string) : void
+	public static mapComponent(clazz:Class<any>, path?:string) : void
 	{
 		if (clazz == null)
 			return;
@@ -132,26 +134,19 @@ export class FormsModule
 	}
 
 	/** Get the component a given path is mapped to */
-	public getComponent(path:string) : Class<any>
+	public static getComponent(path:string) : Class<any>
 	{
 		return(Components.classmap.get(path.toLowerCase()));
 	}
 
-	/** Parse a given Element to find and process FutureForms elements */
-	public parse(doc?:Element) : void
-	{
-		if (doc == null) doc = document.body;
-		Framework.parse(this,doc);
-	}
-
 	/** Update the internal KeyMap based on a new KeyMap */
-	public updateKeyMap(map:Class<KeyMap>) : void
+	public static updateKeyMap(map:Class<KeyMap>) : void
 	{
 		KeyMapping.update(map);
 	}
 
 	/** Open the form defined in the URL */
-	public OpenURLForm() : boolean
+	public static OpenURLForm() : boolean
 	{
 		let location:Location = window.location;
 		let params:URLSearchParams = new URLSearchParams(location.search);
@@ -159,14 +154,14 @@ export class FormsModule
 		if (params.get("form") != null)
 		{
 			let form:string = params.get("form");
-			let clazz:Class<any> = this.getComponent(form);
+			let clazz:Class<any> = FormsModule.getComponent(form);
 
 			if (!FormBacking.getURLNavigable(form))
 				return(false);
 
 			if (clazz != null && clazz.prototype instanceof Form)
 			{
-				this.showform(clazz);
+				FormsModule.showform(clazz);
 				return(true);
 			}
 		}
@@ -175,13 +170,13 @@ export class FormsModule
 	}
 
 	/** Retrive the current active Form */
-	public getCurrentForm() : Form
+	public static getCurrentForm() : Form
 	{
 		return(FormBacking.getCurrentForm());
 	}
 
 	/** Retrive the current active HTMLElement */
-	public getCurrentField() : HTMLElement
+	public static getCurrentField() : HTMLElement
 	{
 		let form:ViewForm = FormBacking.getViewForm(FormBacking.getCurrentForm());
 		if (form.current?.hasFocus()) return(form.current.implementation.getElement());
@@ -189,7 +184,7 @@ export class FormsModule
 	}
 
 	/** Emulate a user key-stroke */
-	public async sendkey(key:KeyMap|string) : Promise<boolean>
+	public static async sendkey(key:KeyMap|string) : Promise<boolean>
 	{
 		if (typeof key === "string") key = KeyMap.from(key);
 		let form:ViewForm = FormBacking.getCurrentViewForm();
@@ -199,82 +194,103 @@ export class FormsModule
 	}
 
 	/** Whether a given DatabaseConnection has outstanding transactions */
-	public hasTransactions(connection?:DatabaseConnection) : boolean
+	public static hasTransactions(connection?:DatabaseConnection) : boolean
 	{
 		return(FormBacking.hasTransactions(connection["conn$"]));
 	}
 
 	/** Issue commit on all DatabaseConnection's */
-	public async commit() : Promise<boolean>
+	public static async commit() : Promise<boolean>
 	{
 		return(FormBacking.commit());
 	}
 
 	/** Issue rollback on all DatabaseConnection's */
-	public async rollback() : Promise<boolean>
+	public static async rollback() : Promise<boolean>
 	{
 		return(FormBacking.rollback());
 	}
 
 	/** Popup a message */
-	public message(msg:string, title?:string) : void
+	public static message(msg:string, title?:string) : void
 	{
 		Alert.message(msg,title);
 	}
 
 	/** Popup a warning */
-	public warning(msg:string, title?:string) : void
+	public static warning(msg:string, title?:string) : void
 	{
 		Alert.warning(msg,title);
 	}
 
 	/** Popup a fatal */
-	public fatal(msg:string, title?:string) : void
+	public static fatal(msg:string, title?:string) : void
 	{
 		Alert.fatal(msg,title);
 	}
 
 	/** Get all active forms */
-	public getRunningForms() : Form[]
+	public static getRunningForms() : Form[]
 	{
 		return(FormBacking.getRunningForms());
 	}
 
 	/** Create a form based on the page */
-	public async createform(form:Class<Form|InternalForm>|string, page:HTMLElement, parameters?:Map<any,any>) : Promise<Form>
+	public static async createform(form:Class<Form|InternalForm>|string, page:HTMLElement, parameters?:Map<any,any>) : Promise<Form>
 	{
 		return(FormBacking.createForm(form,page,parameters));
 	}
 
 	/** Create and attach a form to the container (or root-element) */
-	public async showform(form:Class<Form|InternalForm>|string, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
+	public static async showform(form:Class<Form|InternalForm>|string, parameters?:Map<any,any>, container?:HTMLElement) : Promise<Form>
 	{
 		return(FormBacking.showform(form,null,parameters,container));
 	}
 
 	/** Show the blocking 'loading' html */
-	public showLoading(message:string) : number
+	public static showLoading(message:string) : number
 	{
 		return(Loading.show(message));
 	}
 
 	/** Remove the blocking 'loading' html */
-	public hideLoading(thread:number) : void
+	public static hideLoading(thread:number) : void
 	{
 		Loading.hide(thread);
 	}
 
 	/** Raise a Custom Event */
-	public async raiseCustomEvent(source:any) : Promise<boolean>
+	public static async raiseCustomEvent(source:any) : Promise<boolean>
 	{
 		let frmevent:FormEvent = FormEvent.AppEvent(EventType.Custom,source);
 		return(FormEvents.raise(frmevent));
 	}
 
 	/** Remove an event-listener */
-	public removeEventListener(id:object) : void
+	public static removeEventListener(id:object) : void
 	{
 		FormEvents.removeListener(id);
+	}
+
+	/** Utility. Use with care since javascript is actually single-threaded */
+	public static sleep(ms:number) : Promise<boolean>
+	{
+		return(new Promise(resolve => setTimeout(resolve,ms)));
+	}
+
+	constructor()
+	{
+		dates.validate();
+		KeyMapping.init();
+		ApplicationHandler.init();
+		FormsModule.instance$ = this;
+	}
+
+	/** Parse a given Element to find and process FutureForms elements */
+	public parse(doc?:Element) : void
+	{
+		if (doc == null) doc = document.body;
+		Framework.parse(this,doc);
 	}
 
 	/** Add an event-listener */
@@ -288,4 +304,10 @@ export class FormsModule
 	{
 		return(FormEvents.addListener(form,this,method,filter));
 	}
+}
+
+export enum FlushStrategy
+{
+	Row,
+	Block
 }

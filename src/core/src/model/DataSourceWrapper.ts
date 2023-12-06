@@ -25,6 +25,7 @@ import { Relation } from "./relations/Relation.js";
 import { FilterStructure } from "./FilterStructure.js";
 import { Block as ModelBlock } from "../model/Block.js";
 import { EventType } from "../control/events/EventType.js";
+import { FlushStrategy } from "../application/FormsModule.js";
 import { DataSource, LockMode } from "./interfaces/DataSource.js";
 
 export class DataSourceWrapper
@@ -163,23 +164,11 @@ export class DataSourceWrapper
 					record.state = RecordState.Insert;
 			});
 
-			if (this.source.rowlocking == LockMode.Optimistic)
-			{
-				for (let i = 0; i < this.cache$.length; i++)
-				{
-					if (!await this.lock(this.cache$[i],true))
-						this.cache$[i].failed = true;
-				}
-			}
-
 			let succces:boolean = true;
 			let records:Record[] = await this.source.flush();
 
 			for (let i = 0; i < records.length; i++)
 			{
-				if (!records[i].dirty || records[i].failed)
-					continue;
-
 				if (records[i].state == RecordState.Insert)
 				{
 					records[i].flushing = true;
@@ -201,7 +190,12 @@ export class DataSourceWrapper
 					records[i].flushing = true;
 					succces = await this.block.postUpdate(records[i]);
 					records[i].flushing = false;
-					if (succces) records[i].setClean(false);
+
+					if (succces)
+					{
+						this.block.view.setAttributes(records[i]);
+						records[i].setClean(false);
+					}
 				}
 
 				else
@@ -409,7 +403,7 @@ export class DataSourceWrapper
 			}
 		}
 
-		if (!this.source.transactional)
+		if (success && this.block?.interface.flushStrategy == FlushStrategy.Row)
 			success = await this.flush();
 
 		return(success);

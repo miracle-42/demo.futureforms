@@ -22,13 +22,12 @@
 import { BaseForm } from './BaseForm';
 import { Minimized } from './Minimized';
 
-import { FormHeader } from './fragments/FormHeader';
+import { CanvasHeader } from './fragments/CanvasHeader';
 import { PageHeader } from './fragments/PageHeader';
 import { PageFooter } from './fragments/PageFooter';
 
 import { Menu as TopMenu } from './menus/topmenu/Menu';
 import { Menu as LeftMenu } from './menus/leftmenu/Menu';
-import { Menu as RightClick } from './menus/rightclick/Menu';
 
 import { Fields } from './fields/Fields';
 import { Jobs } from './forms/jobs/Jobs';
@@ -54,6 +53,8 @@ import { LinkMapper } from './fields/LinkMapper';
 import { TrueFalseMapper } from './fields/TrueFalseMapper';
 
 import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, InternalFormsConfig, ConnectionScope } from 'forms42core';
+import { FlushStrategy } from 'forms42core/src/application/FormsModule';
+import { Generated } from './forms/generated/Generated';
 
 @FormsPathMapping(
 	[
@@ -69,6 +70,7 @@ import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, F
 		{class: Countries, path: "/forms/countries"},
 		{class: Locations, path: "/forms/locations"},
 		{class: Employees, path: "/forms/employees"},
+		{class: Generated, path: "/forms/generated"},
 		{class: Departments, path: "/forms/departments"},
 		{class: MasterDetail, path: "/forms/masterdetail"},
 
@@ -77,7 +79,7 @@ import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, F
 		{class: Lesson01, path: "/forms/lesson01"},
 		{class: Lesson02, path: "/forms/lesson02"},
 
-		{class: FormHeader, path: "/html/formheader"},
+		{class: CanvasHeader, path: "/html/canvasheader"},
 		{class: PageHeader, path: "/html/pageheader"},
 		{class: PageFooter, path: "/html/pagefooter"},
 		{class: LinkMapper, path: "/mappers/linkmapper"},
@@ -114,7 +116,7 @@ export class FormsModule extends FormsCoreModule
 
 		// Demo custom tag
 		FormProperties.TagLibrary.set("AppHeader",AppHeader);
-		this.setRootElement(document.body.querySelector("#forms"));
+		FormsModule.setRootElement(document.body.querySelector("#forms"));
 
 		this.parse();
 		this.list = new Minimized();
@@ -122,8 +124,7 @@ export class FormsModule extends FormsCoreModule
 		// Menues
 		this.topmenu = new TopMenu();
 		this.leftmenu = new LeftMenu();
-
-		this.updateKeyMap(keymap);
+		FormsModule.updateKeyMap(keymap);
 
 		Connection.TRXTIMEOUT = 240;
 		Connection.CONNTIMEOUT = 120;
@@ -136,7 +137,9 @@ export class FormsModule extends FormsCoreModule
 		if (!backend) backend = document.documentURI.match(/^.*\//)[0];
 
 		FormsModule.DATABASE = new Connection(backend);
-		//FormsModule.DATABASE.scope = ConnectionScope.stateless;
+		FormsModule.DATABASE.scope = ConnectionScope.transactional;
+
+		FormsModule.defaultFlushStrategy = FlushStrategy.Block;
 
 		let infomation:HTMLElement = document.querySelector(".infomation");
 		infomation.appendChild(KeyMapPage.show(keymap));
@@ -146,8 +149,6 @@ export class FormsModule extends FormsCoreModule
 
 		this.addEventListener(this.showTopMenu,{type: EventType.Key, key: keymap.topmenu});
 		this.addEventListener(this.showLeftMenu,{type: EventType.Key, key: keymap.leftmenu});
-
-		// this.addEventListener(this.rightmenu,{type: EventType.Mouse, mouse: MouseMap.contextmenu});
 
 		this.addEventListener(this.open,
 		[
@@ -161,34 +162,34 @@ export class FormsModule extends FormsCoreModule
 			{type:EventType.Key,key:this.masterdetail}
 		]);
 
-		this.OpenURLForm();
+		FormsModule.OpenURLForm();
 	}
 
 	private async open(event:FormEvent) : Promise<boolean>
 	{
 		if (event.key == this.jobs)
-			this.showform(Jobs);
+			FormsModule.showform(Jobs);
 
 		if (event.key == this.fields)
-			this.showform(Fields);
+			FormsModule.showform(Fields);
 
 		if (event.key == this.employees)
-			this.showform(Employees);
+			FormsModule.showform(Employees);
 
 		if (event.key == this.departments)
-			this.showform(Departments);
+			FormsModule.showform(Departments);
 
 		if (event.key == this.countries)
-			this.showform(Countries);
+			FormsModule.showform(Countries);
 
 		if (event.key == this.locations)
-			this.showform(Locations);
+			FormsModule.showform(Locations);
 
 		if (event.key == this.phonebook)
-			this.showform(PhoneBookMembased);
+			FormsModule.showform(PhoneBookMembased);
 
 		if (event.key == this.masterdetail)
-			this.showform(MasterDetail);
+			FormsModule.showform(MasterDetail);
 
 		return(true);
 	}
@@ -196,7 +197,7 @@ export class FormsModule extends FormsCoreModule
 	private logontrg:object = null;
 	public async login() : Promise<boolean>
 	{
-		let usrpwd:Form = await this.showform(UsernamePassword);
+		let usrpwd:Form = await FormsModule.showform(UsernamePassword);
 		this.logontrg = this.addFormEventListener(usrpwd,this.connect,{type: EventType.OnCloseForm});
 		return(true);
 	}
@@ -206,7 +207,7 @@ export class FormsModule extends FormsCoreModule
 		if (!FormsModule.DATABASE.connected())
 			return(true);
 
-		let forms:Form[] = this.getRunningForms();
+		let forms:Form[] = FormsModule.getRunningForms();
 
 		for (let i = 0; i < forms.length; i++)
 		{
@@ -219,7 +220,7 @@ export class FormsModule extends FormsCoreModule
 
 	public async close() : Promise<boolean>
 	{
-		let form:Form = this.getCurrentForm();
+		let form:Form = FormsModule.getCurrentForm();
 		if (form != null) return(form.close());
 		return(true);
 	}
@@ -227,7 +228,7 @@ export class FormsModule extends FormsCoreModule
 	private async connect(event:FormEvent) : Promise<boolean>
 	{
 		let form:UsernamePassword = event.form as UsernamePassword;
-		this.removeEventListener(this.logontrg);
+		FormsModule.removeEventListener(this.logontrg);
 
 		if (form.accepted && form.username && form.password)
 		{
@@ -235,7 +236,7 @@ export class FormsModule extends FormsCoreModule
 			{
 				await FormsModule.sleep(2000);
 
-				let forms:Form[] = this.getRunningForms();
+				let forms:Form[] = FormsModule.getRunningForms();
 
 				for (let i = 0; i < forms.length; i++)
 				{
@@ -262,13 +263,6 @@ export class FormsModule extends FormsCoreModule
 	public async showLeftMenu() : Promise<boolean>
 	{
 		this.leftmenu.focus();
-		return(true);
-	}
-
-	private async rightmenu() : Promise<boolean>
-	{
-		let mouseevent: MouseEvent = this.getJSEvent() as MouseEvent;
-		new RightClick(mouseevent);
 		return(true);
 	}
 }

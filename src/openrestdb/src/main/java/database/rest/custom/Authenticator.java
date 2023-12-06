@@ -21,11 +21,27 @@
 
 package database.rest.custom;
 
+import java.util.Map;
+import java.util.HashMap;
 import org.json.JSONObject;
 
 
 public interface Authenticator
 {
-   String user();
-   boolean authenticate(JSONObject payload) throws Exception;
+  AuthResponse authenticate(JSONObject payload) throws Exception;
+
+  public static class AuthResponse
+  {
+    public final String user;
+    public final boolean success;;
+    public final Map<String,Object> attrs;
+
+    public AuthResponse(boolean success, String user, Map<String,Object> attrs)
+    {
+      this.user = user;
+      this.success = success;
+      if (attrs != null) this.attrs = attrs;
+      else this.attrs = new HashMap<String,Object>();
+    }
+  }
 }

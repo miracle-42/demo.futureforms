@@ -38,9 +38,9 @@ import { Relation } from '../model/relations/Relation.js';
 import { EventType } from '../control/events/EventType.js';
 import { Form as InternalForm } from '../internal/Form.js';
 import { DateConstraint } from '../public/DateConstraint.js';
+import { EventStack } from '../control/events/EventStack.js';
 import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
-import { EventStack } from '../control/events/EventStack.js';
 
 export class FormBacking
 {
@@ -65,7 +65,7 @@ export class FormBacking
 		{
 			let path:string = form;
 			form = form.toLowerCase();
-			form = FormsModule.get().getComponent(form);
+			form = FormsModule.getComponent(form);
 			if (form == null) throw "@Application: No components mapped to path '"+path+"'";
 		}
 
@@ -92,7 +92,7 @@ export class FormBacking
 		{
 			let path:string = form;
 			form = form.toLowerCase();
-			form = FormsModule.get().getComponent(form);
+			form = FormsModule.getComponent(form);
 			if (form == null) throw "@Application: No components mapped to path '"+path+"'";
 		}
 
@@ -111,7 +111,7 @@ export class FormBacking
 		}
 
 		if (container == null)
-			container = FormsModule.get().getRootElement();
+			container = FormsModule.getRootElement();
 
 		if (!(form.prototype instanceof Form) && !(form.prototype instanceof InternalForm))
 			throw "@Application: Component mapped to '"+form+"' is not a form";

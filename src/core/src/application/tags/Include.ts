@@ -31,10 +31,8 @@ export class Include implements Tag
 {
 	public parse(_component:any, tag:HTMLElement, _attr:string) : HTMLElement
 	{
-		let module:FormsModule = FormsModule.get();
-
 		let src:string = tag.getAttribute("src");
-		let impl:Class<any> = module.getComponent(src);
+		let impl:Class<any> = FormsModule.getComponent(src);
 		let factory:ComponentFactory = Properties.FactoryImplementation;
 
 		if (impl == null)

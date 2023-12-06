@@ -98,7 +98,7 @@ export class Menu extends MenuComponent
 		entry = await this.findEntry("/topbar/connection/disconnect");
 		if (entry) entry.disabled = false;
 
-		if (FormsModule.get().getRunningForms().length > 0)
+		if (FormsModule.getRunningForms().length > 0)
 		{
 			entry = await this.findEntry("/topbar/query");
 			if (entry) entry.disabled = false;
@@ -158,7 +158,7 @@ export class Menu extends MenuComponent
 			return(true);
 		}
 
-		if (FormsModule.get().getRunningForms().length == 1)
+		if (FormsModule.getRunningForms().length == 1)
 		{
 			entry = await this.findEntry("/topbar/form");
 			if (entry) entry.disabled = false;
@@ -188,7 +188,7 @@ export class Menu extends MenuComponent
 			if (entry) entry.disabled = false;
 		}
 
-		if (FormsModule.get().getRunningForms().length == 0)
+		if (FormsModule.getRunningForms().length == 0)
 		{
 			entry = await this.findEntry("/topbar/form");
 			if (entry) entry.disabled = true;

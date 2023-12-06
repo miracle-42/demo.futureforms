@@ -28,7 +28,7 @@ import { DataSourceWrapper } from "./DataSourceWrapper.js";
  *
  * Records goes through different states, depending on
  * the user actions, the datasource and the type of connection.
- * 
+ *
  */
 export enum RecordState
 {
@@ -123,7 +123,7 @@ export class Record
 			case RecordState.New :
 			case RecordState.Insert :
 			case RecordState.Inserted :
-				return(true);
+			return(true);
 		}
 		return(false);
 	}
@@ -134,16 +134,19 @@ export class Record
 		this.initial$ = [];
 		this.dirty$.clear();
 		this.locked$ = false;
-		this.failed$ = false;
 	}
 
 	public setClean(release:boolean) : void
 	{
 		this.initial$ = [];
 		this.dirty$.clear();
-		this.failed$ = false;
 		if (release) this.locked$ = false;
 		this.initial$.push(...this.values$);
+	}
+
+	public cleanup() : void
+	{
+		this.dirty$.clear();
 	}
 
 	public get source() : DataSource

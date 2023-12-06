@@ -61,7 +61,7 @@ export class BaseForm extends Form
 	{
 
 		let image:HTMLImageElement = document.createElement("img");
-		let toggle:HTMLElement = this.getView().querySelector(".toggle");
+		let toggle:HTMLElement = this.getView().querySelector('div[name="toggle"]');
 
 		toggle.innerHTML = "";
 

@@ -464,8 +464,16 @@ export class Block
 	{
 		let row:Row = this.displayed(record);
 
-		if (!baserec) row = this.getRow(-1);
-		if (row != null) this.recprops$.apply(row,record,field);
+		if (!baserec)
+			row = this.getRow(-1);
+
+		if (row)
+		{
+			if (baserec)
+				row.setIndicatorState(RecordState[record.state],record.failed);
+
+			this.recprops$.apply(row,record,field);
+		}
 	}
 
 	public async setEventTransaction(event:EventType) : Promise<void>
@@ -490,7 +498,7 @@ export class Block
 
 		if (!success)
 		{
-			await this.model.refresh();
+			await this.model.refresh(0,false);
 			return(false);
 		}
 
@@ -586,7 +594,13 @@ export class Block
 
 	public set validated(flag:boolean)
 	{
-		this.getRow(this.row).validated = flag;
+		let row:Row = this.getRow(this.row);
+
+		if (flag && row && row.status == Status.new)
+		 row.status = Status.insert;
+
+		if (row)
+			row.validated = flag;
 	}
 
 	public get validated() : boolean

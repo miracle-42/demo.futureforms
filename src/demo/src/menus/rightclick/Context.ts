@@ -24,7 +24,7 @@ import { KeyMap, StaticMenu, StaticMenuEntry } from "forms42core";
 
 export class Context extends StaticMenu
 {
-  
+
    constructor()
    {
       super(Context.data());
@@ -40,8 +40,8 @@ export class Context extends StaticMenu
 		{
 			switch(parts[1])
 			{
-				case "clear" : module.sendkey(KeyMap.enterquery);	break;
-				case "close" : module.close();							break;
+				case "clear" : FormsModule.sendkey(KeyMap.enterquery);	break;
+				case "close" : module.close();									break;
 			}
 		}
 
@@ -49,10 +49,10 @@ export class Context extends StaticMenu
 		{
 			switch(parts[1])
 			{
-				case "enter" 		: module.sendkey(KeyMap.enterquery);	break;
-				case "execute" 	: module.sendkey(KeyMap.executequery);	break;
-				case "refine" 		: module.sendkey(KeyMap.lastquery);		break;
-				case "advanced" 	: module.sendkey(KeyMap.queryeditor);	break;
+				case "enter" 		: FormsModule.sendkey(KeyMap.enterquery);		break;
+				case "execute" 	: FormsModule.sendkey(KeyMap.executequery);	break;
+				case "refine" 		: FormsModule.sendkey(KeyMap.lastquery);		break;
+				case "advanced" 	: FormsModule.sendkey(KeyMap.queryeditor);	break;
 			}
 		}
 
@@ -60,11 +60,11 @@ export class Context extends StaticMenu
 		{
 			switch(parts[1])
 			{
-				case "insert" 		: module.sendkey(KeyMap.insert);		break;
-				case "delete" 		: module.sendkey(KeyMap.delete);		break;
-				case "refresh" 	: module.sendkey(KeyMap.refresh);	break;
-				case "scrollup" 	: module.sendkey(KeyMap.pageup);		break;
-				case "scrolldown" : module.sendkey(KeyMap.pagedown);	break;
+				case "insert" 		: FormsModule.sendkey(KeyMap.insert);		break;
+				case "delete" 		: FormsModule.sendkey(KeyMap.delete);		break;
+				case "refresh" 	: FormsModule.sendkey(KeyMap.refresh);		break;
+				case "scrollup" 	: FormsModule.sendkey(KeyMap.pageup);		break;
+				case "scrolldown" : FormsModule.sendkey(KeyMap.pagedown);	break;
 			}
 		}
 
@@ -72,8 +72,8 @@ export class Context extends StaticMenu
 		{
 			switch(parts[1])
 			{
-				case "commit" 		: module.sendkey(KeyMap.commit);		break;
-				case "rollback" 	: module.sendkey(KeyMap.rollback);	break;
+				case "commit" 		: FormsModule.sendkey(KeyMap.commit);		break;
+				case "rollback" 	: FormsModule.sendkey(KeyMap.rollback);	break;
 			}
 		}
 

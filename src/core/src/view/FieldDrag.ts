@@ -133,7 +133,9 @@ export class FieldDrag implements EventListenerObject
 		let current:boolean = false;
 
 		let id:string = header.getAttribute("for");
+
 		if (id == null) return(false);
+		id = id.replaceAll(".","\\.");
 
 		let elem:HTMLElement = document.querySelector("#"+id);
 		if (elem == null) return(false);
@@ -164,7 +166,9 @@ export class FieldDrag implements EventListenerObject
 		if (header == null) return(null);
 
 		let id:string = header.getAttribute("for");
+
 		if (id == null) return(null);
+		id = id.replaceAll(".","\\.");
 
 		let elem:HTMLElement[] = [];
 

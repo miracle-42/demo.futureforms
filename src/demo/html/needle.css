@@ -1,0 +1,41 @@
+/* neddle */
+
+.needle
+{
+	left: 45%;
+	width: 4px;
+	height: 7px;
+	bottom: 90%;
+	position: absolute;
+	border-radius: 10px;
+	transform: translateX(-50%) rotate(-15deg);
+}
+
+.needle::before
+{
+	left: 50%;
+	width: 6px;
+	z-index: 1;
+	height: 5px;
+	content: '';
+	bottom: 90%;
+	position: absolute;
+	border-radius: 50%;
+	transform: translateX(-50%);
+	
+}
+
+.needle::after
+{
+	left: 50%;
+	bottom: 0%;
+	width: 8px;
+	z-index: 0;
+	height: 5px;
+	content: '';
+	position: absolute;
+	border-radius: 50%;
+	transform: translateX(-50%);
+	box-shadow: 0 3px 4px rgba(0, 0, 0, 0.8);
+}
+/*-------------------------------*/

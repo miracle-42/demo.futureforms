@@ -1,0 +1,110 @@
+input
+{
+	border: none;
+	font-size: 14px;
+	font-weight: normal;
+	margin:0px 0px 0px 10px;
+	transition: all 0.18s ease;
+	border-bottom: 2px solid black;
+}
+
+input[date]
+{
+	width:90px;
+}
+
+input[mode="query"],
+input[name="search"],
+div[name="search"] input
+{
+	text-indent: 12px;
+   background-size: 10px;
+	transition: all 0.18s ease;
+	background-repeat: no-repeat;
+	background-position-y: center;
+	background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+}
+
+input[mode="insert"]
+{
+	text-indent: 12px;
+	background-size: 10px;
+	transition: all 0.18s ease;
+	background-repeat: no-repeat;
+	background-position-y: center;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5'/%3E%3C/svg%3E");
+}
+
+input[mode="deleted"]
+{
+	transition: all 0.18s ease;
+	text-decoration: line-through;
+}
+
+.warning
+{
+	font-style: italic;
+}
+
+
+/*-----------------------------*/
+/*checkbox and radio */
+
+input[type="radio"],
+input[type="checkbox"]
+{
+	top:4px;
+	right:5px;
+	width: 20px;
+	height: 20px;
+	outline: none; 
+	cursor: pointer;
+	appearance: none;
+	border-radius: 5px;
+	position: relative;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+
+ }
+
+ input[type="radio"]:hover,
+ input[type="radio"]:focus,
+ input[type="checkbox"]:hover,
+ input[type="checkbox"]:focus
+ {
+	transform: scale(1.06);
+ }
+
+input[type="radio"]
+{
+	border-radius: 50%;
+}
+
+input[type="checkbox"]::before {
+	top: 40%;
+	left: 50%;
+	font-size: 16px;
+	content: '\2713'; 
+	position: absolute;
+	transition: transform 0.2s ease-in-out;
+   transform: translate(-50%, -50%) scale(0);
+}
+
+input[type="radio"]::before 
+{
+ 	top: 40%;
+ 	left: 50%;
+ 	font-size: 20px;
+ 	content: '\2022'; 
+ 	position: absolute;
+ 	transition: transform 0.2s ease-in-out;
+ 	transform: translate(-50%, -50%) scale(0);
+}
+
+input[type="radio"]:checked::before ,
+input[type="checkbox"]:checked::before 
+{
+	transform: translate(-50%, -50%) scale(1);
+}
+
+/*---------------------------*/

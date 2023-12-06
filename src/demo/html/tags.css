@@ -1,0 +1,131 @@
+
+span
+{
+	cursor: default;
+}
+
+p
+{
+  margin:0;
+  cursor: default;
+}
+
+legend
+{
+	font-weight: bold;
+}
+
+select
+{
+	border: none;
+}
+
+/* textarea */
+
+textarea 
+{
+	border:none;
+	resize: none;
+	box-shadow: none;
+}
+
+textarea:required
+{
+	outline: none;
+	box-shadow: none;
+}
+/*-------------------*/
+/* muti choice */
+select[name="multi"] 
+{
+	padding: 2px;
+	outline: none;
+	margin-top:10px;
+	cursor: pointer;
+	font-size: 12px;
+	appearance: none;
+	overflow: hidden;
+	border-radius: 5px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+ }
+ 
+ select[name="multi"] option
+ {
+	padding:2px 15px 2px 2px;
+ }
+/*-------------*/
+/* button */
+button
+{
+	z-index: 0;
+	width:70px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	font-weight: bold;
+	padding: 5px 10px;
+	user-select: none;
+	position: relative;
+	border-radius: 10px;
+	touch-action: manipulation;
+}
+
+button:before
+{
+	content: "";
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	z-index: -1;
+	filter: blur(5px);
+	user-select: none;
+	border-radius: 10px;
+	background-size: 400%;
+	width: calc(100% + 4px);
+	height: calc(100% + 4px);
+	transition: opacity 0.3s ease-in-out;
+	animation: glowing-button 20s linear infinite;
+}
+
+@keyframes glowing-button
+{
+	0%
+	{
+	  background-position: 0 0;
+	}
+	50%
+	{
+	  background-position: 400% 0;
+	}
+	100%
+	{
+	  background-position: 0 0;
+	}
+}
+
+button::after
+{
+	top: 0;
+	left: 0;
+	z-index: -1;
+	content: "";
+	width: 100%;
+	height: 100%;
+	user-select: none;
+	position: absolute;
+	border-radius: 10px;
+
+}
+
+button:hover 
+{
+	font-weight: bold;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+ }
+ 
+ button:hover:before 
+ {
+	opacity: 0; 
+ }
+ 
+/*----------------*/

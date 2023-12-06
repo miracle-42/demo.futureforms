@@ -26,12 +26,11 @@ import { BindValue } from "./BindValue.js";
 import { SQLSource } from "./SQLSource.js";
 import { Alert } from "../application/Alert.js";
 import { SQLRestBuilder } from "./SQLRestBuilder.js";
-import { Connection } from "../database/Connection.js";
 import { Filter } from "../model/interfaces/Filter.js";
-import { ConnectionScope } from "./ConnectionScope.js";
 import { SubQuery } from "../model/filters/SubQuery.js";
 import { Record, RecordState } from "../model/Record.js";
 import { DatabaseResponse } from "./DatabaseResponse.js";
+import { Connection, Step } from "../database/Connection.js";
 import { FilterStructure } from "../model/FilterStructure.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 import { DataSource, LockMode } from "../model/interfaces/DataSource.js";
@@ -318,55 +317,23 @@ export class DatabaseTable extends SQLSource implements DataSource
 		if (!this.rowlocking)
 			return(true);
 
-		let sql:SQLRest = null;
-
 		if (!await this.describe())
 			return(false);
 
-		sql = SQLRestBuilder.lock(this.table$,this.primary$,this.columns,record);
+		let columns:string[] =
+			this.mergeColumns(this.columns,this.dmlcols$);
+
+		let sql:SQLRest = SQLRestBuilder.lock(this.table$,this.primary$,columns,record);
 		this.setTypes(sql.bindvalues);
 
 		SQLRestBuilder.assert(sql,this.columns,record);
 
-		if (sql.assertions != null)
-			this.setTypes(sql.assertions);
+		if (sql.assert != null)
+			this.setTypes(sql.assert);
 
 		let response:any = await this.conn$.lock(sql);
 
-		if (!response.success)
-		{
-			Alert.warning("Record is locked by another user. Try again later","Lock Record");
-			return(false);
-		}
-
-		if (response.warning)
-		{
-			if (response.violations)
-			{
-				let columns:string = "";
-				let violations:any[] = response.violations;
-
-				for (let i = 0; i < violations.length && i < 5; i++)
-				{
-					if (i > 0) columns += ", ";
-					columns += violations[i].column;
-				}
-
-				if (violations.length > 5)
-					columns += ", ...";
-
-				Alert.warning("Record has been changed by another user ("+columns+")","Lock Record");
-			}
-			else
-			{
-				record.state = RecordState.Deleted;
-				Alert.warning("Record has been deleted by another user","Lock Record");
-			}
-
-			return(false);
-		}
-
-		return(true);
+		return(this.process(record,response));
 	}
 
 	/** Undo not flushed changes */
@@ -387,7 +354,6 @@ export class DatabaseTable extends SQLSource implements DataSource
 	public async flush() : Promise<Record[]>
 	{
 		let sql:SQLRest = null;
-		let response:any = null;
 		let processed:Record[] = [];
 
 		if (this.dirty$.length == 0)
@@ -400,15 +366,16 @@ export class DatabaseTable extends SQLSource implements DataSource
 		}
 
 		if (!await this.describe())
-			return(null);
+			return([]);
 
-		let lock:boolean = this.conn$.scope == ConnectionScope.stateless;
+		let columns:string[] =
+		this.mergeColumns(this.columns,this.dmlcols$);
 
-		if (this.rowlocking == LockMode.None)
-			lock = false;
+		let records:{step:Step, record:Record}[] = [];
 
 		for (let i = 0; i < this.dirty$.length; i++)
 		{
+			let retcols:string[] = [];
 			let rec:Record = this.dirty$[i];
 
 			if (rec.failed)
@@ -417,15 +384,24 @@ export class DatabaseTable extends SQLSource implements DataSource
 			if (rec.state == RecordState.Insert)
 			{
 				processed.push(rec);
+				rec.response = null;
 
-				let columns:string[] = this.mergeColumns(this.columns,this.dmlcols$);
+				retcols = this.insertReturnColumns;
+				if (retcols == null) retcols = [];
+
 				sql = SQLRestBuilder.insert(this.table$,columns,rec,this.insreturncolumns$);
-
 				this.setTypes(sql.bindvalues);
-				response = await this.conn$.insert(sql);
 
-				this.castResponse(response);
-				rec.response = new DatabaseResponse(response,this.insreturncolumns$);
+				records.push({record:rec,
+				step:
+				{
+					path: "insert",
+					stmt: sql.stmt,
+					assert: sql.assert,
+					bindvalues: sql.bindvalues,
+					returnclause: retcols.length > 0
+				}
+				});
 			}
 
 			else
@@ -433,32 +409,99 @@ export class DatabaseTable extends SQLSource implements DataSource
 			if (rec.state == RecordState.Delete)
 			{
 				processed.push(rec);
+				rec.response = null;
+
+				retcols = this.delreturncolumns$;
+				if (retcols == null) retcols = [];
+
 				sql = SQLRestBuilder.delete(this.table$,this.primaryKey,rec,this.delreturncolumns$);
 
 				this.setTypes(sql.bindvalues);
-				response = await this.conn$.delete(sql);
+				let locking:boolean = !rec.locked;
 
-				this.castResponse(response);
-				rec.response = new DatabaseResponse(response,this.delreturncolumns$);
+				if (this.rowlocking == LockMode.None)
+					locking = false;
+
+				if (locking)
+					SQLRestBuilder.assert(sql,columns,rec);
+
+				records.push({record:rec,
+				step:
+				{
+					path: "delete",
+					stmt: sql.stmt,
+					assert: sql.assert,
+					bindvalues: sql.bindvalues,
+					returnclause: retcols.length > 0
+				}
+				});
 			}
 
-			else if (rec.state != RecordState.Deleted)
+			else
 
+			if (rec.state != RecordState.Deleted)
 			{
+				if (!rec.dirty)
+					continue;
+
 				processed.push(rec);
 				rec.response = null;
 
-				let columns:string[] = this.mergeColumns(this.columns,this.dmlcols$);
+				retcols = this.delreturncolumns$;
+				if (retcols == null) retcols = [];
+
 				sql = SQLRestBuilder.update(this.table$,this.primaryKey,columns,rec,this.updreturncolumns$);
 
-				if (sql != null)
-				{
-					this.setTypes(sql.bindvalues);
-					response = await this.conn$.update(sql);
+				this.setTypes(sql.bindvalues);
+				let locking:boolean = !rec.locked;
 
-					this.castResponse(response);
-					rec.response = new DatabaseResponse(response,this.updreturncolumns$);
+				if (this.rowlocking == LockMode.None)
+					locking = false;
+
+				if (locking)
+					SQLRestBuilder.assert(sql,columns,rec);
+
+				records.push({record:rec,
+				step:
+				{
+					path: "update",
+					stmt: sql.stmt,
+					assert: sql.assert,
+					bindvalues: sql.bindvalues,
+					returnclause: retcols.length > 0
 				}
+				});
+			}
+		}
+
+		let stmts:Step[] = [];
+		records.forEach((record) =>
+		{stmts.push(record.step);})
+
+		let responses:any[] = await this.conn$.batch(stmts);
+
+		for (let i = 0; i < records.length; i++)
+		{
+			let step:Step = records[i].step;
+			let response:any = responses[i];
+			let record:Record = records[i].record;
+
+			this.castResponse(response);
+
+			if (step.path == "insert")
+			{
+				record.response = new DatabaseResponse(response,this.insreturncolumns$);
+				await this.process(record,response);
+			}
+			else if (step.path == "update")
+			{
+				record.response = new DatabaseResponse(response,this.updreturncolumns$);
+				await this.process(record,response);
+			}
+			else if (step.path == "delete")
+			{
+				record.response = new DatabaseResponse(response,this.delreturncolumns$);
+				await this.process(record,response);
 			}
 		}
 
@@ -795,6 +838,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 			let response:any = {succes: true, rows: [rows[r]]};
 			record.response = new DatabaseResponse(response,this.columns);
 
+			record.cleanup();
 			fetched.push(record);
 		}
 
@@ -822,6 +866,74 @@ export class DatabaseTable extends SQLSource implements DataSource
 					rows[r][col] = new Date(value);
 			})
 		}
+	}
+
+	private async process(record:Record, response:any) : Promise<boolean>
+	{
+		if (!response.success)
+		{
+			if (response.violations)
+			{
+				record.locked = true;
+
+				let columns:string = "";
+				let violations:any[] = response.violations;
+
+				for (let i = 0; i < violations.length && i < 5; i++)
+				{
+					if (i > 0) columns += ", ";
+					columns += violations[i].column;
+				}
+
+				if (violations.length > 5)
+					columns += ", ...";
+
+				await record.block.wrapper.refresh(record);
+				let row:number = record.block.view.displayed(record)?.rownum;
+
+				if (row != null)
+					await record.block.view.refresh(record);
+
+				if (row == null) Alert.warning("Record has been changed by another user ("+columns+")","Lock Record");
+				else Alert.warning("Record at row "+row+" has been changed by another user ("+columns+")","Lock Record");
+			}
+			else
+			{
+				if (response.lock)
+				{
+					if (response.rows?.length == 0)
+					{
+						record.state = RecordState.Deleted;
+						Alert.warning("Record has been deleted by another user","Lock Record");
+					}
+					else
+					{
+						await record.block.wrapper.refresh(record);
+						let row:number = record.block.view.displayed(record)?.rownum;
+
+						if (row != null)
+						{
+							await record.block.view.refresh(record);
+							record.setClean(true);
+						}
+
+						if (row == null) Alert.warning("Record is locked by another user. Try again later","Lock Record");
+						else Alert.warning("Record at row "+row+" is locked by another user. Try again later","Lock Record");
+					}
+				}
+				else
+				{
+					Alert.fatal(response.message,response.path);
+				}
+			}
+
+			record.failed = true;
+			record.locked = false;
+
+			return(false);
+		}
+
+		return(true);
 	}
 
 	private mergeColumns(list1:string[], list2:string[]) : string[]

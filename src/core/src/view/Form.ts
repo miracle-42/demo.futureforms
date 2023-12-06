@@ -489,7 +489,7 @@ export class Form implements EventListenerObject
 		if (success)
 		{
 			form.focus$ = true;
-			if (FormsModule.get().showurl) this.setURL();
+			if (FormsModule.showurl) this.setURL();
 		}
 		else
 		{
@@ -762,7 +762,7 @@ export class Form implements EventListenerObject
 				if (inst.field.block.empty())
 					return(true);
 
-				await mblock.refresh();
+				await mblock.refresh(0,true);
 				return(true);
 			}
 
@@ -1212,7 +1212,7 @@ export class Form implements EventListenerObject
 
 	public setURL(close?:boolean) : void
 	{
-		if (!FormsModule.get().showurl)
+		if (!FormsModule.showurl)
 			return;
 
 		let location:Location = window.location;

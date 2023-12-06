@@ -21,11 +21,10 @@
 
 package database.rest.custom;
 
-import java.util.ArrayList;
-import database.rest.database.BindValue;
+import org.json.JSONObject;
 
 
 public interface SQLRewriter
 {
-  String rewrite(String sql, ArrayList<BindValue> bindvalues) throws Exception;
+  JSONObject rewrite(JSONObject payload) throws Exception;
 }

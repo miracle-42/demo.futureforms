@@ -525,7 +525,7 @@ export class BasicProperties
 			Properties.FactoryImplementation;
 
 		if (typeof mapper === "string")
-			mapper = FormsModule.get().getComponent(mapper);
+			mapper = FormsModule.getComponent(mapper);
 
 		else
 
@@ -561,7 +561,7 @@ export class BasicProperties
 			Properties.FactoryImplementation;
 
 		if (typeof formatter === "string")
-			formatter = FormsModule.get().getComponent(formatter);
+			formatter = FormsModule.getComponent(formatter);
 
 		else
 
@@ -593,7 +593,7 @@ export class BasicProperties
 		if (typeof formatter === "string")
 		{
 			let map:string = formatter;
-			formatter = FormsModule.get().getComponent(map);
+			formatter = FormsModule.getComponent(map);
 			if (!formatter) Alert.fatal("Formatter '"+map+"' is not mapped","Formatters");
 		}
 
@@ -627,7 +627,7 @@ export class BasicProperties
 		if (typeof listofvalues === "string")
 		{
 			let map:string = listofvalues;
-			listofvalues = FormsModule.get().getComponent(map);
+			listofvalues = FormsModule.getComponent(map);
 			if (!listofvalues) Alert.fatal("ListOfValues '"+map+"' is not mapped","ListOfValues");
 		}
 
@@ -639,7 +639,7 @@ export class BasicProperties
 
 	private setFormatterType(formatter:string) : void
 	{
-		let impl:any = FormsModule.get().getComponent(formatter);
+		let impl:any = FormsModule.getComponent(formatter);
 
 		if (isFormatter(impl)) this.setFormatter(impl);
 		else if (isSimpleFormatter(impl)) this.setSimpleFormatter(impl);

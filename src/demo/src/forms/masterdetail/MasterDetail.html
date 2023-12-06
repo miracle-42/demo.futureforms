@@ -1,33 +1,28 @@
-<include src="/html/formheader"></include>
+<include src="/html/canvasheader"></include>
 
 <!-- Start width -->
+<div style="width: 1000px;"></div>
 <form>
-	<div style="width: 1000px;"></div>
-
-	<div class="form">
-		<div class="block">
-			<div class="needle blue"></div>
-			<table>
-				<tr>
-					<th></th>
-					<th onclick="this.sort('dept','department_id')">Id</th>
-					<th onclick="this.sort('dept','department_name')">Name</th>
-					<th>Manager</th>
-					<th>Location</th>
-				</tr>
-				<tr class="row" foreach="row in 0..2">
-					<td class="indicator"><span from="Departments" row="$row" type="row-indicator"></span></td>
-
-					<td><input name="department_id" 		from="Departments" row="$row" size="6"  integer required></td>
-					<td><input name="department_name" 	from="Departments" row="$row" size="20" initcap required></td>
-					<td><input name="manager" 				from="Departments" row="$row" size="20" lov="/lovs/managers" derived readonly query="false"></td>
-					<td><input name="location" 			from="Departments" row="$row" size="30"  lov="/lovs/locations" derived readonly query="false"></td>
-				</tr>
-			</table>
-		</div>
+	<div class="block">
+		<div class="needle red"></div>
+		<table>
+			<tr>
+				<th></th>
+				<th class="sort" onclick="this.sort('dept','department_id')">Id</th>
+				<th class="sort" onclick="this.sort('dept','department_name')">Name</th>
+				<th>Manager</th>
+				<th>Location</th>
+			</tr>
+			<tr class="row" foreach="row in 0..2">
+				<td class="indicator"><span from="Departments" row="$row" type="row-indicator"></span></td>
+				<td><input name="department_id" 		from="Departments" row="$row" size="6"  integer required></td>
+				<td><input name="department_name" 	from="Departments" row="$row" size="20" initcap required></td>
+				<td><input name="manager" 				from="Departments" row="$row" size="20" lov="/lovs/managers" derived readonly query="false"></td>
+				<td><input name="location" 			from="Departments" row="$row" size="30"  lov="/lovs/locations" derived readonly query="false"></td>
+			</tr>
+		</table>
 	</div>
-
-	<div class="form" style="display:flex; flex-wrap: wrap;">
+	<div class="container">
 		<div class="block">
 			<div class="needle red"></div>
 			<table>
@@ -64,7 +59,6 @@
 				</tr>
 				<tr class="row" foreach="row in 0..4">
 					<td class="indicator"><span from="Employees" row="$row" type="row-indicator"></span></td>
-
 					<td><input id="fn$row" 	name="first_name" 	from="Employees" row="$row" size="10" initcap required></td>
 					<td><input id="ln$row" 	name="last_name" 		from="Employees" row="$row" size="10" initcap required></td>
 					<td><input id="em$row" 	name="email" 			from="Employees" row="$row" size="32" required></td>
@@ -73,26 +67,26 @@
 			</table>
 		</div>
 
-		<div class="block" style="display:flex; align-items: stretch;">
+		<div class="block">
 			<div class="needle red"></div>
-			<table style="display:flex; align-items: center;">
+			<table>
 				<tr>
-					<td>Salary</td>
+					<td><label>Salary</label></td>
 					<td>
-						<input name="salary" from="Employees" size="8" required integer>&euro;
+						:<input name="salary" from="Employees" size="8" required integer>&euro;
 					</td>
 				</tr>
 				<tr>
-					<td>Hire Date</td>
+					<td><label>Hire Date</label></td>
 					<td>
-						<input name="hire_date" from="Employees" date required>
+						:<input name="hire_date" from="Employees" date required>
 						<span onclick="this.showDatePicker('Employees','hire_date')">&#128197;</span>
 					</td>
 				</tr>
 				<tr>
-					<td>Job</td>
-					<td style="display:inline-flex">
-						<input name="job_id" from="Employees" lov="/lovs/jobs" size="10" upper required>
+					<td><label>Job</label></td>
+					<td>
+						:<input name="job_id" from="Employees" lov="/lovs/jobs" size="10" upper required>
 						<input name="job_title" from="Employees" lov="/lovs/jobs" size="20" derived readonly query="false">
 						<span onclick="this.showListOfValues('Employees','job_id')">&#x2807;</span>
 					</td>

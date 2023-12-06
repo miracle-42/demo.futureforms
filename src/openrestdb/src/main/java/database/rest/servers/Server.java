@@ -78,11 +78,7 @@ public class Server extends Thread
 
   public static void main(String[] args)
   {
-    // args[0] is instance name, args[1] instance id
-
-    if (args.length == 0)
-      args = new String[] {"ordb","0"};
-
+    // args: instance name, instance id
     try {new Server(Short.parseShort(args[1]));}
     catch (Exception e) {e.printStackTrace();}
   }

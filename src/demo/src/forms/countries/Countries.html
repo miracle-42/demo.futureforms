@@ -1,19 +1,23 @@
-<include src="/html/formheader"></include>
+<include src="/html/canvasheader"></include>
 
-<div class="form">
+<form>
 	<div class="block">
 		<div class="needle red"></div>
 		<table>
-			<tr>
-				<th></th>
-				<th>Code</th>
-				<th>Country</th>
-			</tr>
-			<tr class="row" foreach="row in 1..5">
-				<td class="indicator"><span from="CountryDS" row="$row" type="row-indicator"></span></td>
-				<td><input name="country_id" from="CountryDS" row="$row" size="4" maxlength="3" upper required></td>
-				<td><input name="country_name" from="CountryDS" row="$row" initcap required advquery="false"></td>
-			</tr>
+			<thead>
+				<tr>
+					<th></th>
+					<th>Code</th>
+					<th>Country</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="row" foreach="row in 1..5">
+					<td class="indicator"><span from="CountryDS" row="$row" type="row-indicator"></span></td>
+					<td><input name="country_id" from="CountryDS" row="$row" size="4" maxlength="3" upper required></td>
+					<td><input name="country_name" from="CountryDS" row="$row" initcap required advquery="false"></td>
+				</tr>
+			</tbody>
 		</table>
 	</div>
-</div>
+</form>

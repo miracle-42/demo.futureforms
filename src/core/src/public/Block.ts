@@ -34,6 +34,7 @@ import { EventType } from '../control/events/EventType.js';
 import { FormBacking } from '../application/FormBacking.js';
 import { FormEvents } from '../control/events/FormEvents.js';
 import { FilterStructure } from '../model/FilterStructure.js';
+import { FlushStrategy, FormsModule } from '../application/FormsModule.js';
 import { DataSource } from '../model/interfaces/DataSource.js';
 import { EventFilter } from '../control/events/EventFilter.js';
 import { FieldInstance } from '../view/fields/FieldInstance.js';
@@ -53,6 +54,7 @@ export class Block
 {
 	private form$:Form = null;
 	private name$:string = null;
+	private flush$:FlushStrategy = null;
 	private updateallowed$:boolean = true;
 
 	/** Allow Query By Example */
@@ -76,6 +78,7 @@ export class Block
 		this.form$ = form;
 		this.name$ = name?.toLowerCase();
 		FormBacking.getModelBlock(this,true);
+		this.flush$ = FormsModule.defaultFlushStrategy;
 		FormBacking.getBacking(form).blocks.set(this.name$,this);
 	}
 
@@ -106,6 +109,18 @@ export class Block
 			if (flag) blk.enableUpdate();
 			else		 blk.disableUpdate();
 		}
+	}
+
+	/** Flush when leaving row or block */
+	public get flushStrategy() : FlushStrategy
+	{
+		return(this.flush$);
+	}
+
+	/** Flush when leaving row or block */
+	public set flushStrategy(strategy:FlushStrategy)
+	{
+		this.flush$ = strategy;
 	}
 
 	/** The dynamic query filters applied to this block */
@@ -178,7 +193,7 @@ export class Block
 	public async refresh(offset?:number) : Promise<void>
 	{
 		if (offset == null) offset = 0;
-		await FormBacking.getModelBlock(this).refresh(offset);
+		await FormBacking.getModelBlock(this).refresh(offset,true);
 	}
 
 	/** Is field bound to this block */

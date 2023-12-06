@@ -21,11 +21,10 @@
 
 package database.rest.custom;
 
-import java.util.ArrayList;
-import database.rest.database.BindValue;
+import org.json.JSONObject;
 
 
 public interface SQLValidator
 {
-  void validate(String sql, ArrayList<BindValue> bindvalues) throws Exception;
+  void validate(JSONObject payload) throws Exception;
 }

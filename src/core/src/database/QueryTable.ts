@@ -483,6 +483,7 @@ export class QueryTable extends SQLSource implements DataSource
 			let response:any = {succes: true, rows: [rows[r]]};
 			record.response = new DatabaseResponse(response, this.columns);
 
+			record.cleanup();
 			fetched.push(record);
 		}
 

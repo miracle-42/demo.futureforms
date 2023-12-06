@@ -472,14 +472,14 @@ export class Block
 		return(this.wrapper.lock(record,false));
 	}
 
-	public async refresh(recno?:number) : Promise<void>
+	public async refresh(offset:number, reset:boolean) : Promise<void>
 	{
 		if (this.querymode) return;
-		if (recno == null) recno = 0;
 
-		let record:Record = this.getRecord(recno);
+		let record:Record = this.getRecord(offset);
 		await this.wrapper.refresh(record);
 
+		if (reset) record.failed = false;
 		this.view.refresh(record);
 	}
 
@@ -497,7 +497,7 @@ export class Block
 			return(false);
 		}
 
-		if (!await this.view.form.validate())
+		if (!await this.view.validate())
 			return(false);
 
 		if (!this.checkEventTransaction(EventType.PreInsert))
@@ -686,7 +686,10 @@ export class Block
 			return(true);
 
 		if (this.qbe.querymode)
+		{
+			this.form.cancelQueryMode(this);
 			return(true);
+		}
 
 		let undo:Record[] = await this.wrapper?.undo();
 

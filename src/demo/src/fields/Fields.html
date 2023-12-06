@@ -1,134 +1,132 @@
-<include src="/html/formheader"></include>
+<include src="/html/canvasheader"></include>
 
 <div  style="width: 1000px;"></div>
-<div class="form" style="display:flex; flex-wrap: wrap;">
-	<div class="block" >
-		<fieldset class="fieldset">
-			<legend>Numbers</legend>
-			<div class="column">
-				<span>Integer</span> : <input name="int" from="fields" size="4" integer>
-				<span>Decimal</span> : <input name="dec" from="fields" size="4" decimal>
-			</div>
-		</fieldset>
+<form>
+	<div class="container">
+		<div class="block" >
+			<fieldset class="fieldset">
+				<legend>Numbers</legend>
+				<div class="column">
+					<span>Integer</span> : <input name="int" from="fields" size="4" integer>
+					<span>Decimal</span> : <input name="dec" from="fields" size="4" decimal>
+				</div>
+			</fieldset>
 
-		<fieldset class="fieldset">
-			<legend>Text Case</legend>
-			<div class="column">
-				<p>
-					<span>Upper</span>:
-					<input name="upper" from="fields" size="6" upper>
-				</p>
-				<p>
-					<span>Lower</span>:
-					<input name="lower" from="fields" size="6" lower>
-				</p>
-				<p>
-					<span>Initcap</span>:
-					<input name="initcap" from="fields" size="15" initcap>
-				</p>
-			</div>
-
-		</fieldset>
-
-		<fieldset class="fieldset">
-			<legend>Date</legend>
-			<div class="column" title="Press F9 for datepicker + Press ctrl-space for current date" >
-				<span>Date</span>:<input name="date" from="fields" date>
-				<span>DateTime</span>:<input name="datetime" from="fields" datetime>
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset">
-			<legend>Radio and Checkbox</legend>
-			<div class="column" style="display:flex;">
-				<div class="radio_button"  style="display:flex;height: 20px; margin-top: 17px; margin-right: 5px;">
-					<input name="nordics" from="fields" size="2" upper>
+			<fieldset class="fieldset">
+				<legend>Text Case</legend>
+				<div class="column">
+					<p>
+						<span>Upper</span>:
+						<input name="upper" from="fields" size="6" upper>
+					</p>
+					<p>
+						<span>Lower</span>:
+						<input name="lower" from="fields" size="6" lower>
+					</p>
+					<p>
+						<span>Initcap</span>:
+						<input name="initcap" from="fields" size="15" initcap>
+					</p>
 				</div>
 
-				<div class="radio_button" style="display:flex">
+			</fieldset>
 
-					<p>DK:<input type="checkbox" name="nordics" from="fields" value="DK" class="radio"></p>
-
-					<p>DK:<input type="radio" name="nordics" from="fields" value="DK"></p>
-					<p>SE:<input type="radio" name="nordics" from="fields" value="SE"></p>
-					<p>NO:<input type="radio" name="nordics" from="fields" value="NO"></p>
-					<p>FI:<input type="radio" name="nordics" from="fields" value="FI"></p>
+			<fieldset class="fieldset">
+				<legend>Date</legend>
+				<div class="column" title="Press F9 for datepicker + Press ctrl-space for current date" >
+					<span>Date</span>:<input name="date" from="fields" date>
+					<span>DateTime</span>:<input name="datetime" from="fields" datetime>
 				</div>
-			</div>
-		</fieldset>
+			</fieldset>
+
+			<fieldset class="fieldset">
+				<legend>Radio and Checkbox</legend>
+				<div class="column" title="Press space for toogle">
+					<div class="radio_button">
+						<input name="nordics" from="fields" size="2" upper>
+					</div>
+
+					<div class="radio_button">
+
+						<p>DK:<input type="checkbox" name="nordics" from="fields" value="DK" class="radio"></p>
+
+						<p>DK:<input type="radio" name="nordics" from="fields" value="DK"></p>
+						<p>SE:<input type="radio" name="nordics" from="fields" value="SE"></p>
+						<p>NO:<input type="radio" name="nordics" from="fields" value="NO"></p>
+						<p>FI:<input type="radio" name="nordics" from="fields" value="FI"></p>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+		<div class="block">
+			<fieldset class="fieldset">
+				<legend>Formatted Input (Chess Move)</legend>
+				<div class="column">
+					<span>Piece</span>:
+					<select name="piece" from="fields" size="1">
+
+						<option value="King">King</option>
+						<option value="Queen">Queen</option>
+						<option value="Rook">Rook</option>
+						<option value="Knight">Knight</option>
+						<option value="Bishop">Bishop</option>
+						<option value="Pawn">Pawn</option>
+					</select>
+
+					<span>Move</span>:
+					<input  name="move" from="fields" format="{[A-H]}{[1-8]} -> {[A-H]}{[1-8]}" placeholder="C2 -> C3">
+					<span >[A-H][1-8]</span>
+				</div>
+				<div class="column">
+					<span>Move one</span>:
+					<input name="moveone" from="fields" size="8">
+
+					<span>Move two</span>:
+					<input name="movetwo" from="fields" size="8">
+				</div>
+			</fieldset>
+
+			<fieldset class="fieldset">
+				<legend>Data Mapper</legend>
+				<div class="column">
+					<span> Y/N</span> :<input type="text" name="mapper" from="fields" size="1" maxlength="1" upper
+						mapper="/mappers/truefalse">
+					<span>True/False</span>:<input name="mapper" from="fields" size="4" lower>
+				</div>
+			</fieldset>
+
+			<fieldset class="fieldset">
+				<legend>Drop Down Lists</legend>
+				<div class="column">
+					<span>Single :</span>
+					<select  name="single" from="fields" size="1">
+						<option value="DK">Denmark</option>
+						<option value="SE">Sweden</option>
+						<option value="NO">Norway</option>
+						<option value="FI">Finland</option>
+					</select>
+					<span>Code</span> : <input name="single" from="fields" size="8" upper>
+				</div>
+				<div class="column" title="Press ctrl click for multiple choices">
+					<span>Multiple :</span>
+					<select name="multi" from="fields" size="5" style="vertical-align:middle;" multiple>
+						<option value="DK">Denmark</option>
+						<option value="SE">Sweden</option>
+						<option value="NO">Norway</option>
+						<option value="FI">Finland</option>
+					</select>
+					<span> Code</span> : <input name="multi" from="fields"  upper>
+				</div>
+			</fieldset>
+
+			<fieldset class="fieldset">
+				<legend>Any html</legend>
+				<div class="column">
+					<span>Text</span> : <input type="text" name="any" from="fields" size="16">
+					<b name="any" from="fields"></b>
+					<span name="any" from="fields" mapper="/mappers/linkmapper"></span>
+				</div>
+			</fieldset>
+		</div>
 	</div>
-	<div class="block">
-		<fieldset class="fieldset">
-			<legend>Formatted Input (Chess Move)</legend>
-			<div class="column">
-				<span>Piece</span>:
-				<select style="margin: 0px 10px" name="piece" from="fields" size="1">
-
-					<option value="King">King</option>
-					<option value="Queen">Queen</option>
-					<option value="Rook">Rook</option>
-					<option value="Knight">Knight</option>
-					<option value="Bishop">Bishop</option>
-					<option value="Pawn">Pawn</option>
-				</select>
-
-				<span>Move</span>:
-				<input style="margin: 0px 10px" name="move" from="fields" format="{[A-H]}{[1-8]} -> {[A-H]}{[1-8]}" placeholder="C2 -> C3">
-				<span style="width:80px">[A-H][1-8]</span>
-			</div>
-			<div class="column">
-				<span>Move one</span>:
-				<input name="moveone" from="fields" size="8">
-
-				<span>Move two</span>:
-				<input name="movetwo" from="fields" size="8">
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset">
-			<legend>Data Mapper</legend>
-			<div class="column">
-				<span> Y/N</span> :<input type="text" name="mapper" from="fields" size="1" maxlength="1" upper
-					mapper="/mappers/truefalse">
-				<span>True/False</span>:<input name="mapper" from="fields" size="4" lower>
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset">
-			<legend>Drop Down Lists</legend>
-			<div class="column">
-
-				<span>Single :</span>
-				<select style="width: 100px;" name="single" from="fields" size="1">
-
-					<option value="DK">Denmark</option>
-					<option value="SE">Sweden</option>
-					<option value="NO">Norway</option>
-					<option value="FI">Finland</option>
-				</select>
-
-				<span>Code</span> : <input name="single" from="fields" size="8" upper>
-			</div>
-			<div class="column" style="margin-top: 20px;" title="Press ctrl click for multiple choices">
-				<span>Multiple :</span>
-
-				<select style="width: 100px;" name="multi" from="fields" size="5"  multiple>
-					<option value="DK">Denmark</option>
-					<option value="SE">Sweden</option>
-					<option value="NO">Norway</option>
-					<option value="FI">Finland</option>
-				</select>
-				<span> Code</span> : <input name="multi" from="fields" style="height: 30px; width: 120px;" upper>
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset">
-			<legend>Any html</legend>
-			<div class="column">
-				<span>Text</span> : <input type="text" name="any" from="fields" size="16">
-				<b name="any" from="fields"></b>
-				<span name="any" from="fields" mapper="/mappers/linkmapper"></span>
-			</div>
-		</fieldset>
-	</div>
-</div>
+</form>

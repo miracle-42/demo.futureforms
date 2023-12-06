@@ -105,7 +105,6 @@ export class PageFooterStyle
         cursor: default;
         margin-top: 3px;
         font-weight: bold;
-        background: white;
         margin-left: 1.5px;
         margin-right: 1.5px;
         align-items:  center;
@@ -124,9 +123,7 @@ export class PageFooterStyle
         font-size: 15px;
         text-align: center;
         position: absolute;
-        visibility: hidden;
         border-radius: 4px;
-        background-color: black;
         transform: translateX(-50%);
     `
 

@@ -22,10 +22,12 @@
 package database.rest.handlers.rest;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Date;
 import database.Version;
 import java.util.Base64;
 import java.util.HashMap;
+
 import org.json.JSONArray;
 import java.sql.Savepoint;
 import org.json.JSONObject;
@@ -55,6 +57,7 @@ import database.rest.database.BindValueDef;
 import database.rest.database.NameValuePair;
 import java.util.concurrent.ConcurrentHashMap;
 import database.rest.handlers.rest.Session.Scope;
+import database.rest.custom.Authenticator.AuthResponse;
 import database.rest.config.Security.CustomAuthenticator;
 import static database.rest.handlers.rest.JSONFormatter.Type.*;
 
@@ -726,6 +729,7 @@ public class Rest
     boolean nowait = false;
     AuthMethod method = null;
     boolean privateses = true;
+    AuthResponse custresp = null;
 
     try
     {
@@ -764,10 +768,12 @@ public class Rest
         Constructor<?> contructor = Class.forName(custom.clazz).getDeclaredConstructor();
         Authenticator auth = (Authenticator) contructor.newInstance();
 
-        if (!auth.authenticate(payload))
+        custresp = auth.authenticate(payload);
+
+        if (!custresp.success)
           return(error(custom.meth+" authentication failed"));
 
-        username = auth.user();
+        username = custresp.user;
       }
 
       switch(meth)
@@ -869,6 +875,12 @@ public class Rest
     state.session().sesid(sesid);
     SessionManager.history(state.session(),true);
 
+    if (custresp != null)
+    {
+      for (Map.Entry<String,Object> entry : custresp.attrs.entrySet())
+        json.add(entry.getKey(),entry.getValue());
+    }
+
     return(json.toString());
   }
 
@@ -960,6 +972,9 @@ public class Rest
       String dateform = this.dateform;
       HashMap<String,BindValueDef> assertions = null;
 
+      if (rewriter != null)
+        payload = rewriter.rewrite(payload);
+
       if (payload.has("lock"))
         lock = payload.getBoolean("lock");
 
@@ -1002,11 +1017,11 @@ public class Rest
       if (lock && nowait)
         sql += " nowait";
 
-      if (rewriter != null)
-        sql = rewriter.rewrite(sql,bindvalues);
+      if (lock)
+        payload.put("sql",sql);
 
       if (validator != null)
-        validator.validate(sql,bindvalues);
+        validator.validate(payload);
 
       state.ensure();
       state.session().closeCursor(curname);
@@ -1178,6 +1193,9 @@ public class Rest
 
       boolean lock = false;
 
+      if (rewriter != null)
+        payload = rewriter.rewrite(payload);
+
       if (payload.has("lock"))
         lock = payload.getBoolean("lock");
 
@@ -1244,11 +1262,8 @@ public class Rest
       sql = parser.sql();
       ArrayList<BindValue> bindvalues = parser.bindvalues();
 
-      if (rewriter != null)
-        sql = rewriter.rewrite(sql,bindvalues);
-
       if (validator != null)
-        validator.validate(sql,bindvalues);
+        validator.validate(payload);
 
       if (returning)
       {
@@ -1317,6 +1332,9 @@ public class Rest
     {
       String dateform = this.dateform;
 
+      if (rewriter != null)
+        payload = rewriter.rewrite(payload);
+
       if (payload.has("dateformat"))
       {
         if (payload.isNull("dateformat")) dateform = null;
@@ -1334,11 +1352,8 @@ public class Rest
       sql = parser.sql();
       ArrayList<BindValue> bindvalues = parser.bindvalues();
 
-      if (rewriter != null)
-        sql = rewriter.rewrite(sql,bindvalues);
-
       if (validator != null)
-        validator.validate(sql,bindvalues);
+        validator.validate(payload);
 
       state.ensure();
       state.prepare(payload);

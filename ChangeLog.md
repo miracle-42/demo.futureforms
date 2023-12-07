@@ -1,5 +1,8 @@
 # ChangeLog
 
+## v0.17 2023-12-07 08:00
+* Build fail
+
 ## v0.16 2023-12-06 11:00
 * Update from Alex
 

@@ -1,0 +1,98 @@
+
+/* header canvas */
+
+div[name="popup-header"]
+{
+	width: 100%;
+	height: 20px;
+   cursor: default;
+	display: inline-grid;
+	grid-auto-flow: column;
+	justify-content: center;
+
+}
+
+.canvas-header
+{
+	grid-template-columns: 40px 1fr 60px;
+}
+
+.canvas-handle
+{
+	cursor: default;
+	user-select: none;
+}
+
+div[name="title"]
+
+{
+	display: flex;
+	justify-content: center;
+}
+
+span[name="title"]
+{
+	display:flex;
+	width: max-content;
+}
+
+/* ---------------------------- */
+/*canvas-header right */
+div[name="canvas-header-right"]
+{
+	display: grid;
+	height: 20px;
+	position: relative;
+	grid-auto-flow: column;
+}
+
+div[name="minimize"]
+{
+	top:0;
+	width:20px;
+	height: 20px;
+	display:flex;
+	font-size: 10px;
+	position: absolute;
+	justify-content: center;
+}
+
+div[name="toggle"]
+{
+	top: 0px;
+	right: 35%;
+	width:20px;
+	height: 20px;
+	display:flex;
+	font-size: 15px;
+	font-weight: bold;
+	position: absolute;
+	align-items: center;
+	justify-content: center;
+}
+
+div[name="close-button"]
+{
+	top: 0px;
+	right: 0px;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	font-size: 20px;
+	cursor: default;
+	line-height: 15px;
+	position: absolute;
+	justify-content: center;
+}
+
+/* ---------------------------- */
+/* canvas*/
+
+.canvas
+{
+	animation-fill-mode: backwards;
+	box-shadow: 0 5px 30px rgba(0, 0, 0, .30);
+}
+
+/* ---------------------------- */
+

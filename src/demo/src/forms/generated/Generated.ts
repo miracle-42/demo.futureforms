@@ -19,7 +19,18 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "./FormsModule";
+import content from './Generated.html';
 
-new FormsModule();
-console.log("2-Countries Version 0.17");
+import { GeneratedDS } from './GeneratedDS';
+import { Form, datasource } from 'forms42core';
+
+
+@datasource("employees",GeneratedDS)
+
+export class Generated extends Form
+{
+	constructor()
+	{
+		super(content);
+	}
+}

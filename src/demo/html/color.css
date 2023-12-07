@@ -1,0 +1,341 @@
+/* page */
+.form-area
+{
+   background-image:linear-gradient(to right bottom, rgba(97, 112, 227, 0.8),rgba(100, 101, 179, 0.8)) , url(images/background.jpg);
+}
+
+.page-footer
+{
+   background: #1b1c1e;
+	border-top: solid 1px white;
+}
+.page-footer-icon
+{
+   color: white;
+}
+
+.page-footer-pos .footer-tooltiptext-top
+{
+   background-color: black;
+}
+
+/*---------------*/
+/* header */
+.app-header
+{
+   color:white;
+   background-color: #36393e;
+}
+
+.logo
+{
+	color:white;
+}
+
+.hamburger-context
+{
+   border-bottom: solid white 2px;
+}
+
+/*show keymap text*/
+.topbar .top-menu li li div
+{
+   background-color: black;
+}
+
+.top-menu
+{
+   background-color: #36393e;
+}
+
+/* used https://codepen.io/sosuke/pen/Pjoqqp if you need change color for filter*/
+.infomation-img
+{
+   filter: invert(100%) sepia(6%) saturate(0%) hue-rotate(3deg) brightness(108%) contrast(105%);
+}
+
+.infomation li
+{
+   border-bottom: solid #dedede 1px;
+}
+
+.InformationKeyMap
+{
+   color:black;
+   background-color:white;
+}
+
+.topbar li a:not([disabled]):focus,
+.topbar li a:not([disabled]):hover,
+.left-menu-container a:not([disabled]):hover,
+.left-menu-container a:not([disabled]):focus
+{
+   background-color: #6060F0;
+}
+
+/*-------------------*/
+/* left-menu */
+
+.menu-left
+{
+   color:white;
+   background-color:#36393e;
+}
+/*-------------------------*/
+/* canvas */
+div[name="popup-header"]
+{
+   color:white;
+   background-color: #424549;
+   border-bottom: 1px white solid;
+}
+
+
+div[name="toggle"]
+{
+   filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(120deg) brightness(105%) contrast(101%);
+}
+
+.canvas
+{
+   background-color: #424549;
+}
+
+.block 
+{
+   background-color: #ffff;
+}
+
+.row-indicator
+{
+   background-color: gray;
+}
+
+.fieldset,
+.fieldset legend 
+{
+	border: 2px solid #000;
+}
+
+/*---------------------*/
+/*canvas topbar  hover and focus */
+div[name="canvas-header-right"] div:hover:not(:last-child),
+div[name="canvas-header-right"] div:focus:not(:last-child)
+{
+	background-color: rgb(127, 127, 127);
+}
+
+div[name="close-button"]:hover,
+div[name="close-button"]:focus
+{
+	background-color: rgb(255, 94, 94);
+}
+/*-----------------------*/
+/* popup */
+
+/* used https://codepen.io/sosuke/pen/Pjoqqp if you need change color for filter*/
+
+div[name="popup-body"]
+{
+   background: #424549;
+}
+
+div[name="popup-body"] div[name="lov"],
+div[name="popup-body"] div[name="msg"],
+div[name="popup-body"] div[name="login"],
+div[name="popup-body"] div[name="query"],
+div[name="popup-body"] div[name="date-picker"]
+{
+   background-color: white;
+}
+
+#block  ~ div[name="popup-body"] div[name="alertlogo"]
+{
+   filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(104%) contrast(101%);
+}
+
+/*-----------------------*/
+/* calculator */
+
+div[name="prev"]:hover,
+div[name="next"]:hover,
+div[name="next"]:focus,
+div[name="prev"]:focus
+{
+	background-color: rgb(205, 205, 205);
+}
+
+div[name="prev"]:active,
+div[name="next"]:active
+{
+	color:white;
+	background-color: gray;
+}
+
+.weekend
+{
+	color:red;
+}
+
+/*-----------------------*/
+/* input */
+input.invalid
+{
+	border-bottom: 2px solid red;
+}
+
+input[type="radio"],
+input[type="checkbox"]
+{
+	border: 1px solid #000000;
+}
+
+input[type="checkbox"]::before,
+input[type="radio"]::before 
+{
+	color: black;
+}
+
+input[type="radio"]:checked::before ,
+input[type="checkbox"]:checked::before
+{
+	color:white;
+}
+
+.warning
+{
+   color: lightcoral;
+}
+
+input[type="checkbox"]:checked 
+{
+	color: #fff;
+	border-color: #000000;
+	background-color: #000000;
+}
+
+input[type="radio"]:checked,
+input[type="checkbox"]:checked  
+{
+   color: #fff;
+	border-color: #000000;
+	background-color: #000000;
+}
+
+
+/*---------------------*/
+/* Tags */
+
+textarea
+{
+   border-bottom: 2px solid black;
+}
+textarea.invalid
+{
+   border-bottom: 2px solid red;
+}
+
+[disabled]
+{
+	color:#83868c;
+}
+
+select
+{
+   background-color: transparent;
+   border-bottom: 2px solid black;
+}
+
+select[name="multi"]
+{
+   border: 1px solid #ccc;
+	background-color: transparent;
+}
+
+select[name="multi"] option:checked 
+{
+   background-color: #f2f2f2;
+}
+
+select[name="multi"] option:hover 
+{
+   background-color: #f2f2f2;
+}
+
+button
+{
+   color: white;
+}
+
+button::before
+{
+   background: linear-gradient(
+      45deg,
+      #8391ec,
+      #7f51e3,
+      #7b57f0,
+      #7974fa,
+      #7d7aea,
+      #002bff,
+      #7a00ff,
+      #6551fa,
+      #645ec0
+    );
+}
+
+button:after
+{
+   background-color: #484848;
+}
+
+button:hover
+{
+   background-color: #0c0707; 
+}
+
+button:hover::after {
+	background-color: #333;
+ }
+
+/*--------------------*/
+/* needle */
+
+.needle::before
+{
+   border: solid 1px rgba(10, 5, 5, 30%);
+}
+
+.red
+{
+	background: linear-gradient(to right, red, rgb(155, 0, 0),red);
+}
+
+.red::before,
+.red::after
+{
+	background: red;
+}
+
+.blue
+{
+	background: linear-gradient(to right, blue, rgb(0, 0, 155),blue);
+}
+
+.blue:before,
+.blue::after
+{
+	background:blue;
+}
+
+.green
+{
+	background: linear-gradient(to right, green, rgb(0, 90, 0),green);
+}
+
+.green:before,
+.green::after
+{
+	background:green;
+}
+
+/*-------------------*/

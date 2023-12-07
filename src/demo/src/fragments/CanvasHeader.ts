@@ -19,7 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "./FormsModule";
+import fragment from './CanvasHeader.html';
+import { HTMLFragment } from 'forms42core';
 
-new FormsModule();
-console.log("2-Countries Version 0.17");
+export class CanvasHeader extends HTMLFragment
+{
+	public content = fragment;
+}

@@ -476,6 +476,9 @@ public class HTTPChannel
         case BUFFER_UNDERFLOW:
           buffers.done();
           throw new IllegalStateException("Unexpected behaivior");
+
+        case CLOSED:
+          break;
       }
     }
   }

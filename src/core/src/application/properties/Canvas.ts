@@ -36,6 +36,14 @@ export class Canvas
 	</div>
 	`;
 
+	public static CanvasStyle:string =
+	`
+		overflow: hidden;
+		position: relative;
+		width: fit-content;
+		height: fit-content;
+	`
+
 	public static ModalStyle:string =
 	`
 		top: 0;
@@ -43,14 +51,6 @@ export class Canvas
 		width: 0;
 		height: 0;
 		position: absolute;
-	`
-
-	public static CanvasStyle:string =
-	`
-		overflow: hidden;
-		position: absolute;
-		width: fit-content;
-		height: fit-content;
 	`
 
 	public static ContentStyle:string =

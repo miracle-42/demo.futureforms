@@ -19,11 +19,12 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Alert } from "../application/Alert.js";
+import { MSGGRP } from "../messages/Internal.js";
 import { Record, RecordState } from "./Record.js";
 import { Relation } from "./relations/Relation.js";
 import { FilterStructure } from "./FilterStructure.js";
 import { Block as ModelBlock } from "../model/Block.js";
+import { Level, Messages } from "../messages/Messages.js";
 import { EventType } from "../control/events/EventType.js";
 import { FlushStrategy } from "../application/FormsModule.js";
 import { DataSource, LockMode } from "./interfaces/DataSource.js";
@@ -169,6 +170,9 @@ export class DataSourceWrapper
 
 			for (let i = 0; i < records.length; i++)
 			{
+				if (records[i].failed)
+					continue;
+
 				if (records[i].state == RecordState.Insert)
 				{
 					records[i].flushing = true;
@@ -235,7 +239,7 @@ export class DataSourceWrapper
 		}
 		catch (error)
 		{
-			Alert.fatal(error+"","Backend failure")
+			Messages.handle(MSGGRP.FRAMEWORK,error,Level.severe);
 			return(false);
 		}
 	}
@@ -404,7 +408,10 @@ export class DataSourceWrapper
 		}
 
 		if (success && this.block?.interface.flushStrategy == FlushStrategy.Row)
+		{
 			success = await this.flush();
+			if (success) success = !record.failed;
+		}
 
 		return(success);
 	}
@@ -452,7 +459,11 @@ export class DataSourceWrapper
 
 	public async delete(record:Record) : Promise<boolean>
 	{
+		let skip:boolean = false;
 		let pos:number = this.index(record);
+
+		if (record.state == RecordState.New) skip = true;
+		if (record.state == RecordState.Insert) skip = true;
 
 		if (pos < 0)
 			return(false);
@@ -460,7 +471,7 @@ export class DataSourceWrapper
 		if (!await this.block.preDelete(record))
 			return(false);
 
-		if (!await this.source.delete(record))
+		if (!skip && !await this.source.delete(record))
 			return(false);
 
 		this.hwm$--;

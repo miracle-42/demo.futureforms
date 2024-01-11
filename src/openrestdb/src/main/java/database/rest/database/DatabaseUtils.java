@@ -51,7 +51,6 @@ public class DatabaseUtils
   }
 
 
-  @SuppressWarnings("unchecked")
   public static Database getInstance() throws Exception
   {
     return((Database) dbtype.clazz.getConstructor().newInstance());

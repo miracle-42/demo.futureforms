@@ -87,7 +87,7 @@ public class SessionManager
     {
       for (History entry : connhist)
       {
-        if (entry.sesid.equals(sesid))
+        if (entry != null && entry.sesid.equals(sesid))
         {
           conntime = entry.time;
           break;
@@ -115,6 +115,9 @@ public class SessionManager
   {
     String guid = session.guid();
     String sesid = session.sesid();
+
+    if (guid == null || sesid == null)
+      return;
 
     if (conn)
     {

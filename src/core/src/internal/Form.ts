@@ -19,13 +19,15 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class } from '../types/Class.js';
+import { Class } from '../public/Class.js';
 import { Block } from '../public/Block.js';
 import { Alert } from '../application/Alert.js';
 import { Key } from '../model/relations/Key.js';
+import { MSGGRP } from '../messages/Internal.js';
 import { Form as ViewForm } from '../view/Form.js';
 import { KeyMap } from '../control/events/KeyMap.js';
 import { Framework } from '../application/Framework.js';
+import { Level, Messages } from '../messages/Messages.js';
 import { ListOfValues } from '../public/ListOfValues.js';
 import { EventType } from '../control/events/EventType.js';
 import { FormBacking } from '../application/FormBacking.js';
@@ -55,6 +57,7 @@ import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
 
 export class Form implements CanvasComponent
 {
+	public title:string = "";
 	public moveable:boolean = false;
 	public resizable:boolean = false;
 	public initiated:Date = new Date();
@@ -133,7 +136,8 @@ export class Form implements CanvasComponent
 
 		if (blk == null)
 		{
-			Alert.fatal("Block '"+block+"' does not exist","Re Query");
+			// Block does not exist
+			Messages.severe(MSGGRP.FORM,1,block);
 			return(false);
 		}
 
@@ -148,7 +152,8 @@ export class Form implements CanvasComponent
 
 		if (blk == null)
 		{
-			Alert.fatal("Block '"+block+"' does not exist","Execute Query");
+			// Block does not exist
+			Messages.severe(MSGGRP.FORM,1,block);
 			return(false);
 		}
 
@@ -163,7 +168,8 @@ export class Form implements CanvasComponent
 
 		if (blk == null)
 		{
-			Alert.fatal("Block '"+block+"' does not exist","Enter Query Mode");
+			// Block does not exist
+			Messages.severe(MSGGRP.FORM,1,block);
 			return(false);
 		}
 
@@ -209,16 +215,42 @@ export class Form implements CanvasComponent
 		return(this.getBlock(block)?.goField(field,clazz));
 	}
 
-	/** Pop up a message (like javascript alert) */
-	public message(msg:string, title?:string) : void
+	/** Handle fine message */
+	public fine(grpno:number,errno:number,...args:any) : void
 	{
-		Alert.message(msg,title);
+		Messages.fine(grpno,errno,args);
 	}
 
-	/** Pop up a warning (like javascript alert) */
-	public warning(msg:string, title?:string) : void
+	/** Handle info message */
+	public info(grpno:number,errno:number,...args:any) : void
 	{
-		Alert.warning(msg,title);
+		Messages.info(grpno,errno,args);
+	}
+
+	/** Handle warning message */
+	public warn(grpno:number,errno:number,...args:any) : void
+	{
+		Messages.warn(grpno,errno,args);
+	}
+
+	/** Handle severe message */
+	public severe(grpno:number,errno:number,...args:any) : void
+	{
+		Messages.severe(grpno,errno,args);
+	}
+
+	/** Popup a message */
+	public alert(msg:string, title:string, level?:Level) : void
+	{
+		if (!level)
+			level = Level.info;
+
+		switch(level)
+		{
+			case Level.info: Alert.message(msg,title); break;
+			case Level.warn: Alert.warning(msg,title); break;
+			case Level.severe: Alert.fatal(msg,title); break;
+		}
 	}
 
 	/** Has the form been validated, and is everthing consistent */
@@ -240,7 +272,8 @@ export class Form implements CanvasComponent
 	public getView() : HTMLElement
 	{
 		let view:HTMLElement = this.canvas?.getView();
-		if (view != null) return(this.canvas.getView());
+
+		if (view != null) return(view);
 		else return(FormBacking.getBacking(this).page);
 	}
 
@@ -270,7 +303,7 @@ export class Form implements CanvasComponent
 	/** Set the datasource for the given block */
 	public setDataSource(block:string,source:DataSource) : void
 	{
-		FormBacking.getModelForm(this).setDataSource(block?.toLowerCase(),source);
+		FormBacking.getModelForm(this,true).setDataSource(block?.toLowerCase(),source);
 	}
 
 	/** Get the LOV for the given block and field */
@@ -371,12 +404,12 @@ export class Form implements CanvasComponent
 		{
 			if (!this.validate())
 			{
-				Alert.warning("Form must be validated before layout can be changed","Validate");
+				Messages.warn(MSGGRP.FORM,2); // Form must be validated
 				return;
 			}
 
 			if (FormBacking.getBacking(this).hasEventListeners())
-				console.warn("Replacing view will remove all event listeners");
+				Messages.fine(MSGGRP.FORM,2); // Replacing view will remove all event listeners
 
 			FormBacking.cleanup(this);
 		}

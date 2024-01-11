@@ -20,7 +20,7 @@
 */
 
 import { Form } from '../public/Form.js';
-import { Class } from '../types/Class.js';
+import { Class } from '../public/Class.js';
 import { FormBacking } from './FormBacking.js';
 import { HTMLFragment } from './HTMLFragment.js';
 import { Classes } from '../internal/Classes.js';

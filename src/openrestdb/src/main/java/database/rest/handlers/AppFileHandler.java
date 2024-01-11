@@ -160,8 +160,12 @@ public class AppFileHandler extends Handler
     FileInputStream in = new FileInputStream(file);
 
     if (in.read(content) != content.length)
+    {
+      in.close();
       throw new Exception("Unable to fully read "+fname);
+    }
 
+    in.close();
     response.setBody(content);
     log(logger,request,response);
 

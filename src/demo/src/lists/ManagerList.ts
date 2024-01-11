@@ -1,7 +1,7 @@
 import { FormsModule } from "../FormsModule";
 import { BindValue, ListOfValues, QueryTable } from "forms42core";
 
-export class ManagerList implements ListOfValues
+export class ManagerList extends ListOfValues
 {
 	public title:string = "Employees";
 
@@ -17,6 +17,8 @@ export class ManagerList implements ListOfValues
 
 	constructor()
 	{
+		super();
+
 		this.datasource = new Employees();
 		this.bindvalue = this.datasource.emp;
 

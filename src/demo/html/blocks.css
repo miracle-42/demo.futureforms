@@ -3,7 +3,8 @@
    gap:5px;
    display:flex;
 	flex-wrap: wrap;
-   align-items: center;
+   margin-left:auto;
+   margin-right:auto;
 }
 
 .block
@@ -19,14 +20,32 @@
 }
 
 /* fieldset */
-.fieldset
+
+fieldset.container
 {
-	padding: 10px;
+   gap:20px;
+   display:grid;
+   background-color: white;
+}
+
+fieldset.section
+{
+   width: max-content;
+}
+
+fieldset.container.flex
+{
+   display:flex;
+}
+
+fieldset
+{
+   padding: 10px;
 	border-radius: 5px;
 	margin-bottom: 10px;
 }
 
-.fieldset legend
+fieldset legend
 {
   display:flex;
   padding: 0 10px;

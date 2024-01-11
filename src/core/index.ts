@@ -1,6 +1,5 @@
-const version = "0.17";
-console.log("Library Version "+version);
-export { Form } from './src/public/Form.js';
+const version = "3.2.0";
+console.log("Library Version "+version);export { Form } from './src/public/Form.js';
 export { Block } from './src/public/Block.js';
 export { Record } from './src/public/Record.js';
 export { Key } from './src/model/relations/Key.js';
@@ -11,23 +10,33 @@ export { Connection } from './src/public/Connection.js';
 export { QueryTable } from './src/database/QueryTable.js';
 export { Step as SQLStep } from './src/database/Connection.js';
 export { DatabaseTable } from './src/database/DatabaseTable.js';
+export { Sorter as TableSorter } from './src/database/Sorter.js';
+export { FlushStrategy } from './src/application/FormsModule.js';
 export { FieldProperties } from './src/public/FieldProperties.js';
 export { ConnectionScope } from './src/database/ConnectionScope.js';
 export { DatabaseConnection } from './src/public/DatabaseConnection.js';
+
+export { Messages, Level } from './src/messages/Messages.js';
+export { Message } from './src/messages/interfaces/Message.js';
+export { MessageHandler } from './src/messages/MessageHandler.js';
+export { Group as MessageGroup } from './src/messages/interfaces/Group.js';
+export { Bundle as MessageBundle } from './src/messages/interfaces/Bundle.js';
 
 export { MemoryTable } from './src/model/datasources/MemoryTable.js';
 export { DataSource, LockMode } from './src/model/interfaces/DataSource.js';
 
 export { KeyMapPage} from './src/internal/forms/KeyMapPage.js';
 export { DatePicker } from './src/internal/forms/DatePicker.js';
-export { QueryEditor } from './src/internal/forms/QueryEditor.js';
 export { Alert as AlertForm } from './src/internal/forms/Alert.js';
 export { Classes as InternalClasses } from './src/internal/Classes.js';
 export { UsernamePassword } from './src/internal/forms/UsernamePassword.js';
+export { AdvancedQuery as QueryEditor } from './src/internal/forms/AdvancedQuery.js';
 
 export { Case } from './src/public/Case.js';
 export { DateConstraint } from './src/public/DateConstraint.js';
-export { ListOfValues, LOVFilterPreProcessor } from './src/public/ListOfValues.js';
+
+export { ListOfValues } from './src/public/ListOfValues.js';
+export type { LOVFilterPreProcessor } from './src/public/ListOfValues.js';
 
 export { Canvas as CanvasConfig } from './src/application/properties/Canvas.js';
 export { DatePicker as DatePickerConfig } from './src/application/properties/DatePicker.js';
@@ -77,9 +86,11 @@ export { MenuEvent } from './src/control/events/MenuEvent.js';
 export { CustomEvent } from './src/control/events/CustomEvent.js';
 export { EventFilter } from './src/control/events/EventFilter.js';
 export { KeyMap, KeyDefinition } from './src/control/events/KeyMap.js';
+
+export { Alert as AlertImplementation } from './src/application/interfaces/Alert.js';
 export { EventListenerClass as EventListener } from './src/control/events/EventListenerClass.js';
 
-export { Class } from './src/types/Class.js';
+export { Class } from './src/public/Class.js';
 export { FormsModule } from './src/application/FormsModule.js';
 export { HTMLFragment } from './src/application/HTMLFragment.js';
 export { Canvas, View } from './src/application/interfaces/Canvas';

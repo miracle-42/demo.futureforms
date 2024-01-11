@@ -16,7 +16,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.6.0</version>
+      <version>42.2.10</version>
     </dependency>
 
     <dependency>
@@ -28,7 +28,7 @@
     <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-	<version>20231013</version>
+        <version>20200518</version>
     </dependency>
   </dependencies>
 

@@ -24,7 +24,8 @@ import { SQLRest } from "./SQLRest.js";
 import { DataType } from "./DataType.js";
 import { BindValue } from "./BindValue.js";
 import { Connection } from "./Connection.js";
-import { Alert } from "../application/Alert.js";
+import { MSGGRP } from "../messages/Internal.js";
+import { Messages } from "../messages/Messages.js";
 import { DatabaseResponse } from "./DatabaseResponse.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
 
@@ -54,7 +55,8 @@ export class SQLStatement
 	{
 		if (connection == null)
 		{
-			Alert.fatal("Cannot create sql-statement when connection is null",this.constructor.name);
+			// Cannot create object when onnection is null
+			Messages.severe(MSGGRP.ORDB,2,this.constructor.name);
 			return;
 		}
 

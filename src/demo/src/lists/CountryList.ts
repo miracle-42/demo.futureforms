@@ -1,7 +1,7 @@
 import { FormsModule } from "../FormsModule";
 import { BindValue, ListOfValues, QueryTable } from "forms42core";
 
-export class CountryList implements ListOfValues
+export class CountryList extends ListOfValues
 {
 	public title:string = "Countries";
 
@@ -18,6 +18,8 @@ export class CountryList implements ListOfValues
 
 	constructor()
 	{
+		super();
+		
 		this.datasource = new Countries();
 		this.bindvalue = this.datasource.country;
 

@@ -87,6 +87,18 @@ public class Pool
   }
 
 
+  public String username()
+  {
+    return(this.username);
+  }
+
+
+  public String password()
+  {
+    return(this.password);
+  }
+
+
   public boolean proxy()
   {
     return(proxy);

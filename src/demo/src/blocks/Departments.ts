@@ -19,7 +19,7 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Block, EventType, Form, formevent } from "forms42core";
+import { Block, EventType, Form, Level, formevent } from "forms42core";
 import { Employees as EmployeeTable} from "../datasources/database/Employees";
 import { Locations as LocationTable } from "../datasources/database/Locations";
 import { Departments as DepartmentTable } from "../datasources/database/Departments";
@@ -83,7 +83,7 @@ export class Departments extends Block
 
 			if (manager == null && !this.queryMode())
 			{
-				this.warning("Invalid manager id","Departments");
+				this.form.alert("Invalid manager id","Departments",Level.warn);
 				return(false);
 			}
 		}
@@ -114,7 +114,7 @@ export class Departments extends Block
 
 			if (location == null && !this.queryMode())
 			{
-				this.warning("Invalid location id","Departments");
+				this.form.alert("Invalid location id","Departments",Level.warn);
 				return(false);
 			}
 		}

@@ -34,8 +34,8 @@ export class Context extends StaticMenu
 	{
 		path = path.toLowerCase();
 		let parts:string[] = path.split("/");
-		let module:FormsModule = FormsModule.get() as FormsModule;
-		console.log(path);
+		let module:FormsModule = FormsModule.get();
+
 		if (parts[0] == "form")
 		{
 			switch(parts[1])

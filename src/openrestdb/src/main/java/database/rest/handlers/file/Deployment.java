@@ -146,6 +146,7 @@ public class Deployment
     ObjectInputStream oin = new ObjectInputStream(fin);
 
     index = (ConcurrentHashMap<String,StaticFile>) oin.readObject();
+    oin.close();
 
     this.index = index;
     this.modified = latest;

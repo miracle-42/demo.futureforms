@@ -24,8 +24,10 @@ package database.rest.config;
 import java.io.File;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.util.ArrayList;
+import java.util.Hashtable;
+import java.lang.reflect.Constructor;
 import database.rest.security.Keystore;
+import database.rest.custom.Authenticator;
 
 
 public class Security
@@ -36,10 +38,10 @@ public class Security
 
   private final boolean tokens;
   private final boolean database;
-  private final ArrayList<CustomAuthenticator> authenticators;
+  private final Hashtable<String,CustomAuthenticator> authenticators;
 
 
-  Security(JSONObject config) throws Exception
+  Security(JSONObject config, boolean full) throws Exception
   {
     String type = null;
     String file = null;
@@ -67,9 +69,9 @@ public class Security
       file = Paths.apphome + File.separator + file;
 
     trust = new Keystore(file,type,null,passwd);
-    authenticators = new ArrayList<CustomAuthenticator>();
+    authenticators = new Hashtable<String,CustomAuthenticator>();
 
-    if (Config.has(config,"authenticators"))
+    if (Config.has(config,"authenticators") && full)
     {
       JSONObject auth = Config.getSection(config,"authenticators");
 
@@ -86,8 +88,11 @@ public class Security
         String clazz = Config.get(method,"class");
         boolean enabled = Config.get(method,"enabled");
 
-        if (name != null) name = name.toLowerCase();
-        authenticators.add(new CustomAuthenticator(name,clazz,enabled));
+        if (name != null)
+          name = name.toLowerCase();
+
+        if (enabled)
+          authenticators.put(name,new CustomAuthenticator(name,clazz,enabled));
       }
     }
     else
@@ -125,39 +130,34 @@ public class Security
     return(database);
   }
 
-  public ArrayList<CustomAuthenticator> authenticators()
+  public Hashtable<String,CustomAuthenticator> authenticators()
   {
     return(authenticators);
   }
 
   public CustomAuthenticator authenticator(String meth)
   {
-    for (CustomAuthenticator auth : authenticators)
-    {
-      if (auth.meth.equals(meth))
-        return(auth);
-    }
-
-    return(null);
+    return(authenticators.get(meth.toLowerCase()));
   }
 
 
   public class CustomAuthenticator
   {
-    public final String meth;
-    public final String clazz;
+    public final String name;
     public final boolean enabled;
+    public final Authenticator authenticator;
 
-    CustomAuthenticator(String name, String clazz, boolean enabled)
+    CustomAuthenticator(String name, String clazz, boolean enabled) throws Exception
     {
-      this.meth = name;
-      this.clazz = clazz;
+      this.name = name;
       this.enabled = enabled;
+      Constructor<?> contructor = Class.forName(clazz).getDeclaredConstructor();
+      this.authenticator = (Authenticator) contructor.newInstance();
     }
 
     public String toString()
     {
-      return("Authenticator: "+meth+" Implementation: "+clazz+" enabled: "+enabled);
+      return("Authenticator: "+name+" Implementation: "+authenticator+" enabled: "+enabled);
     }
   }
 }

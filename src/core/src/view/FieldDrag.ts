@@ -167,8 +167,8 @@ export class FieldDrag implements EventListenerObject
 
 		let id:string = header.getAttribute("for");
 
+		id = this.getID(id);
 		if (id == null) return(null);
-		id = id.replaceAll(".","\\.");
 
 		let elem:HTMLElement[] = [];
 
@@ -197,6 +197,19 @@ export class FieldDrag implements EventListenerObject
 		}
 
 		return(null);
+	}
+
+	private getID(id:string) : string
+	{
+		let illegal:string = id.replace(/[a-zA-Z0-9-]/g,"");
+
+		if (illegal.length > 0)
+		{
+			console.log("id: '"+id+"' contains illegal characters '"+illegal+"'");
+			return(null);
+		}
+
+		return(id);
 	}
 
 	private getinstances(header:HTMLElement) : FieldInstance[]

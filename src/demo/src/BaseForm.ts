@@ -27,7 +27,6 @@ export class BaseForm extends Form
 {
 	public id:string = null;
 	private view:View = null;
-	public title:string = null;
 	private static forms:number = 0;
 
 	constructor(content:string)
@@ -73,9 +72,7 @@ export class BaseForm extends Form
 			this.view = this.getViewPort();
 			let avail:View = this.getParentViewPort();
 
-
-			image.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgPHBhdGggZmlsbD0iYmxhY2siIHN0cm9rZS13aWR0aD0iMCIgZD0iTSA1MCAxMAogICAgICB2NDBoNDBsLTE2LTE2bDIyLTIybC04LThsLTIyIDIyWiBtLTQwIDQwIGg0MHY0MGwtMTYtMTZsLTIyIDIybC04LThsMjItMjJaIi8+CiAgPC9zdmc+";
-		
+			image.classList.add("max")
 
 			avail.x = 0;
 			avail.y = 0;
@@ -86,7 +83,7 @@ export class BaseForm extends Form
 		}
 		else
 		{
-			image.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbD0iYmxhY2siIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMCIgZD0iTSAwIDYwCnY0MGg0MGwtMTYtMTZsMjItMjJsLTgtOGwtMjIgMjJaCm02MC02MGg0MHY0MGwtMTYtMTZsLTIyIDIybC04LThsMjItMjJaIi8+Cjwvc3ZnPgo=";
+			image.classList.add("min");
 			this.setViewPort(this.view);
 			this.view = null;
 		}

@@ -97,6 +97,8 @@ public class Beautifier
       if (line.trim().length() > 0) break;
     }
 
+    in.close();
+
     if (!line.trim().startsWith("/*"))
     {
       System.out.println("No open-source header "+file);
@@ -185,6 +187,8 @@ public class Beautifier
     byte[] borg = new byte[(int) f.length()];
 
     int read = oin.read(borg);
+
+    oin.close();
 
     if (read != borg.length)
       throw new Exception("Incomplete read "+file);

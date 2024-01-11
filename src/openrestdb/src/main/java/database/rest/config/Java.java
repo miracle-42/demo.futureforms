@@ -46,6 +46,7 @@ public class Java
     this.exe = exe + (Config.windows() ? ".exe" : "");
 
     String srvjars = Config.get(config,"jars","");
+    String libpath = File.pathSeparator+Paths.libdir+File.separator;
 
     if (srvjars.length() > 0)
     {
@@ -53,11 +54,10 @@ public class Java
       String[] jars = srvjars.split(", ;:");
 
       for(String jar : jars)
-        path += File.pathSeparator+jar;
+        path += libpath+jar;
 
       srvjars = path;
     }
-
 
     String httpjars = Config.get(config,"http.jars","");
 
@@ -67,11 +67,10 @@ public class Java
       String[] jars = httpjars.split(", ;:");
 
       for(String jar : jars)
-        path += File.pathSeparator+jar;
+        path += libpath+jar;
 
       httpjars = path;
     }
-
 
     String restjars = Config.get(config,"rest.jars","");
 
@@ -81,7 +80,7 @@ public class Java
       String[] jars = restjars.split(", ;:");
 
       for(String jar : jars)
-        path += File.pathSeparator+jar;
+        path += libpath+jar;
 
       restjars = path;
     }

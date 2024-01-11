@@ -64,7 +64,7 @@
           </includes>
           <archive>
             <manifest>
-              <mainClass>database.rest.sso.Authenticater</mainClass>
+              <mainClass>database.rest.sso.SSOAuthenticater</mainClass>
               <addClasspath>true</addClasspath>
               <classpathPrefix>./json</classpathPrefix>
             </manifest>

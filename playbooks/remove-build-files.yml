@@ -17,6 +17,7 @@
         - ../src/core/node_modules/
         - ../src/demo/node_modules/
         - ../src/openrestdb/target/
+        - ../src/generator/target/
         - ../download
 
     - name: "Delete all *.d.ts header files in src/"

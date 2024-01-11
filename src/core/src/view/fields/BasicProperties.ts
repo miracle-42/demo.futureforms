@@ -21,8 +21,9 @@
 
 import { DataType } from "./DataType.js";
 import { DataMapper } from "./DataMapper.js";
-import { Alert } from "../../application/Alert.js";
-import { Class, isClass } from "../../types/Class.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
+import { Class, isClass } from "../../public/Class.js";
 import { ListOfValues } from "../../public/ListOfValues.js";
 import { Properties } from "../../application/Properties.js";
 import { FormsModule } from "../../application/FormsModule.js";
@@ -527,18 +528,13 @@ export class BasicProperties
 		if (typeof mapper === "string")
 			mapper = FormsModule.getComponent(mapper);
 
-		else
-
-		if (isClass(mapper))
-			this.mapper$ = factory.createBean(mapper) as DataMapper;
-
-		else
-
-		this.mapper$ = mapper;
+		if (!isClass(mapper)) this.mapper$ = mapper;
+		else this.mapper$ = factory.createBean(mapper) as DataMapper;
 
 		if (this.mapper$ != null && !("getIntermediateValue" in this.mapper$))
 		{
-			Alert.fatal("'"+(this.mapper$ as any).constructor.name+"' is not a DataMapper","DataMapper");
+			// Not an instance of DataMapper
+			Messages.severe(MSGGRP.FRAMEWORK,18,(this.mapper$ as any).constructor.name);
 			this.mapper$ = null;
 		}
 
@@ -563,14 +559,8 @@ export class BasicProperties
 		if (typeof formatter === "string")
 			formatter = FormsModule.getComponent(formatter);
 
-		else
-
-		if (isClass(formatter))
-			this.formatter$ = factory.createBean(formatter) as Formatter;
-
-		else
-
-		this.formatter$ = formatter;
+		if (!isClass(formatter)) this.formatter$ = formatter;
+		else this.formatter$ = factory.createBean(formatter) as Formatter;
 
 		return(this);
 	}
@@ -594,17 +584,11 @@ export class BasicProperties
 		{
 			let map:string = formatter;
 			formatter = FormsModule.getComponent(map);
-			if (!formatter) Alert.fatal("Formatter '"+map+"' is not mapped","Formatters");
+			if (!formatter) Messages.severe(MSGGRP.FRAMEWORK,19,map); // Not mapped
 		}
 
-		else
-
-		if (isClass(formatter))
-			this.simpleformatter$ = factory.createBean(formatter) as SimpleFormatter;
-
-		else
-
-		this.simpleformatter$ = formatter;
+		if (!isClass(formatter)) this.simpleformatter$ = formatter;
+		else this.simpleformatter$ = factory.createBean(formatter) as SimpleFormatter;
 
 		return(this);
 	}
@@ -628,7 +612,7 @@ export class BasicProperties
 		{
 			let map:string = listofvalues;
 			listofvalues = FormsModule.getComponent(map);
-			if (!listofvalues) Alert.fatal("ListOfValues '"+map+"' is not mapped","ListOfValues");
+			if (!listofvalues) Messages.severe(MSGGRP.FRAMEWORK,19,map); // Not mapped
 		}
 
 		if (!isClass(listofvalues)) this.listofvalues$ = listofvalues;

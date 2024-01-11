@@ -19,8 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Alert } from '../../application/Alert.js';
+import { MSGGRP } from '../../messages/Internal.js';
 import { dates, DateToken, DatePart } from './dates.js';
+import { Level, Messages } from '../../messages/Messages.js';
 import { Properties } from '../../application/Properties.js';
 import {format as formatimpl, parse as parseimpl} from './fecha.js';
 
@@ -69,7 +70,7 @@ export class utils
 		}
 		catch (error)
 		{
-			Alert.message(""+error,"Date Parser");
+			Messages.handle(MSGGRP.FRAMEWORK,error,Level.warn);
 			return(null);
 		}
    }
@@ -88,7 +89,7 @@ export class utils
 		}
 		catch (error)
 		{
-			Alert.message(""+error,"Date Formatter");
+			Messages.handle(MSGGRP.FRAMEWORK,error,Level.warn);
 			return(null);
 		}
    }

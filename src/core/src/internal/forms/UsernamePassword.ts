@@ -31,16 +31,20 @@ import { Internals } from "../../application/properties/Internals.js";
  */
 export class UsernamePassword extends Form
 {
-    public title:string = null;
-    public username:string = null;
-    public password:string = null;
-	 public accepted:boolean = false;
-	 public static scope:boolean = false;
-	 public static database:boolean = false;
+	public title:string = null;
+	public username:string = null;
+	public password:string = null;
+	public accepted:boolean = false;
+	public static scope:boolean = false;
+	public static database:boolean = false;
+
+	public static LoginButtonText:string = "Login";
+	public static CancelButtonText:string = Internals.CancelButtonText;
+
 
 	constructor()
 	{
-		super(UsernamePassword.page);
+		super(UsernamePassword.prepare());
 
 		this.moveable = true;
 		this.resizable = true;
@@ -83,8 +87,16 @@ export class UsernamePassword extends Form
 			this.title = "Login";
 
 		Internals.stylePopupWindow(view,this.title);
-		
+
 		return(true);
+	}
+
+	private static prepare() : string
+	{
+		let page:string = UsernamePassword.page;
+		page = page.replace("{OK}",Internals.OKButtonText);
+		page = page.replace("{CANCEL}",Internals.CancelButtonText);
+		return(page);
 	}
 
 	public static page: string =
@@ -98,7 +110,7 @@ export class UsernamePassword extends Form
 				<input from="login" tabindex="0" name="username"/>
 				<label for="password">Password</label>
 				<input type="password" tabindex="1" from="login" name="password"/>
-				<div name="indexing"> 
+				<div name="indexing">
 					<div name="scope" `+ UsernamePassword.scope +`>
 						<label for="scope" false>Scope</label>
 						<select tabindex="2" from="login" name="scope"></select>
@@ -112,8 +124,8 @@ export class UsernamePassword extends Form
 		</div>
 		<div name="lowerright">
 			<div name="buttonarea">
-				<button name="login" onclick="this.accept()" tabindex="2">Login</button>
-				<button name="cancel" onclick="this.cancel()" tabindex="3">Cancel</button>
+				<button name="{LOGIN}}" onclick="this.accept()" tabindex="2">Login</button>
+				<button name="{CANCEL}" onclick="this.cancel()" tabindex="3">Cancel</button>
 			</div>
 		</div>
 	</form>

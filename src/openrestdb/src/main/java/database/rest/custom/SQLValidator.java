@@ -26,5 +26,5 @@ import org.json.JSONObject;
 
 public interface SQLValidator
 {
-  void validate(JSONObject payload) throws Exception;
+  void validate(String user, JSONObject payload) throws Exception;
 }

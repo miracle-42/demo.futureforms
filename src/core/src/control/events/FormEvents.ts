@@ -25,8 +25,9 @@ import { MenuEvent } from "./MenuEvent.js";
 import { Form } from "../../public/Form.js";
 import { CustomEvent } from "./CustomEvent.js";
 import { EventFilter } from "./EventFilter.js";
-import { Alert } from "../../application/Alert.js";
 import { EventListener } from "./EventListener.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
 import { EventGroup, EventType } from "./EventType.js";
 import { FormEvent as Interface } from "./FormEvent.js";
 import { MenuComponent } from "../menus/MenuComponent.js";
@@ -460,7 +461,8 @@ export class FormEvents
 		}
 		catch (error)
 		{
-			Alert.fatal(lsnr.clazz.constructor.name+"."+lsnr.method+" returned "+error,"EventListener");
+			let meth:string = lsnr.clazz.constructor.name+"."+lsnr.method;
+			Messages.severe(MSGGRP.FRAMEWORK,6,meth,error); // lsnr.method+" returned error
 			if (swap) event["key$"] = ekey;
 			return(false);
 		}
@@ -473,7 +475,7 @@ export class FormEvents
 				{
 					if (typeof value !== "boolean")
 					{
-						Alert.fatal("@FormEvents: EventListner '"+lsnr+"' did not return Promise<boolean>, but '"+value+"'","EventListener");
+						Messages.severe(MSGGRP.FRAMEWORK,7,lsnr,value); // EventListner %1 did not return Promise<boolean>, but %s
 						value = true;
 					}
 
@@ -482,7 +484,8 @@ export class FormEvents
 			}
 			catch(error)
 			{
-				Alert.fatal(lsnr.clazz.constructor.name+"."+lsnr.method+" returned "+error,"EventListener");
+				let meth:string = lsnr.clazz.constructor.name+"."+lsnr.method;
+				Messages.severe(MSGGRP.FRAMEWORK,6,meth,error);
 				cont = false;
 			}
 		}
@@ -490,7 +493,7 @@ export class FormEvents
 		{
 			if (response == null || typeof response !== "boolean")
 			{
-				Alert.fatal("@FormEvents: EventListner '"+lsnr+"' did not return boolean, but '"+response+"'","EventListener");
+				Messages.severe(MSGGRP.FRAMEWORK,8,lsnr,response); // EventListner '%s' did not return boolean, but '%s'
 				cont = true;
 			}
 

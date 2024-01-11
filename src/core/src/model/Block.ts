@@ -23,11 +23,12 @@ import { Form } from "./Form.js";
 import { Row } from "../view/Row.js";
 import { Filters } from "./filters/Filters.js";
 import { Filter } from "./interfaces/Filter.js";
-import { Alert } from "../application/Alert.js";
 import { SQLRest } from "../database/SQLRest.js";
+import { MSGGRP } from "../messages/Internal.js";
 import { SubQuery } from "./filters/SubQuery.js";
 import { Record, RecordState } from "./Record.js";
 import { Relation } from "./relations/Relation.js";
+import { Messages } from "../messages/Messages.js";
 import { SQLSource } from "../database/SQLSource.js";
 import { QueryByExample } from "./QueryByExample.js";
 import { Block as ViewBlock } from '../view/Block.js';
@@ -477,9 +478,11 @@ export class Block
 		if (this.querymode) return;
 
 		let record:Record = this.getRecord(offset);
-		await this.wrapper.refresh(record);
+		this.view.setRecordProperties(record);
 
+		await this.wrapper.refresh(record);
 		if (reset) record.failed = false;
+
 		this.view.refresh(record);
 	}
 
@@ -493,7 +496,7 @@ export class Block
 
 		if (!this.view.hasInsertableFields())
 		{
-			Alert.warning("'"+this.name+"' has no allowed input fields","Insert Record");
+			Messages.warn(MSGGRP.BLOCK,1,this.name); // No insertable fields
 			return(false);
 		}
 
@@ -549,8 +552,9 @@ export class Block
 
 			if (inst == null)
 			{
+				// Cannot navigate to record
 				await this.wrapper.delete(record);
-				Alert.warning("'"+this.name+"' has no allowed input fields","Insert Record");
+				Messages.warn(MSGGRP.BLOCK,2,this.name);
 				return(false);
 			}
 
@@ -592,6 +596,7 @@ export class Block
 			inst.focus(true);
 			this.dirty = true;
 			this.view.refresh(record);
+			this.view.getRow(inst.row).activateIndicators(true);
 
 			return(true);
 		}
@@ -604,7 +609,7 @@ export class Block
 		if (this.querymode)
 			return(false);
 
-		if (this.getRecord().state != RecordState.New)
+		if (this.getRecord().state != RecordState.New && this.getRecord().state != RecordState.Insert)
 		{
 			if (!this.source$.deleteallowed)
 				return(false);
@@ -617,6 +622,7 @@ export class Block
 
 		let empty:boolean = false;
 		let offset:number = this.view.rows - this.view.row - 1;
+
 		let success:boolean = await this.wrapper.modified(this.getRecord(),true);
 
 		if (success)
@@ -639,7 +645,9 @@ export class Block
 			else inst = this.view.getPreviousInstance(inst);
 
 			this.view.getRow(this.view.row).validated = true;
+
 			inst?.focus(true);
+			this.view.getRow(inst.row).activateIndicators(true);
 
 			if (this.getRecord() != null)
 			{
@@ -789,8 +797,8 @@ export class Block
 
 			if (runid && waits > 1000)
 			{
-				waits = 0;
-				Alert.warning("Waiting for previous query to finish","Execute Query");
+				waits = 0; // Waiting on previous query
+				Messages.warn(MSGGRP.BLOCK,3,this.name);
 			}
 		}
 
@@ -813,7 +821,8 @@ export class Block
 
 		while(!this.view.empty(0))
 		{
-			Alert.fatal("Data provider for '"+this.name+"' is lacking. Please requery","Query");
+			// Datasource is lacking
+			Messages.severe(MSGGRP.BLOCK,4,this.name);
 			return(false);
 		}
 

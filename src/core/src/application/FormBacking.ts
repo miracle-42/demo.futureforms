@@ -19,15 +19,16 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Alert } from './Alert.js';
 import { Form } from '../public/Form.js';
-import { Class } from '../types/Class.js';
+import { Class } from '../public/Class.js';
 import { Block } from '../public/Block.js';
 import { Properties } from './Properties.js';
 import { FormsModule } from './FormsModule.js';
 import { Canvas } from './interfaces/Canvas.js';
 import { Key } from '../model/relations/Key.js';
 import { FormMetaData } from './FormMetaData.js';
+import { MSGGRP } from '../messages/Internal.js';
+import { Messages } from '../messages/Messages.js';
 import { Form as ViewForm } from '../view/Form.js';
 import { Form as ModelForm } from '../model/Form.js';
 import { Block as ViewBlock } from '../view/Block.js';
@@ -361,8 +362,8 @@ export class FormBacking
 				forms[i].synchronize();
 		}
 
-		if (!failed) Alert.message("Transactions successfully saved","Transactions");
-		else 			 Alert.warning("Failed to push transactions to backend","Transactions");
+		if (!failed) Messages.info(MSGGRP.TRX,1);
+		else 			 Messages.warn(MSGGRP.TRX,2);
 
 		if (!failed)
 		{
@@ -404,15 +405,15 @@ export class FormBacking
 		{
 			if (!await forms[i].undo())
 			{
-				Alert.warning("Failed to undo transactions for form '"+forms[i].name+"'","Transactions");
+				Messages.warn(MSGGRP.TRX,3,forms[i].name); // Failed to undo transactions for form %
 				return(false);
 			}
 
 			forms[i].dirty = false;
 		}
 
-		if (failed) Alert.warning("Failed to roll back transactions","Transactions");
-		else 			Alert.message("Transactions successfully rolled back","Transactions");
+		if (failed) Messages.warn(MSGGRP.TRX,4); // Failed to roll back transactions
+		else 			Messages.info(MSGGRP.TRX,5); // Transactions successfully rolled back
 
 		if (!failed)
 		{

@@ -28,7 +28,7 @@ import org.json.JSONObject;
 
 public interface Authenticator
 {
-  AuthResponse authenticate(JSONObject payload) throws Exception;
+  AuthResponse authenticate(AuthenticatorAPI api, JSONObject payload) throws Exception;
 
   public static class AuthResponse
   {

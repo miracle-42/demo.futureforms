@@ -186,9 +186,12 @@ export class Between implements Filter
 			gt = ">=";
 		}
 
-		let whcl:string = this.column$ + " " + gt + " :"+this.bindval$ + "0" +
-								" and " +
-								this.column$ + " " + lt + " :"+this.bindval$ + "1";
+		let whcl:string =
+			"(" +
+				this.column$ + " " + gt + " :"+this.bindval$ + "0" +
+				" and " +
+				this.column$ + " " + lt + " :"+this.bindval$ + "1"+
+			")";
 
 		return(whcl)
 	}

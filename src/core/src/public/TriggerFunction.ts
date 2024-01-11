@@ -25,5 +25,5 @@ import { CustomEvent } from "../control/events/CustomEvent.js";
 
 export interface TriggerFunction
 {
-    (event?:FormEvent|MenuEvent|CustomEvent) : Promise<boolean>;
+    (event?:FormEvent|MenuEvent|CustomEvent) : boolean|Promise<boolean>;
 }

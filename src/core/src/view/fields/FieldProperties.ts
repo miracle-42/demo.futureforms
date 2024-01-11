@@ -20,8 +20,8 @@
 */
 
 import { DataType } from "./DataType.js";
-import { Class } from "../../types/Class.js";
 import { DataMapper } from "./DataMapper.js";
+import { Class } from "../../public/Class.js";
 import { FieldInstance } from "./FieldInstance.js";
 import { BasicProperties } from "./BasicProperties.js";
 import { ListOfValues } from "../../public/ListOfValues.js";

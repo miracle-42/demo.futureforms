@@ -22,8 +22,9 @@
 import { Form } from './Form.js';
 import { Record } from './Record.js';
 import { Status } from '../view/Row.js';
-import { Alert } from '../application/Alert.js';
+import { MSGGRP } from '../messages/Internal.js';
 import { ListOfValues } from './ListOfValues.js';
+import { Messages } from '../messages/Messages.js';
 import { DateConstraint } from './DateConstraint.js';
 import { KeyMap } from '../control/events/KeyMap.js';
 import { Block as ViewBlock } from '../view/Block.js';
@@ -253,18 +254,6 @@ export class Block
 		return(FormBacking.getViewBlock(this).goField(field,clazz));
 	}
 
-	/** Show a message (similar to js alert) */
-	public message(msg:string, title?:string) : void
-	{
-		Alert.message(msg,title);
-	}
-
-	/** Show a warning (similar to js alert) */
-	public warning(msg:string, title?:string) : void
-	{
-		Alert.warning(msg,title);
-	}
-
 	/** Is this a control block (not bound to a datasource) */
 	public isControlBlock() : boolean
 	{
@@ -425,7 +414,8 @@ export class Block
 			if (offset != 0)
 			{
 				let running:EventType = FormBacking.getModelForm(this.form).eventTransaction.getEvent(block);
-				Alert.fatal("During transaction "+EventType[running]+" only current record can be accessed","Transaction Violation");
+				// During transaction, only current record ...
+				Messages.severe(MSGGRP.FRAMEWORK,16,EventType[running]);
 				return(null);
 			}
 

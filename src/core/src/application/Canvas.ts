@@ -38,7 +38,6 @@ export class Canvas implements CanvasDefinition, EventListenerObject
 	private container:HTMLDivElement = null;
 	private component:CanvasComponent = null;
 
-
 	public get moveable() : boolean
 	{
 		return(this.moveable$);
@@ -52,6 +51,7 @@ export class Canvas implements CanvasDefinition, EventListenerObject
 	public set moveable(flag:boolean)
 	{
 		this.moveable$ = flag;
+		this.canvas.style.position = flag ? "absolute" : "relative";
 	}
 
 	public set resizable(flag:boolean)

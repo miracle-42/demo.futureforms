@@ -1,2 +1,2 @@
-const version = "3.2.0";
+const version = "0.18";
 console.log("Library Version "+version);

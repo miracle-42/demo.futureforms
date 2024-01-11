@@ -19,9 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { SQLRest } from "../database/SQLRest.js";
 import { ConnectionScope } from "../database/ConnectionScope.js";
 import { Connection as RestConnection, Step } from "../database/Connection.js";
-import { SQLRest } from "../database/SQLRest.js";
 
 /**
  * Connection to DatabaseJS.
@@ -29,6 +29,18 @@ import { SQLRest } from "../database/SQLRest.js";
 export class DatabaseConnection
 {
 	private conn$:RestConnection = null;
+
+	/** Lock limit, scope != stateless */
+	public static get MAXLOCKS() : number
+	{
+		return(RestConnection.MAXLOCKS);
+	}
+
+	/** Lock limit, scope != stateless */
+	public static set MAXLOCKS(timeout:number)
+	{
+		RestConnection.MAXLOCKS = timeout;
+	}
 
 	/** Transaction timeout in seconds, only with scope=transactional */
 	public static get TRXTIMEOUT() : number
@@ -42,16 +54,16 @@ export class DatabaseConnection
 		RestConnection.TRXTIMEOUT = timeout;
 	}
 
-	/** Lock timeout in seconds, only with scope!=stateless */
-	public static get LOCKTIMEOUT() : number
+	/** Lock inspection interval in seconds, only with scope!=stateless */
+	public static get LOCKINSPECT() : number
 	{
-		return(RestConnection.LOCKTIMEOUT);
+		return(RestConnection.LOCKINSPECT);
 	}
 
-	/** Lock timeout in seconds, only with scope!=stateless */
-	public static set LOCKTIMEOUT(timeout:number)
+	/** Lock inspection interval in seconds, only with scope!=stateless */
+	public static set LOCKINSPECT(timeout:number)
 	{
-		RestConnection.LOCKTIMEOUT = timeout;
+		RestConnection.LOCKINSPECT = timeout;
 	}
 
 	/** Connection timeout in seconds, only with scope=transactional */

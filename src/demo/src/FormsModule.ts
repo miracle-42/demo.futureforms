@@ -38,9 +38,6 @@ import { Departments } from './forms/departments/Departments';
 import { MasterDetail } from './forms/masterdetail/MasterDetail';
 import { PhoneBookMembased } from './forms/phonenook/PhoneBookMembased';
 
-import { Lesson01 } from './lessons/lesson01/Lesson01';
-import { Lesson02 } from './lessons/lesson02/Lesson02';
-
 import { JobList } from './lists/JobList';
 import { ManagerList } from './lists/ManagerList';
 import { CountryList } from './lists/CountryList';
@@ -52,8 +49,7 @@ import { AppHeader } from './tags/AppHeader';
 import { LinkMapper } from './fields/LinkMapper';
 import { TrueFalseMapper } from './fields/TrueFalseMapper';
 
-import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, InternalFormsConfig, ConnectionScope } from 'forms42core';
-import { FlushStrategy } from 'forms42core/src/application/FormsModule';
+import { KeyMapPage, FormsPathMapping, FormsModule as FormsCoreModule, FlushStrategy, KeyMap, FormEvent, EventType, DatabaseConnection as Connection, FormProperties, UsernamePassword, Form, AlertForm, InternalFormsConfig, ConnectionScope } from 'forms42core';
 import { Generated } from './forms/generated/Generated';
 
 @FormsPathMapping(
@@ -75,9 +71,6 @@ import { Generated } from './forms/generated/Generated';
 		{class: MasterDetail, path: "/forms/masterdetail"},
 
 		{class: PhoneBookMembased, path: "/forms/phonebook"},
-
-		{class: Lesson01, path: "/forms/lesson01"},
-		{class: Lesson02, path: "/forms/lesson02"},
 
 		{class: CanvasHeader, path: "/html/canvasheader"},
 		{class: PageHeader, path: "/html/pageheader"},
@@ -108,11 +101,11 @@ export class FormsModule extends FormsCoreModule
 	{
 		super();
 
-		// Be aware of InternalFormsConfig
-		InternalFormsConfig.close = "&#215;";
-
 		// Be aware of FormProperties
-		FormProperties.DateFormat = "YYYY-MM-DD";
+		FormProperties.DateFormat = "DD-MM-YYYY";
+
+		// Be aware of InternalFormsConfig
+		InternalFormsConfig.CloseButtonText = "&#215;";
 
 		// Demo custom tag
 		FormProperties.TagLibrary.set("AppHeader",AppHeader);

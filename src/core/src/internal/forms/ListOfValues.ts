@@ -23,14 +23,14 @@ import { Form } from "../Form.js";
 import { Classes } from "../Classes.js";
 import { Case } from "../../public/Case.js";
 import { Block } from "../../public/Block.js";
-import { Alert } from "../../application/Alert.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
 import { KeyMap } from "../../control/events/KeyMap.js";
 import { MouseMap } from "../../control/events/MouseMap.js";
 import { FormEvent } from "../../control/events/FormEvent.js";
 import { EventType } from "../../control/events/EventType.js";
 import { Internals } from "../../application/properties/Internals.js";
-import { ListOfValues as Properties } from "../../public/ListOfValues.js";
-import { FormsModule } from "../../application/FormsModule.js";
+import { ListOfValues as ListDefinition } from "../../public/ListOfValues.js";
 
 
 export class ListOfValues extends Form
@@ -40,8 +40,8 @@ export class ListOfValues extends Form
 	private block:string = null;
 	private results:Block = null;
 	private columns:string[] = null;
-	private props:Properties = null;
 	private cancelled:boolean = true;
+	private lov:ListDefinition = null;
 
 	public static DELAY:number = 300;
 
@@ -72,8 +72,8 @@ export class ListOfValues extends Form
 
 		this.cancelled = false;
 
-		let source:string|string[] = this.props.sourcefields;
-		let target:string|string[] = this.props.targetfields;
+		let source:string|string[] = this.lov.sourcefields;
+		let target:string|string[] = this.lov.targetfields;
 
 		if (this.form && this.block && source && target)
 		{
@@ -104,39 +104,39 @@ export class ListOfValues extends Form
 		let flt:string = this.getValue("filter","criteria");
 		if (flt == null) flt = "";
 
-		if (this.props.filterPreProcesser != null)
-			flt = this.props.filterPreProcesser(flt);
+		if (this.lov.filterPreProcesser != null)
+			flt = this.lov.filterPreProcesser(flt);
 
-		if (flt.length < this.props.filterMinLength)
+		if (flt.length < this.lov.filterMinLength)
 			return;
 
 		if (flt != this.last)
 		{
 			this.last = flt;
 
-			switch(this.props.filterCase)
+			switch(this.lov.filterCase)
 			{
 				case Case.upper: 		flt = flt?.toLocaleUpperCase(); 	break;
 				case Case.lower: 		flt = flt?.toLocaleLowerCase(); 	break;
 				case Case.initcap: 	flt = this.initcap(flt); 			break;
 			}
 
-			if (this.props.filterPrefix)
-				flt = this.props.filterPrefix+flt;
+			if (this.lov.filterPrefix)
+				flt = this.lov.filterPrefix+flt;
 
-			if (this.props.filterPostfix)
-				flt += this.props.filterPostfix;
+			if (this.lov.filterPostfix)
+				flt += this.lov.filterPostfix;
 
-			if (this.props.filter)
+			if (this.lov.filter)
 			{
-				if (!Array.isArray(this.props.filter)) this.props.filter = [this.props.filter];
-				this.props.filter.forEach((filter) => {filter.constraint = flt});
+				if (!Array.isArray(this.lov.filter)) this.lov.filter = [this.lov.filter];
+				this.lov.filter.forEach((filter) => {filter.constraint = flt});
 			}
 
-			if (this.props.bindvalue)
+			if (this.lov.bindvalue)
 			{
-				if (!Array.isArray(this.props.bindvalue)) this.props.bindvalue = [this.props.bindvalue];
-				this.props.bindvalue.forEach((bindvalue) => {bindvalue.value = flt});
+				if (!Array.isArray(this.lov.bindvalue)) this.lov.bindvalue = [this.lov.bindvalue];
+				this.lov.bindvalue.forEach((bindvalue) => {bindvalue.value = flt});
 			}
 
 			this.results.executeQuery();
@@ -194,53 +194,53 @@ export class ListOfValues extends Form
 	{
 		this.canvas.zindex = Classes.zindex;
 
+		this.lov = this.parameters.get("lov");
 		this.form = this.parameters.get("form");
 		this.block = this.parameters.get("block");
-		this.props = this.parameters.get("properties");
 
-		if (this.props == null)
+		if (this.lov == null)
 		{
-			Alert.fatal("No ListOfValues properties passed","List Of Values");
+			Messages.severe(MSGGRP.FORM,4); // ListOfValues does not exist
 			return(true);
 		}
 
-		if (this.props.datasource == null)
+		if (this.lov.datasource == null)
 		{
-			Alert.fatal("No datasource defined in ListOfValues","List Of Values");
+			Messages.severe(MSGGRP.FORM,5); // ListOfValues does not exist
 			return(true);
 		}
 
-		if (this.props.displayfields == null)
+		if (this.lov.displayfields == null)
 		{
-			Alert.fatal("No display fields defined in ListOfValues","List Of Values");
+			Messages.severe(MSGGRP.FORM,6); // No display fields defined
 			return(true);
 		}
 
-		if (this.props.rows == null)
-			this.props.rows = 8;
+		if (this.lov.rows == null)
+			this.lov.rows = 8;
 
-		if (this.props.filterMinLength == null)
-			this.props.filterMinLength = 0;
+		if (this.lov.filterMinLength == null)
+			this.lov.filterMinLength = 0;
 
-		this.props.datasource.addColumns(this.props.sourcefields);
-		this.props.datasource.addColumns(this.props.displayfields);
+		this.lov.datasource.addColumns(this.lov.sourcefields);
+		this.lov.datasource.addColumns(this.lov.displayfields);
 
 		let page:string = ListOfValues.page;
-		let css:string = this.props.cssclass;
+		let css:string = this.lov.cssclass;
 
-		page = page.replace("CSS",css ? css : "lov");
-		page = page.replace("ROWS",this.props.rows+"");
+		page = page.replace("ROWS",this.lov.rows+"");
+		page = page.replace("CSS",css ? "class='"+css+"'" : "");
 
 		await this.setView(page);
 		let view:HTMLElement = this.getView();
 
-		if (this.props.width)
+		if (this.lov.width)
 		{
 			view.querySelectorAll("input[name='display']").forEach((elem) =>
-			{(elem as HTMLInputElement).style.width = this.props.width});
+			{(elem as HTMLInputElement).style.width = this.lov.width});
 		}
 
-		Internals.stylePopupWindow(view,this.props.title);
+		Internals.stylePopupWindow(view,this.lov.title);
 
 		await this.goField("filter","criteria");
 		this.results = this.getBlock("results");
@@ -248,15 +248,15 @@ export class ListOfValues extends Form
 		this.addListeners();
 
 		this.results.qbeallowed = false;
-		this.results.datasource = this.props.datasource;
-		let cols:string|string[] = this.props.displayfields;
+		this.results.datasource = this.lov.datasource;
+		let cols:string|string[] = this.lov.displayfields;
 
 		if (Array.isArray(cols)) this.columns = cols;
 		else 							 this.columns = [cols];
 
-		if (this.props.filterInitialValueFrom)
+		if (this.lov.filterInitialValueFrom)
 		{
-			let init:any = this.form.getValue(this.block,this.props.filterInitialValueFrom);
+			let init:any = this.form.getValue(this.block,this.lov.filterInitialValueFrom);
 			if (init != null)	this.setValue("filter","criteria",init+"");
 		}
 
@@ -305,8 +305,8 @@ export class ListOfValues extends Form
 	Internals.header +
 	`
 	<div name="popup-body">
-		<div name="lov" class="CSS">
-			<div name="search"><input name="criteria" from="filter"></div>
+		<div name="list-of-values" CSS>
+			<div name="search"><input name="criteria" from="filter" autocomplete="off"></div>
 			<div name="results">
 				<div name="row" foreach="row in 1..ROWS">
 					<input name="display" from="results" row="$row" readonly derived>

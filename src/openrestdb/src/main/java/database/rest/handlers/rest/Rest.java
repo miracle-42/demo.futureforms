@@ -27,7 +27,6 @@ import java.util.Date;
 import database.Version;
 import java.util.Base64;
 import java.util.HashMap;
-
 import org.json.JSONArray;
 import java.sql.Savepoint;
 import org.json.JSONObject;
@@ -40,21 +39,24 @@ import javax.crypto.SecretKey;
 import java.io.FileInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.PreparedStatement;
 import database.rest.config.Config;
 import database.rest.database.Pool;
 import database.rest.servers.Server;
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
 import javax.crypto.spec.SecretKeySpec;
 import database.rest.custom.SQLRewriter;
 import database.rest.database.BindValue;
 import database.rest.database.SQLParser;
 import database.rest.custom.SQLValidator;
 import database.rest.database.AuthMethod;
-import database.rest.custom.Authenticator;
+import database.rest.custom.PreProcessor;
+import database.rest.custom.PostProcessor;
 import database.rest.cluster.PreAuthRecord;
 import database.rest.database.BindValueDef;
+import database.rest.custom.SQLRewriterAPI;
 import database.rest.database.NameValuePair;
+import database.rest.custom.AuthenticatorAPI;
 import java.util.concurrent.ConcurrentHashMap;
 import database.rest.handlers.rest.Session.Scope;
 import database.rest.custom.Authenticator.AuthResponse;
@@ -90,6 +92,9 @@ public class Rest
   private final SQLRewriter rewriter;
   private final SQLValidator validator;
 
+  private final PreProcessor preprocessor;
+  private final PostProcessor postprocessor;
+
   private final static Logger logger = Logger.getLogger("rest");
   private final HashMap<String,BindValueDef> bindvalues = new HashMap<String,BindValueDef>();
   private static final ConcurrentHashMap<String,String> sqlfiles = new ConcurrentHashMap<String,String>();
@@ -116,6 +121,15 @@ public class Rest
     this.validator = config.getDatabase().validator;
     this.dateform  = config.getDatabase().dateformat;
     this.repo      = config.getDatabase().repository;
+
+    this.preprocessor  = config.getDatabase().preprocessor;
+    this.postprocessor = config.getDatabase().postprocessor;
+  }
+
+
+  public SessionState state()
+  {
+    return(state);
   }
 
 
@@ -252,6 +266,7 @@ public class Rest
   private String batch(JSONObject payload)
   {
     Scope scope = null;
+    String sesid = null;
     Request step = null;
     String result = null;
     String response = "[\n";
@@ -267,6 +282,9 @@ public class Rest
 
       if (payload.has("disconnect"))
         disconnect = payload.getBoolean("disconnect");
+
+      if (state.session() != null)
+        sesid = touch();
 
       if (state.session() != null)
         state.session().ensure();
@@ -382,7 +400,10 @@ public class Rest
       if (state.session() != null)
         state.release(scope,autocommit);
 
-      return("{\"steps\":\n" + response + "\n}");
+      String resp = "{\"steps\":\n" + response + "\n}";
+      if (sesid != null) resp = "{\"session\": \""+sesid+"\", \"steps\":\n" + response + "\n}";
+
+      return(resp);
     }
     catch (Throwable e)
     {
@@ -399,6 +420,7 @@ public class Rest
   private String script(JSONObject payload)
   {
     Scope scope = null;
+    String sesid = null;
     Request step = null;
     String result = null;
     boolean connected = false;
@@ -413,6 +435,9 @@ public class Rest
 
       if (payload.has("disconnect"))
         disconnect = payload.getBoolean("disconnect");
+
+      if (state.session() != null)
+        sesid = touch();
 
       if (state.session() != null)
         state.session().ensure();
@@ -515,13 +540,15 @@ public class Rest
       }
 
       JSONObject res = Request.parse(result);
-      result = res.put("success",true).toString();
+
+      res.put("success",true);
+      if (sesid != null) res.put("session",sesid);
 
       // Release & remove
       if (state.session() != null)
         state.release(scope,autocommit);
 
-      return(result);
+      return(res.toString());
     }
     catch (Throwable e)
     {
@@ -621,17 +648,7 @@ public class Rest
         return(error("keepalive failed, session does not exist"));
 
       if (keepalive)
-      {
-        if (state.session().stateful())
-        {
-          state.session().touch();
-        }
-        else
-        {
-            StatelessSession sses = state.stateless();
-            sesid = encodeStateless(secret,host,sses.priv,sses.proxy,sses.user);
-        }
-      }
+        sesid = touch();
 
       if (state.session() != null)
         state.release();
@@ -763,15 +780,13 @@ public class Rest
         meth = "custom";
 
         if (!custom.enabled)
-          return(error("Authentication method "+custom.meth+" not allowed"));
+          return(error("Authentication method "+custom.name+" not allowed"));
 
-        Constructor<?> contructor = Class.forName(custom.clazz).getDeclaredConstructor();
-        Authenticator auth = (Authenticator) contructor.newInstance();
-
-        custresp = auth.authenticate(payload);
+        AuthenticatorAPI api = new AuthenticatorAPI(server,host);
+        custresp = custom.authenticator.authenticate(api,payload);
 
         if (!custresp.success)
-          return(error(custom.meth+" authentication failed"));
+          return(error(custom.name+" authentication failed"));
 
         username = custresp.user;
       }
@@ -885,6 +900,24 @@ public class Rest
   }
 
 
+  public String connect(String user) throws Exception
+  {
+    Pool pool = null;
+    String sesid = null;
+    AuthMethod method = AuthMethod.PoolToken;
+
+    if (user != null) pool = config.getDatabase().proxy;
+    else              pool = config.getDatabase().fixed;
+
+    state.session(new Session(this.config,method,pool,"dedicated",user,pool.token()));
+
+    state.session().connect(false);
+    sesid = encode(true,state.session().guid(),host);
+
+    return(sesid);
+  }
+
+
   private String disconnect()
   {
     if (state.session() == null)
@@ -917,6 +950,7 @@ public class Rest
 
   private String ddl(JSONObject payload)
   {
+    String sesid = null;
     boolean success = false;
 
     if (state.session() == null)
@@ -927,6 +961,8 @@ public class Rest
 
     try
     {
+      sesid = touch();
+
       String sql = getStatement(payload);
       if (sql == null) return(error("Attribute \"sql\" is missing"));
 
@@ -947,6 +983,10 @@ public class Rest
     JSONFormatter json = new JSONFormatter();
     json.success(true);
     json.add("result",success);
+
+    if (sesid != null)
+      json.add("session",sesid);
+
     json.add("instance",instance);
     return(json.toString());
   }
@@ -964,16 +1004,27 @@ public class Rest
     {
       int rows = 0;
       int skip = 0;
+      String sesid = null;
       boolean lock = false;
       boolean nowait = true;
       String curname = null;
       boolean describe = false;
       boolean compact = this.compact;
       String dateform = this.dateform;
+      String username = state.session().username();
       HashMap<String,BindValueDef> assertions = null;
 
+      state.ensure();
+      sesid = touch();
+
       if (rewriter != null)
-        payload = rewriter.rewrite(payload);
+      {
+        SQLRewriterAPI api = new SQLRewriterAPI(this);
+        rewriter.rewrite(api,username,payload);
+      }
+
+      if (preprocessor != null)
+        preprocessor.process(username,payload);
 
       if (payload.has("lock"))
         lock = payload.getBoolean("lock");
@@ -1021,9 +1072,8 @@ public class Rest
         payload.put("sql",sql);
 
       if (validator != null)
-        validator.validate(payload);
+        validator.validate(username,payload);
 
-      state.ensure();
       state.session().closeCursor(curname);
 
       state.prepare(payload);
@@ -1163,8 +1213,20 @@ public class Rest
       if (cursor.name == null)
         state.session().closeCursor(cursor);
 
+      if (sesid != null)
+        json.add("session",sesid);
+
       json.add("instance",instance);
-      return(json.toString());
+      String response = json.toString();
+
+      if (postprocessor != null)
+      {
+        JSONObject rsp = Request.parse(response);
+        postprocessor.process(username,payload,rsp);
+        response = rsp.toString(2);
+      }
+
+      return(response);
     }
     catch (Throwable e)
     {
@@ -1176,10 +1238,12 @@ public class Rest
 
   private String update(JSONObject payload, boolean returning)
   {
+    String sesid = null;
     boolean prepared = false;
     boolean autocommit = false;
     Request request = this.request;
     String dateform = this.dateform;
+    String username = state.session().username();
 
     if (state.session() == null)
     {
@@ -1190,11 +1254,18 @@ public class Rest
     try
     {
       state.ensure();
+      sesid = touch();
 
       boolean lock = false;
 
       if (rewriter != null)
-        payload = rewriter.rewrite(payload);
+      {
+        SQLRewriterAPI api = new SQLRewriterAPI(this);
+        rewriter.rewrite(api,username,payload);
+      }
+
+      if (preprocessor != null)
+        preprocessor.process(username,payload);
 
       if (payload.has("lock"))
         lock = payload.getBoolean("lock");
@@ -1263,7 +1334,7 @@ public class Rest
       ArrayList<BindValue> bindvalues = parser.bindvalues();
 
       if (validator != null)
-        validator.validate(payload);
+        validator.validate(username,payload);
 
       if (returning)
       {
@@ -1285,8 +1356,20 @@ public class Rest
         for(Object[] row : table) json.add(columns,row);
         json.pop();
 
+        if (sesid != null)
+          json.add("session",sesid);
+
         json.add("instance",instance);
-        return(json.toString());
+        String response = json.toString();
+
+        if (postprocessor != null)
+        {
+          JSONObject rsp = Request.parse(response);
+          postprocessor.process(username,payload,rsp);
+          response = rsp.toString(2);
+        }
+
+        return(response);
       }
       else
       {
@@ -1300,9 +1383,21 @@ public class Rest
 
         json.success(true);
         json.add("affected",rows);
-        json.add("instance",instance);
 
-        return(json.toString());
+        if (sesid != null)
+          json.add("session",sesid);
+
+        json.add("instance",instance);
+        String response = json.toString();
+
+        if (postprocessor != null)
+        {
+          JSONObject rsp = Request.parse(response);
+          postprocessor.process(username,payload,rsp);
+          response = rsp.toString(2);
+        }
+
+        return(response);
       }
     }
     catch (Throwable e)
@@ -1330,10 +1425,20 @@ public class Rest
 
     try
     {
+      state.ensure();
+      String sesid = touch();
+
       String dateform = this.dateform;
+      String username = state.session().username();
 
       if (rewriter != null)
-        payload = rewriter.rewrite(payload);
+      {
+        SQLRewriterAPI api = new SQLRewriterAPI(this);
+        rewriter.rewrite(api,username,payload);
+      }
+
+      if (preprocessor != null)
+        preprocessor.process(username,payload);
 
       if (payload.has("dateformat"))
       {
@@ -1353,9 +1458,8 @@ public class Rest
       ArrayList<BindValue> bindvalues = parser.bindvalues();
 
       if (validator != null)
-        validator.validate(payload);
+        validator.validate(username,payload);
 
-      state.ensure();
       state.prepare(payload);
 
       state.lock();
@@ -1371,8 +1475,20 @@ public class Rest
       for(NameValuePair<Object> nvp : values)
         json.add(nvp.getName(),nvp.getValue());
 
+      if (sesid != null)
+        json.add("session",sesid);
+
       json.add("instance",instance);
-      return(json.toString());
+      String response = json.toString();
+
+      if (postprocessor != null)
+      {
+        JSONObject rsp = Request.parse(response);
+        postprocessor.process(username,payload,rsp);
+        response = rsp.toString(2);
+      }
+
+      return(response);
     }
     catch (Throwable e)
     {
@@ -1393,6 +1509,7 @@ public class Rest
     try
     {
       boolean close = false;
+      String sesid = touch();
       JSONFormatter json = new JSONFormatter();
       String name = payload.getString("cursor");
 
@@ -1441,6 +1558,9 @@ public class Rest
         json.pop();
       }
 
+      if (sesid != null)
+        json.add("session",sesid);
+
       json.add("instance",instance);
       return(json.toString());
     }
@@ -1454,6 +1574,7 @@ public class Rest
 
   private String commit()
   {
+    String sesid = null;
     boolean success = true;
 
     if (state.session() == null)
@@ -1464,6 +1585,7 @@ public class Rest
 
     try
     {
+      sesid = touch();
       success = state.session().commit();
     }
     catch (Exception e)
@@ -1479,6 +1601,9 @@ public class Rest
     if (!success)
       json.add("message","Transaction already comitted");
 
+    if (sesid != null)
+      json.add("session",sesid);
+
     json.add("instance",instance);
     return(json.toString());
   }
@@ -1486,6 +1611,7 @@ public class Rest
 
   private String rollback()
   {
+    String sesid = null;
     boolean success = true;
 
     if (state.session() == null)
@@ -1496,6 +1622,7 @@ public class Rest
 
     try
     {
+      sesid = touch();
       success = state.session().rollback();
     }
     catch (Exception e)
@@ -1510,6 +1637,9 @@ public class Rest
 
     if (!success)
       json.add("message","Transaction already rolled back");
+
+    if (sesid != null)
+      json.add("session",sesid);
 
     json.add("instance",instance);
     return(json.toString());
@@ -1657,7 +1787,7 @@ public class Rest
   }
 
 
-  String getStatement(JSONObject payload) throws Exception
+  public String getStatement(JSONObject payload) throws Exception
   {
     if (!payload.has("sql"))
       return(null);
@@ -1829,6 +1959,24 @@ public class Rest
       error(e,request);
       return(defaults);
     }
+  }
+
+
+  String touch() throws Exception
+  {
+    String sesid = null;
+
+    if (state.session().stateful())
+    {
+      state.session().touch();
+    }
+    else
+    {
+        StatelessSession sses = state.stateless();
+        sesid = encodeStateless(secret,host,sses.priv,sses.proxy,sses.user);
+    }
+
+    return(sesid);
   }
 
 
@@ -2160,7 +2308,7 @@ public class Rest
   }
 
 
-  private static class SessionState
+  public static class SessionState
   {
     Rest rest;
     int dept = 0;
@@ -2177,7 +2325,7 @@ public class Rest
     }
 
 
-    Session session()
+    public Session session()
     {
       return(this.session);
     }
@@ -2236,6 +2384,12 @@ public class Rest
       }
 
       dept++;
+    }
+
+
+    public PreparedStatement prepare(String sql) throws Exception
+    {
+      return(session.prepare(sql,null));
     }
 
 

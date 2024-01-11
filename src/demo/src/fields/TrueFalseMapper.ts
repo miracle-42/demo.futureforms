@@ -66,22 +66,12 @@ export class TrueFalseMapper implements DataMapper
 
 	public getIntermediateValue(tier:Tier) : string
 	{
-		if (tier == Tier.Backend) return(this.value.backend);
-		else 					  		  return(this.value.frontend);
+		return(this.getValue(tier));
 	}
 
 	public setIntermediateValue(tier:Tier, value:string) : void
 	{
-		if (tier == Tier.Backend)
-		{
-			this.value.backend = value;
-			this.value.frontend = TrueFalseMapper.back2front.get(value);
-		}
-		else
-		{
-			this.value.frontend = value;
-			this.value.backend = TrueFalseMapper.front2back.get(value);
-		}
+		this.setValue(tier,value);
 	}
 
 	public toString() : string

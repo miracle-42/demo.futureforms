@@ -23,7 +23,6 @@ package database.rest.servers.http;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import database.rest.config.Config;
 import database.rest.servers.Server;
 import database.rest.pools.ThreadPool;
 import java.nio.channels.SelectionKey;
@@ -32,21 +31,17 @@ import java.nio.channels.SocketChannel;
 
 class SSLHandshake extends Thread
 {
-  private final Config config;
   private final Logger logger;
   private final boolean admin;
-  private final SelectionKey key;
   private final HTTPServer httpserv;
   private final SocketChannel channel;
 
 
   SSLHandshake(HTTPServer httpserv, SelectionKey key, SocketChannel channel, boolean admin) throws Exception
   {
-    this.key = key;
     this.admin = admin;
     this.channel = channel;
     this.httpserv = httpserv;
-    this.config = httpserv.config();
     this.logger = httpserv.logger();
   }
 

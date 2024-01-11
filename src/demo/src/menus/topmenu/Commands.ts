@@ -33,7 +33,7 @@ export class Commands extends StaticMenu
 	{
 		path = path.toLowerCase();
 		let parts:string[] = path.split("/");
-		let module:FormsModule = FormsModule.get() as FormsModule;
+		let module:FormsModule = FormsModule.get();
 
 		if (parts[0] == "form")
 		{

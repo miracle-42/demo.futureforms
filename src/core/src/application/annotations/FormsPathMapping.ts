@@ -20,7 +20,7 @@
 */
 
 import { Logger, Type } from '../Logger.js';
-import { Class } from '../../types/Class.js';
+import { Class } from '../../public/Class.js';
 import { Components } from '../Components.js';
 import { FormsModule } from '../FormsModule.js';
 import { FormBacking } from '../FormBacking.js';

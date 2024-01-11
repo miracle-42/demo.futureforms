@@ -21,16 +21,42 @@
 
 import content from './Generated.html';
 
+import { Alert, Block, EventType, FormEvent, datasource, formevent } from 'forms42core';
+import { BaseForm } from '../../BaseForm';
 import { GeneratedDS } from './GeneratedDS';
-import { Form, datasource } from 'forms42core';
 
 
 @datasource("employees",GeneratedDS)
 
-export class Generated extends Form
+export class Generated extends BaseForm
 {
 	constructor()
 	{
 		super(content);
+		this.title = "Generated";
 	}
+
+	@formevent({type: EventType.OnFetch})
+	public async jonas(event:FormEvent) : Promise<boolean>
+	{
+		let emp:Block = this.getBlock(event.block);
+		emp.setValue("name",emp.getValue("first_name")+" "+emp.getValue("last_name"))
+		return(true);
+	}
+
+	@formevent({type: EventType.WhenValidateField, field: "salary"})
+	public async salary(event:FormEvent) : Promise<boolean>
+	{
+		let emp:Block = this.getBlock(event.block);
+		let salary:number = emp.getValue("salary");
+
+		if (salary > 10000)
+		{
+			Alert.warning("Not allowed in this company","Salary");
+			return(false);
+		}
+
+		return(true);
+	}
+
 }

@@ -20,12 +20,11 @@
 */
 
 import { Form } from './Form.js';
-import { Class } from '../types/Class.js';
-
 import { Alert } from './forms/Alert.js';
+import { Class } from '../public/Class.js';
 import { DatePicker } from './forms/DatePicker.js';
-import { QueryEditor } from './forms/QueryEditor.js';
 import { ListOfValues } from './forms/ListOfValues.js';
+import { AdvancedQuery } from './forms/AdvancedQuery.js';
 
 /**
  * Defines which forms to be used internally.
@@ -36,8 +35,8 @@ export class Classes
 	private static zindex$:number = 536870911;
 	public static AlertClass:Class<Form> = Alert;
 	public static DatePickerClass:Class<Form> = DatePicker;
-	public static QueryEditorClass:Class<Form> = QueryEditor;
 	public static ListOfValuesClass:Class<Form> = ListOfValues;
+	public static AdvancedQueryClass:Class<Form> = AdvancedQuery;
 
 	public static get zindex() : number
 	{
@@ -48,7 +47,7 @@ export class Classes
 	{
 		if (clazz == Alert) return(true);
 		if (clazz == DatePicker) return(true);
-		if (clazz == QueryEditor) return(true);
+		if (clazz == AdvancedQuery) return(true);
 		return(false);
 	}
 }

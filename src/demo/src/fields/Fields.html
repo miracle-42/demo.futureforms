@@ -77,20 +77,12 @@
 					<input  name="move" from="fields" format="{[A-H]}{[1-8]} -> {[A-H]}{[1-8]}" placeholder="C2 -> C3">
 					<span >[A-H][1-8]</span>
 				</div>
-				<div class="column">
-					<span>Move one</span>:
-					<input name="moveone" from="fields" size="8">
-
-					<span>Move two</span>:
-					<input name="movetwo" from="fields" size="8">
-				</div>
 			</fieldset>
 
 			<fieldset class="fieldset">
 				<legend>Data Mapper</legend>
 				<div class="column">
-					<span> Y/N</span> :<input type="text" name="mapper" from="fields" size="1" maxlength="1" upper
-						mapper="/mappers/truefalse">
+					<span> Y/N</span> :<input type="text" name="mapper" from="fields" size="1" maxlength="1" upper mapper="/mappers/truefalse">
 					<span>True/False</span>:<input name="mapper" from="fields" size="4" lower>
 				</div>
 			</fieldset>
@@ -122,9 +114,9 @@
 			<fieldset class="fieldset">
 				<legend>Any html</legend>
 				<div class="column">
-					<span>Text</span> : <input type="text" name="any" from="fields" size="16">
-					<b name="any" from="fields"></b>
-					<span name="any" from="fields" mapper="/mappers/linkmapper"></span>
+					<span>Text</span> : <input type="text" name="any" from="fields" size="10">
+					<b name="any" from="fields" style="font-size: small; padding-left: 8px;; padding-right: 8px;"></b></span>
+					<span style="font-size: small;" name="any" from="fields" mapper="/mappers/linkmapper"></span>
 				</div>
 			</fieldset>
 		</div>

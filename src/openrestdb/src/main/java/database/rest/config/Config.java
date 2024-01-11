@@ -158,7 +158,7 @@ public class Config
   public synchronized Database getDatabase() throws Exception
   {
     if (database != null) return(database);
-    database = new Database(sections.get("database"));
+    database = new Database(sections.get("database"),this.full);
     return(database);
   }
 
@@ -166,7 +166,7 @@ public class Config
   public synchronized Security getSecurity() throws Exception
   {
     if (security != null) return(security);
-    security = new Security(sections.get("security"));
+    security = new Security(sections.get("security"),this.full);
     return(security);
   }
 

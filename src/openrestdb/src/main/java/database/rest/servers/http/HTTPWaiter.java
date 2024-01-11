@@ -40,11 +40,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class HTTPWaiter extends Thread
 {
-  private final int id;
   private final int timeout;
   private final Server server;
   private final Config config;
-  private final boolean embedded;
   private final Selector selector;
   private final ThreadPool workers;
 
@@ -62,9 +60,7 @@ class HTTPWaiter extends Thread
 
   HTTPWaiter(Server server, int id, boolean embedded) throws Exception
   {
-    this.id = id;
     this.server = server;
-    this.embedded = embedded;
     this.config = server.config();
     this.selector = Selector.open();
     this.timeout = config.getHTTP().timeout;
@@ -260,7 +256,7 @@ class HTTPWaiter extends Thread
         this.connected.remove(client);
         if (timedout) logger.fine("Client KeepAlive timed out");
 
-        if (connected)
+        if (connected && !client.ssl())
         {
           try {client.channel().close();}
           catch(Exception e) {;}

@@ -19,7 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class } from '../types/Class.js';
+import { Class } from '../public/Class.js';
+
+import { Messages } from '../messages/Messages.js';
+import { MessageHandler } from '../messages/MessageHandler.js';
 
 import { Canvas as CanvasImpl } from './Canvas.js';
 import { Canvas as CanvasType } from './interfaces/Canvas.js';
@@ -28,6 +31,7 @@ import { ComponentFactory } from './interfaces/ComponentFactory.js';
 import { ComponentFactory as FactoryImpl } from './ComponentFactory.js';
 
 import { Tag } from './tags/Tag.js';
+import { FormTag } from './tags/FormTag.js';
 import { Include } from './tags/Include.js';
 import { Foreach } from './tags/Foreach.js';
 import { RowIndicator } from './tags/RowIndicator.js';
@@ -60,12 +64,14 @@ export class Properties
 	public static ParseTags:boolean = true;
 	public static ParseEvents:boolean = true;
 
+	public static IncludeTag:string = "include";
+	public static FormTag:string = "FutureForms";
+
 	public static BindAttr:string = "from";
 	public static RecordModeAttr:string = "mode";
 
 	public static ImplAttr:string = "implementation";
 
-	public static IncludeTag:string = "include";
 	public static ForeachAttr:string = "foreach";
 
 	public static DateDelimitors:string = "./-: ";
@@ -85,15 +91,29 @@ export class Properties
 		FilterIndicator:"active"
 	};
 
+	/** Interceptor for message handling */
+	public static get MessageHandler() : MessageHandler
+	{
+		return(Messages.MessageHandler);
+	}
+
+	/** Interceptor for message handling */
+	public static set MessageHandler(handler:MessageHandler)
+	{
+		Messages.MessageHandler = handler;
+	}
+
 	public static CanvasImplementationClass:Class<CanvasType> = CanvasImpl;
 	public static FactoryImplementation:ComponentFactory = new FactoryImpl();
 
 	public static MouseScrollDirection:ScrollDirection = ScrollDirection.Up;
 
 	public static TagLibrary : Map<string,Class<Tag>> =
+
 	new Map<string,Class<Tag>>
 	(
 			[
+				[Properties.FormTag,FormTag],
 				[Properties.IncludeTag,Include]
 			]
 	);

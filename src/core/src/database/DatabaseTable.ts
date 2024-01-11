@@ -24,12 +24,13 @@ import { SQLRest } from "./SQLRest.js";
 import { DataType } from "./DataType.js";
 import { BindValue } from "./BindValue.js";
 import { SQLSource } from "./SQLSource.js";
-import { Alert } from "../application/Alert.js";
+import { MSGGRP } from "../messages/Internal.js";
 import { SQLRestBuilder } from "./SQLRestBuilder.js";
 import { Filter } from "../model/interfaces/Filter.js";
 import { SubQuery } from "../model/filters/SubQuery.js";
 import { Record, RecordState } from "../model/Record.js";
 import { DatabaseResponse } from "./DatabaseResponse.js";
+import { Level, Messages } from "../messages/Messages.js";
 import { Connection, Step } from "../database/Connection.js";
 import { FilterStructure } from "../model/FilterStructure.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
@@ -84,7 +85,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (connection == null)
 		{
-			Alert.fatal("Cannot create datasource when connection is null",this.constructor.name);
+			// Cannot create object when onnection is null
+			Messages.severe(MSGGRP.ORDB,2,this.constructor.name);
 			return;
 		}
 
@@ -361,7 +363,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.fatal("Not connected","Database Connection");
+			// Not connected
+			Messages.severe(MSGGRP.ORDB,3,this.constructor.name);
 			return([]);
 		}
 
@@ -526,7 +529,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 		if (fetched.length == 0)
 		{
 			record.state = RecordState.Delete;
-			Alert.warning("Record has been deleted by another user","Database");
+			Messages.warn(MSGGRP.SQL,1); // Record has been deleted
 			return(false);
 		}
 
@@ -577,7 +580,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.fatal("Not connected","Database Connection");
+			// Not connected
+			Messages.severe(MSGGRP.ORDB,3,this.constructor.name);
 			return(null);
 		}
 
@@ -626,7 +630,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.fatal("Not connected","Database Connection");
+			// Not connected
+			Messages.severe(MSGGRP.ORDB,3,this.constructor.name);
 			return(false);
 		}
 
@@ -766,7 +771,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 
 		if (!response.success)
 		{
-			Alert.warning("Unable to describe table '"+this.table$+"' : ["+response.message+"]","Database");
+			// Unable to describe table
+			Messages.severe(MSGGRP.SQL,3,this.table$,response.message);
 			return(false);
 		}
 
@@ -894,8 +900,8 @@ export class DatabaseTable extends SQLSource implements DataSource
 				if (row != null)
 					await record.block.view.refresh(record);
 
-				if (row == null) Alert.warning("Record has been changed by another user ("+columns+")","Lock Record");
-				else Alert.warning("Record at row "+row+" has been changed by another user ("+columns+")","Lock Record");
+				if (row == null) Messages.warn(MSGGRP.TRX,9,columns); // Record has been changed by another user
+				else Messages.warn(MSGGRP.TRX,10,row,columns); // Same but with rownum
 			}
 			else
 			{
@@ -904,7 +910,7 @@ export class DatabaseTable extends SQLSource implements DataSource
 					if (response.rows?.length == 0)
 					{
 						record.state = RecordState.Deleted;
-						Alert.warning("Record has been deleted by another user","Lock Record");
+						Messages.warn(MSGGRP.TRX,11); // Record has been deleted by another user
 					}
 					else
 					{
@@ -917,13 +923,15 @@ export class DatabaseTable extends SQLSource implements DataSource
 							record.setClean(true);
 						}
 
-						if (row == null) Alert.warning("Record is locked by another user. Try again later","Lock Record");
-						else Alert.warning("Record at row "+row+" is locked by another user. Try again later","Lock Record");
+						// Record is locked by another user
+						if (row == null) Messages.warn(MSGGRP.TRX,12);
+						else Messages.warn(MSGGRP.TRX,13,row); // with rownum
 					}
 				}
 				else
 				{
-					Alert.fatal(response.message,response.path);
+					let assert:string = response.assert ? " "+response.assert : "";
+					Messages.handle(MSGGRP.TRX,response.message+assert,Level.severe);
 				}
 			}
 

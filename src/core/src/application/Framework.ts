@@ -19,11 +19,12 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Alert } from './Alert.js';
 import { Tag } from './tags/Tag.js';
-import { Class } from '../types/Class.js';
+import { Class } from '../public/Class.js';
 import { Logger, Type } from './Logger.js';
 import { Properties } from './Properties.js';
+import { MSGGRP } from '../messages/Internal.js';
+import { Messages } from '../messages/Messages.js';
 import { EventStack } from '../control/events/EventStack.js';
 import { ComponentFactory } from './interfaces/ComponentFactory.js';
 
@@ -146,6 +147,9 @@ export class Framework
 		if (doc == null)
 			return;
 
+		if (!doc.childNodes)
+			return;
+
 		this.addEvents(doc);
 
 		let nodes:Node[] = [];
@@ -221,7 +225,7 @@ export class Framework
 				}
 
 				events.push([attrnames[an],attrvalue]);
-				element.removeAttribute(attrnames[an]);
+				element.removeAttribute(prefix+attrnames[an]);
 
 				Logger.log(Type.eventparser,"Add event: '"+attrvalue+"' for: "+attrnames[an]);
 			}
@@ -305,9 +309,16 @@ export class Framework
 
 		for(let r=0; r < replace.length; r++)
 		{
+			let elements:HTMLElement[] = [replace[r]];
 			let deep:Implementation = this.getImplementation(replace[r]);
-			if (deep) nested.set(r,this.getReplacement(deep));
-			else nested.set(r,[replace[r]]);
+
+			if (deep)
+			{
+				elements = this.getReplacement(deep);
+				if (elements.length == 0) elements = [replace[r]];
+			}
+
+			nested.set(r,elements);
 		}
 
 		let nodes:HTMLElement[] = [];
@@ -431,10 +442,9 @@ export class DynamicCall
 		{
 			if (!this.component[this.path[i]])
 			{
-				let problem:string = "is null";
-				if (!(this.path[i] in this.component)) problem = "does not exists";
-				let msg:string = "@Framework: Attribute : '"+this.path[i]+"' on component: '"+this.component.constructor.name+"' "+problem;
-				Alert.fatal(msg,"Invoke Method");
+				let msgno:number = 1;
+				if (!(this.path[i] in this.component)) msgno = 2; // Attribute null or missing
+				Messages.severe(MSGGRP.FRAMEWORK,msgno,this.path[i],this.component.constructor.name);
 				return;
 			}
 
@@ -452,8 +462,7 @@ export class DynamicCall
 		}
 		catch (error)
 		{
-			let msg:string = "@Framework: Failed to invoke method: '"+this.method+"' on component: "+this.component.constructor.name;
-			Alert.fatal(msg+" "+error,"Invoke Method");
+			Messages.severe(MSGGRP.FRAMEWORK,3,this.method,this.component.constructor.name); // Failed to invoke method
 		}
 	}
 
@@ -513,8 +522,7 @@ class EventHandler implements EventListenerObject
 		}
 		else if (elem != null)
 		{
-			let msg:string = "@Framework: Cannot find "+event.type+" on this or parent any elements";
-			Alert.fatal(msg,"Invoke Method");
+			Messages.severe(MSGGRP.FRAMEWORK,4,event.type); // Cannot find event type
 		}
 	}
 }

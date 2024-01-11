@@ -19,9 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class } from '../types/Class.js';
-import { Alert } from '../application/Alert.js';
+import { Class } from './Class.js';
 import { ListOfValues } from './ListOfValues.js';
+import { MSGGRP } from '../messages/Internal.js';
+import { Messages } from '../messages/Messages.js';
 import { DataType } from '../view/fields/DataType.js';
 import { DataMapper } from '../view/fields/DataMapper.js';
 import { BasicProperties } from '../view/fields/BasicProperties.js';
@@ -57,7 +58,8 @@ export class FieldProperties extends BasicProperties
 	/** Underlying datatype. Inherited but cannot be changed */
 	public setType(_type:DataType) : FieldProperties
 	{
-		Alert.fatal("Data type cannot be changed","Properties");
+		// Data type cannot be changed
+		Messages.severe(MSGGRP.FIELD,1,this.tag);
 		return(this);
 	}
 
@@ -76,9 +78,9 @@ export class FieldProperties extends BasicProperties
 	}
 
 	/** Determines if field is bound to datasource or not. Inherited but cannot be changed */
-	public setDerived(_flag:boolean) : FieldProperties
+	public setDerived(flag:boolean) : FieldProperties
 	{
-		Alert.fatal("Derived cannot be changed","Properties");
+		this.derived = flag;
 		return(this);
 	}
 

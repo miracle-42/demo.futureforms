@@ -25,7 +25,8 @@ import { DataType } from "./DataType.js";
 import { BindValue } from "./BindValue.js";
 import { SQLSource } from "./SQLSource.js";
 import { Record } from "../model/Record.js";
-import { Alert } from "../application/Alert.js";
+import { MSGGRP } from "../messages/Internal.js";
+import { Messages } from "../messages/Messages.js";
 import { SQLRestBuilder } from "./SQLRestBuilder.js";
 import { Connection } from "../database/Connection.js";
 import { Filter } from "../model/interfaces/Filter.js";
@@ -71,7 +72,8 @@ export class QueryTable extends SQLSource implements DataSource
 
 		if (connection == null)
 		{
-			Alert.fatal("Cannot create datasource when connection is null",this.constructor.name);
+			// Cannot create object when onnection is null
+			Messages.severe(MSGGRP.ORDB,2,this.constructor.name);
 			return;
 		}
 
@@ -215,7 +217,8 @@ export class QueryTable extends SQLSource implements DataSource
 	/** Not possible on this datasource */
 	public async lock(_record:Record) : Promise<boolean>
 	{
-		Alert.fatal("Cannot lock records on datasource based on a query","Datasource");
+		// Cannot lock records on datasource based on a query
+		Messages.severe(MSGGRP.TRX,14);
 		return(false);
 	}
 
@@ -241,21 +244,24 @@ export class QueryTable extends SQLSource implements DataSource
 	/** Not possible on this datasource */
 	public async insert(_record:Record) : Promise<boolean>
 	{
-		Alert.fatal("Cannot insert records into a datasource based on a query","Datasource");
+		// Cannot insert records on datasource based on a query
+		Messages.severe(MSGGRP.TRX,15);
 		return(false);
 	}
 
 	/** Not possible on this datasource */
 	public async update(_record:Record) : Promise<boolean>
 	{
-		Alert.fatal("Cannot update records on a datasource based on a query","Datasource");
+		// Cannot update records on datasource based on a query
+		Messages.severe(MSGGRP.TRX,16);
 		return(false);
 	}
 
 	/** Not possible on this datasource */
 	public async delete(_record:Record) : Promise<boolean>
 	{
-		Alert.fatal("Cannot delete records on a datasource based on a query","Datasource");
+		// Cannot delete records on datasource based on a query
+		Messages.severe(MSGGRP.TRX,17);
 		return(false);
 	}
 
@@ -274,7 +280,8 @@ export class QueryTable extends SQLSource implements DataSource
 
 		if (!this.conn$.connected())
 		{
-			Alert.fatal("Not connected","Database Connection");
+			// Not connected
+			Messages.severe(MSGGRP.ORDB,3,this.constructor.name);
 			return(false);
 		}
 
@@ -413,7 +420,8 @@ export class QueryTable extends SQLSource implements DataSource
 
 		if (!response.success)
 		{
-			Alert.warning("Unable to describe query '"+this.sql$+"'","Database");
+			// Unable to describe query
+			Messages.warn(MSGGRP.SQL,3);
 			return(false);
 		}
 

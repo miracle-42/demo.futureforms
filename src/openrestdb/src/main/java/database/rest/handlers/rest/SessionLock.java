@@ -21,8 +21,6 @@
 
 package database.rest.handlers.rest;
 
-import java.util.logging.Logger;
-
 
 public class SessionLock
 {
@@ -30,7 +28,6 @@ public class SessionLock
   private long thread = 0;
   private boolean exclusive = false;
   private final Object LOCK = new Object();
-  private final static Logger logger = Logger.getLogger("rest");
 
 
   public SessionLock()

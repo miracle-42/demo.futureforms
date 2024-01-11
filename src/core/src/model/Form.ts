@@ -22,9 +22,9 @@
 import { Block } from './Block.js';
 import { Record } from './Record.js';
 import { DataModel } from './DataModel.js';
-import { Alert } from '../application/Alert.js';
+import { MSGGRP } from '../messages/Internal.js';
+import { Messages } from '../messages/Messages.js';
 import { Form as ViewForm } from '../view/Form.js';
-import { Connection } from '../database/Connection.js';
 import { Logger, Type } from '../application/Logger.js';
 import { DataSource } from './interfaces/DataSource.js';
 import { EventTransaction } from './EventTransaction.js';
@@ -37,7 +37,6 @@ import { FormMetaData } from '../application/FormMetaData.js';
 import { EventFilter } from '../control/events/EventFilter.js';
 import { FieldInstance } from '../view/fields/FieldInstance.js';
 import { BlockCoordinator } from './relations/BlockCoordinator.js';
-import { FormsModule } from '../application/FormsModule.js';
 
 
 export class Form
@@ -247,8 +246,9 @@ export class Form
 
 		if (running)
 		{
-			if (!block) Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" while running "+EventType[running],"Transaction Violation");
-			else			Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" in "+block.name+" while running "+EventType[running],"Transaction Violation");
+			// cannot start transaction
+			if (!block) Messages.severe(MSGGRP.FRAMEWORK,9,this.name,EventType[event],EventType[running]);
+			else Messages.severe(MSGGRP.FRAMEWORK,10,this.name,EventType[event],block.name,EventType[running]);
 			return(false);
 		}
 
@@ -261,8 +261,9 @@ export class Form
 
 		if (running)
 		{
-			if (!block) Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" while running "+EventType[running],"Transaction Violation");
-			else			Alert.fatal("Form "+this.name+", cannot start transaction "+EventType[event]+" in "+block.name+" while running "+EventType[running],"Transaction Violation");
+			// cannot start transaction
+			if (!block) Messages.severe(MSGGRP.FRAMEWORK,9,this.name,EventType[event],EventType[running]);
+			else Messages.severe(MSGGRP.FRAMEWORK,10,this.name,EventType[event],block.name,EventType[running]);
 			return(false);
 		}
 
@@ -331,23 +332,6 @@ export class Form
 	public getQueryMaster() : Block
 	{
 		return(this.qrymgr$.QueryMaster);
-	}
-
-	public async save() : Promise<boolean>
-	{
-		if (!await this.view.validate())
-			return(false);
-
-		let dbconns:Connection[] = Connection.getAllConnections();
-
-		for (let i = 0; i < dbconns.length; i++)
-		{
-			if (dbconns[i].connected())
-				await dbconns[i].commit();
-		}
-
-		Alert.message("Transactions successfully saved","Transactions");
-		return(true);
 	}
 
 	public async enterQuery(block:Block|string) : Promise<boolean>

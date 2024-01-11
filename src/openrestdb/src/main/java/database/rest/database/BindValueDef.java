@@ -55,6 +55,13 @@ public class BindValueDef
     this.type = SQLTypes.getType(type);
   }
 
+  public String getType()
+  {
+    String name = SQLTypes.getName(type);
+    if (name != null) name = name.toLowerCase();
+    return(name);
+  }
+
   public boolean isDate()
   {
     return(SQLTypes.isDate(type));

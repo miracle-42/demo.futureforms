@@ -64,7 +64,8 @@ export class RecordProperties
 
 	public delete(record:Record, field:string, clazz:string) : void
 	{
-		this.propmap$.get(record.id)?.get(field)?.delete(clazz);
+		if (!field) this.propmap$.delete(record.id);
+		else this.propmap$.get(record.id)?.get(field)?.delete(clazz);
 	}
 
 	public reset(row:Row, field?:string, clazz?:string) : void

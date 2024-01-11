@@ -24,29 +24,35 @@ import { FormsModule } from './FormsModule.js';
 import { FormBacking } from './FormBacking.js';
 import { Classes } from '../internal/Classes.js';
 import { FlightRecorder } from './FlightRecorder.js';
+import { Alert as Interceptor } from '../application/interfaces/Alert.js';
 
 /**
- * A popup form meant to alert the user that some event
+ * A popup form to alert the user that some event
  * has occured
  */
 export class Alert
 {
+	public static interceptor:Interceptor = null;
+
 	/** Alert the user that a fatal event has occured */
 	public static async fatal(msg:string, title:string)
 	{
-		Alert.callform(msg,title,false,true);
+		if (this.interceptor) Alert.interceptor.fatal(msg,title);
+		else Alert.callform(msg,title,false,true);
 	}
 
 	/** Alert the user that an event causing an warning has occured */
 	public static async warning(msg:string, title:string)
 	{
-		Alert.callform(msg,title,true,false);
+		if (this.interceptor) Alert.interceptor.warning(msg,title);
+		else Alert.callform(msg,title,true,false);
 	}
 
 	/** Alert the user an event has occured */
 	public static async message(msg:string, title:string)
 	{
-		Alert.callform(msg,title,false,false);
+		if (this.interceptor) Alert.interceptor.message(msg,title);
+		else Alert.callform(msg,title,false,false);
 	}
 
 	private static async callform(msg:string, title:string, warning:boolean, fatal:boolean) : Promise<void>

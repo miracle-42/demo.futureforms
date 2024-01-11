@@ -202,6 +202,15 @@
       tags:
         - copy_openrestdb_jar
 
+    - name: Build generator.jar
+      ansible.builtin.command:
+        cmd: mvn package
+        creates: "../../src/generator/target" 
+      args:
+        chdir: "../../src/generator"
+      tags:
+        - build_generator
+
     - name: Build Futureforms demo app
       ansible.builtin.command:
         cmd: npm run build

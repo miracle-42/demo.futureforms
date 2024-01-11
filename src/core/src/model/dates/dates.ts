@@ -20,7 +20,8 @@
 */
 
 import { utils } from "./utils.js";
-import { Alert } from "../../application/Alert.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
 
 export interface DateToken
 {
@@ -78,7 +79,8 @@ export class dates
 		{
 			if (token.type == null)
 			{
-				Alert.fatal("Format '"+token.mask+"' is not supported in default format","Date format")
+				// Token not supported
+				Messages.severe(MSGGRP.FRAMEWORK,11,token.mask);
 				valid = false;
 			}
 		})
@@ -152,7 +154,7 @@ export class dates
 			{
 				if (i - last == 1)
 				{
-					Alert.fatal("Date delimitors can only be 1 character","Date delimitor");
+					Messages.severe(MSGGRP.FRAMEWORK,12);
 					throw "@dates: Date delimitors can only be 1 character";
 				}
 

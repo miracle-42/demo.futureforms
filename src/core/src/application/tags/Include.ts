@@ -20,7 +20,7 @@
 */
 
 import { Tag } from "./Tag.js";
-import { Class } from "../../types/Class.js";
+import { Class } from "../../public/Class.js";
 import { Properties } from "../Properties.js";
 import { FormsModule } from "../FormsModule.js";
 import { HTMLFragment } from "../HTMLFragment.js";

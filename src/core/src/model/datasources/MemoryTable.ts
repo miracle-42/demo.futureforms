@@ -343,6 +343,9 @@ public constructor(columns?:string|string[], records?:number|any[][])
 		this.pos$ = 0;
 		this.filter = filter;
 
+		this.records$.forEach((rec) =>
+		  {rec.prepared = false});
+
 		if (this.limit$ != null)
 		{
 			if (!this.filter) this.filter = this.limit$;

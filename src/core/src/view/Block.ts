@@ -22,14 +22,15 @@
 import { Form } from "./Form.js";
 import { Row, Status } from "./Row.js";
 import { Field } from "./fields/Field.js";
-import { Alert } from "../application/Alert.js";
 import { DataType } from "./fields/DataType.js";
+import { MSGGRP } from "../messages/Internal.js";
 import { FieldInfo } from "./fields/FieldInfo.js";
 import { KeyMap } from "../control/events/KeyMap.js";
 import { Block as ModelBlock } from '../model/Block.js';
 import { RecordProperties } from "./RecordProperties.js";
 import { Record, RecordState } from "../model/Record.js";
 import { Properties } from "../application/Properties.js";
+import { Level, Messages } from "../messages/Messages.js";
 import { FieldInstance } from "./fields/FieldInstance.js";
 import { EventType } from "../control/events/EventType.js";
 import { FormBacking } from "../application/FormBacking.js";
@@ -433,7 +434,7 @@ export class Block
 		return(props);
 	}
 
-	public setRecordProperties(record:Record, field:string, clazz:string, props:BasicProperties) : void
+	public setRecordProperties(record:Record, field?:string, clazz?:string, props?:BasicProperties) : void
 	{
 		if (props == null)
 		{
@@ -518,7 +519,7 @@ export class Block
 			if (datecstr)
 			{
 				success = datecstr.valid(date);
-				if (!success) Alert.warning(datecstr.message,"Date Validation");
+				if (!success) Messages.handle(MSGGRP.VALIDATION,datecstr.message,Level.warn);
 			}
 		}
 
@@ -548,7 +549,7 @@ export class Block
 		let value:any = inst.getValue();
 
 		if (this.model.getValue(inst.name) == value)
-			return(true);
+			return(inst.valid);
 
 		if (!await this.validateDate(inst.name,value))
 			return(false);
@@ -655,18 +656,14 @@ export class Block
 			return;
 		}
 
-
 		this.rows$.forEach((row) =>
 		{
 			row.status = Status.na;
 			if (fields) row.clear();
-
-			if (fields && row.rownum == 0)
-				this.getRow(0).activateIndicators(true);
 		});
 
-		if (fields)
-			this.lockUnused();
+		if (fields) this.lockUnused();
+		this.getRow(0).activateIndicators(true);
 	}
 
 	public addInstance(inst:FieldInstance) : void
@@ -1162,8 +1159,11 @@ export class Block
 				}
 				else
 				{
+					let row:Row = this.getRow(available-1);
 					let idx:number = this.getCurrentRow().getFieldIndex(inst);
-					next = this.getRow(available-1).getFieldByIndex(idx);
+
+					next = row.getFieldByIndex(idx);
+					if (!next.focusable(row.status)) next = row.getFirstInstance(row.status);
 				}
 
 				next.ignore = "focus";
@@ -1233,7 +1233,7 @@ export class Block
 		{
 			let row:Row = this.getRow(this.row+scroll);
 			if (row.status != Status.na) next = row.getFieldByIndex(idx);
-			if (!next) FlightRecorder.add("@view.block.scroll : no available fields. block: "+this.name+" inst: "+inst+" idx: "+idx);
+			if (!next.focusable(row.status)) next = row.getFirstInstance(row.status);
 		}
 
 		return(next);
@@ -1500,6 +1500,7 @@ export class Block
 		});
 
 		this.finalized$ = true;
+		this.getRow(0)?.setIndicatorState("na",false);
 		this.model$ = FormBacking.getModelForm(this.form.parent).getBlock(this.name);
 	}
 

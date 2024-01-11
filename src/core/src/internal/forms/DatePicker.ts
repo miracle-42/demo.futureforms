@@ -32,6 +32,8 @@ import { DateConstraint } from "../../public/DateConstraint.js";
 import { FieldProperties } from "../../public/FieldProperties.js";
 import { Internals } from "../../application/properties/Internals.js";
 import { DatePicker as Properties } from "../../application/properties/DatePicker.js";
+import { Level, Messages } from "../../messages/Messages.js";
+import { MSGGRP } from "../../messages/Internal.js";
 
 /**
  * Form emulating a calendar
@@ -73,18 +75,21 @@ export class DatePicker extends Form
 			{type: EventType.Key, key:KeyMap.enter},
 			{type: EventType.Key, key:KeyMap.escape},
 			{type: EventType.Mouse, mouse:MouseMap.click},
+			{type: EventType.Mouse, mouse:MouseMap.dblclick}
 		]);
 
 		this.addEventListener(this.goToPrevMonth,
 		[
 			{type: EventType.Key, 	field: "prev", key: KeyMap.space},
-			{type: EventType.Mouse, field: "prev", mouse: MouseMap.click}
+			{type: EventType.Mouse, field: "prev", mouse: MouseMap.click},
+			{type: EventType.Mouse, field: "prev", mouse: MouseMap.dblclick},
 		]);
 
 		this.addEventListener(this.goToNextMonth,
 		[
 			{type: EventType.Key, 	field: "next", key: KeyMap.space},
-			{type: EventType.Mouse, field: "next", mouse: MouseMap.click}
+			{type: EventType.Mouse, field: "next", mouse: MouseMap.click},
+			{type: EventType.Mouse, field: "next", mouse: MouseMap.dblclick}
 		]);
 
 		this.addEventListener(this.navigate,
@@ -114,7 +119,8 @@ export class DatePicker extends Form
 				await this.close();
 				return(false);
 			}
-			this.warning(this.constraint.message);
+
+			Messages.handle(MSGGRP.VALIDATION,this.constraint.message,Level.warn);
 		}
 
 		return(true);
@@ -437,7 +443,7 @@ export class DatePicker extends Form
 				</div>
 				<div name="week" foreach="week in 1..6">
 					<div name="day" foreach="day in 1..7">
-						<span tabindex="-1" name="day-$week$day" style="width:100%; text-align:center;" from="calendar"></span>
+						<span tabindex="-1" name="day-$week$day" from="calendar"></span>
 					</div>
 				</div>
 			</div>

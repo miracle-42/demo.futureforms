@@ -22,7 +22,8 @@
 import { Form } from "../Form.js";
 import { Block } from "../Block.js";
 import { Relation } from "./Relation.js";
-import { Alert } from "../../application/Alert.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
 
 
 export class BlockCoordinator
@@ -193,7 +194,8 @@ export class BlockCoordinator
 	{
 		if (link.detail.block == link.master.block)
 		{
-			Alert.fatal("Relation '"+link.master.name+"->"+link.detail.name+" is self referencing","Master Detail");
+			// Self referencing
+			Messages.severe(MSGGRP.FRAMEWORK,13,link.master.name,link.detail.name);
 			return;
 		}
 
@@ -225,7 +227,8 @@ export class BlockCoordinator
 
 		if (block == null)
 		{
-			Alert.fatal("Block '"+name+"', does not exist","Linked Blocks");
+			// Block does not exist
+			Messages.severe(MSGGRP.FORM,1,name);
 			return(null);
 		}
 

@@ -111,8 +111,8 @@ div[name="toggle"]
    background-color: gray;
 }
 
-.fieldset,
-.fieldset legend 
+fieldset,
+fieldset legend 
 {
 	border: 2px solid #000;
 }

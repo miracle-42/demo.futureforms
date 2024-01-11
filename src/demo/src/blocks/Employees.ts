@@ -23,7 +23,7 @@ import { WorkDays } from '../dates/WorkDays';
 import { Jobs as JobTable } from '../datasources/database/Jobs';
 import { Employees as EmployeeTable } from "../datasources/database/Employees";
 import { Departments as DepartmentTable } from '../datasources/database/Departments';
-import { Block, DatabaseResponse, EventType, Form, formevent, FormEvent } from "forms42core";
+import { Block, DatabaseResponse, EventType, Form, formevent, FormEvent, Level } from "forms42core";
 
 export class Employees extends Block
 {
@@ -89,31 +89,30 @@ export class Employees extends Block
 
 		let limit:number[] = await JobTable.getSalaryLimit(code);
 
+		// Clear custom record props
+		this.getRecord().clearProperties("salary");
+		this.getRecord().clearProperties("last_name");
+		this.getRecord().clearProperties("first_name");
+
 		if (limit[0] != null)
 		{
 			this.setValid("salary",true);
 			this.setValid("job_id",true);
 		}
 
-		if (salary < limit[0]*0.75 || salary > 1.25*limit[1])
+		if (salary < limit[0] || salary > limit[1])
 		{
-			this.warning("Salary is out of range ("+(limit[0]*0.75)+" - "+(1.25*limit[1])+" ) ","Validate Salary");
+			this.form.alert("Salary must be between "+limit[0]+" and "+limit[1],"Validate Salary",Level.warn);
 			return(false);
 		}
 
-		if (salary < limit[0] || salary > limit[1])
+		if (salary < limit[0]*1.10 || salary > 0.90*limit[1])
 		{
-			this.warning("Salary should be between "+limit[0]+" and "+limit[1],"Validate Salary");
+			this.form.alert("Salary is out of standard range. Approval needed","Validate Salary",Level.warn);
 
 			this.getRecord().setStyle("salary","color","deeppink");
 			this.getRecord().setStyle("last_name","color","deeppink");
 			this.getRecord().setStyle("first_name","color","deeppink");
-		}
-		else
-		{
-			this.getRecord().clearProperties("salary");
-			this.getRecord().clearProperties("last_name");
-			this.getRecord().clearProperties("first_name");
 		}
 
 		return(true);
@@ -143,7 +142,7 @@ export class Employees extends Block
 		{
 			if (title == null)
 			{
-				this.form.warning("Invalid job code","Employees");
+				this.form.alert("Invalid job code","Employees",Level.warn);
 				return(false);
 			}
 
@@ -177,7 +176,7 @@ export class Employees extends Block
 		{
 			if (title == null)
 			{
-				this.form.warning("Invalid Department Id","Employees");
+				this.form.alert("Invalid Department Id","Employees",Level.warn);
 				return(false);
 			}
 		}

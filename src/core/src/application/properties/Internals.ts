@@ -25,7 +25,10 @@
  */
 export class Internals
 {
-	public static close:string = null;
+	public static CloseButtonText:string = null;
+
+	public static OKButtonText:string = "Ok";
+	public static CancelButtonText:string = "Cancel";
 
 	public static header:string =
 	`
@@ -56,14 +59,9 @@ export class Internals
 		display:grid;
 		hyphens:auto;
 		align-items: center;
+		overflow-wrap: normal;
 		align-content: center;
 		justify-content: center;
-		overflow-wrap: break-word;
-	`;
-
-	public static PopupStyleDiv:string =
-	`
-		margin-top:10px;
 	`;
 
 	public static PopupStyleLabel:string =
@@ -92,7 +90,7 @@ export class Internals
 		height:30px;
 	`;
 
-	public static PopupStyleIndexing:string = 
+	public static PopupStyleIndexing:string =
 	`
 		display:grid;
 		margin-top:0px;
@@ -142,10 +140,8 @@ export class Internals
 		let footer:HTMLElement = view.querySelector('div[name="popup-footer"]');
 		let lowerright:HTMLElement = view.querySelector('div[name="lowerright"]');
 		let buttonarea:HTMLElement = lowerright?.querySelector('div[name="buttonarea"]');
-		let divs:NodeListOf<HTMLElement> = view.querySelectorAll('div[name="popup-body"] div');
 		let labels:NodeListOf<HTMLElement> = view.querySelectorAll('div[name="popup-body"] label');
 
-		if (Internals.PopupStyleDiv) divs.forEach((div) => div.style.cssText = Internals.PopupStyleDiv);
 		if (Internals.PopupStyleLabel) labels.forEach((label) => label.style.cssText = Internals.PopupStyleLabel);
 
 		if (body && Internals.PopupStyle) body.style.cssText = Internals.PopupStyle;
@@ -154,21 +150,21 @@ export class Internals
 		if (footer && Internals.PopupFooterStyle) footer.style.cssText = Internals.PopupFooterStyle;
 		if (indexing && Internals.PopupStyleIndexing) indexing.style.cssText = Internals.PopupStyleIndexing;
 
-		if (close && Internals.close)
-			close.innerHTML = Internals.close;
+		if (close && Internals.CloseButtonText)
+			close.innerHTML = Internals.CloseButtonText;
 
 		if (scope != null)
 		{
 			if (scope.hasAttribute("true")) scope.style.display = "grid";
 			else scope.style.display = "none";
 		}
-			
+
 		if (database != null)
 		{
 			if (database.hasAttribute("true")) database.style.display = "grid";
 			else database.style.display = "none";
 		}
-	
+
 		if (login && Internals.PopupStyleLogin) login.style.cssText = Internals.PopupStyleLogin;
 		if (lowerright && Internals.PopupStyleLowerRight) lowerright.style.cssText = Internals.PopupStyleLowerRight;
 		if (buttonarea && Internals.PopupStyleButtonArea) buttonarea.style.cssText = Internals.PopupStyleButtonArea;

@@ -21,11 +21,13 @@
 
 import { Alert } from './Alert.js';
 import { Form } from '../public/Form.js';
-import { Class } from '../types/Class.js';
+import { Class } from '../public/Class.js';
 import { Framework } from './Framework.js';
 import { Components } from './Components.js';
 import { FormBacking } from './FormBacking.js';
+import { Canvas } from './properties/Canvas.js';
 import { dates } from '../model/dates/dates.js';
+import { Level, Messages } from '../messages/Messages.js';
 import { Form as ViewForm } from '../view/Form.js';
 import { Loading } from '../internal/forms/Loading.js';
 import { Form as InternalForm } from '../internal/Form.js';
@@ -44,15 +46,15 @@ export class FormsModule
 {
 	private static root$:HTMLElement;
 	private static flush$:FlushStrategy;
-	private static showurl$:boolean = true;
+	private static showurl$:boolean = false;
 	private static instance$:FormsModule = null;
 
 	/** Static method to return the singleton */
-	public static get() : FormsModule
+	public static get<FormsModule>() : FormsModule
 	{
 		if (FormsModule.instance$ == null)
 			FormsModule.instance$ = new FormsModule();
-		return(FormsModule.instance$);
+		return(FormsModule.instance$ as FormsModule);
 	}
 
 	/** Whether or not to display the active form in the url */
@@ -211,22 +213,42 @@ export class FormsModule
 		return(FormBacking.rollback());
 	}
 
+	/** Handle fine message */
+	public static fine(grpno:number,errno:number,...args:any) : void
+	{
+		Messages.fine(grpno,errno,args);
+	}
+
+	/** Handle info message */
+	public static info(grpno:number,errno:number,...args:any) : void
+	{
+		Messages.info(grpno,errno,args);
+	}
+
+	/** Handle warning message */
+	public static warn(grpno:number,errno:number,...args:any) : void
+	{
+		Messages.warn(grpno,errno,args);
+	}
+
+	/** Handle severe message */
+	public static severe(grpno:number,errno:number,...args:any) : void
+	{
+		Messages.severe(grpno,errno,args);
+	}
+
 	/** Popup a message */
-	public static message(msg:string, title?:string) : void
+	public static alert(msg:string, title:string, level?:Level) : void
 	{
-		Alert.message(msg,title);
-	}
+		if (!level)
+			level = Level.info;
 
-	/** Popup a warning */
-	public static warning(msg:string, title?:string) : void
-	{
-		Alert.warning(msg,title);
-	}
-
-	/** Popup a fatal */
-	public static fatal(msg:string, title?:string) : void
-	{
-		Alert.fatal(msg,title);
+		switch(level)
+		{
+			case Level.info: Alert.message(msg,title); break;
+			case Level.warn: Alert.warning(msg,title); break;
+			case Level.severe: Alert.fatal(msg,title); break;
+		}
 	}
 
 	/** Get all active forms */
@@ -282,6 +304,7 @@ export class FormsModule
 	{
 		dates.validate();
 		KeyMapping.init();
+		Messages.language = "us";
 		ApplicationHandler.init();
 		FormsModule.instance$ = this;
 	}

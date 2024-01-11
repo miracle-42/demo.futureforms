@@ -35,9 +35,9 @@ export interface LOVFilterPreProcessor
 
 
 /**
- * Properties that defines a list of values
+ * List of values
  */
-export interface ListOfValues
+export class ListOfValues
 {
 	title:string; 											/** Window title */
 
@@ -54,10 +54,10 @@ export interface ListOfValues
 
 	filterCase?:Case; 									/** Control the casing of the user input */
 	filterPrefix?:string; 								/** Prefix to query-string e.g % */
-	filterPostfix?:string; 								/** Postfix to query-string e.g % */
-	filterMinLength?:number; 							/** Minimum length of query-string before query the datasource */
-	filterInitialValueFrom?:string; 					/** Use value of a given field as initial filter */
-	filterPreProcesser?:LOVFilterPreProcessor; 	/** Function to format the query-string if advanced */
+	filterPostfix:string; 								/** Postfix to query-string e.g % */
+	filterMinLength:number; 							/** Minimum length of query-string before query the datasource */
+	filterInitialValueFrom:string; 					/** Use value of a given field as initial filter */
+	filterPreProcesser:LOVFilterPreProcessor; 	/** Function to format the query-string if advanced */
 
 	sourcefields:string|string[]; 					/** The fields from the datasource */
 	targetfields:string|string[]; 					/** The fields in the target form */

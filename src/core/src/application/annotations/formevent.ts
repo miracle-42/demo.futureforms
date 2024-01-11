@@ -19,11 +19,12 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Alert } from '../Alert.js';
 import { Logger, Type } from '../Logger.js';
 import { Form } from '../../public/Form.js';
 import { Block } from '../../public/Block.js';
 import { FormMetaData } from '../FormMetaData.js';
+import { MSGGRP } from '../../messages/Internal.js';
+import { Messages } from '../../messages/Messages.js';
 import { EventFilter } from '../../control/events/EventFilter.js';
 import { EventListenerClass } from '../../control/events/EventListenerClass.js';
 
@@ -61,7 +62,7 @@ export const formevent = (filter?:EventFilter|EventFilter[]) =>
 		}
 		else
 		{
-			Alert.fatal("Use of @formevent on non compatable class '"+lsnr.constructor.name+"'","FormEvents");
+			Messages.severe(MSGGRP.FRAMEWORK,5,lsnr.constructor.name); // Use of @formevent on non compatable class
 			return(null);
 		}
 

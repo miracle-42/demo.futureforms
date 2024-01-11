@@ -22,9 +22,10 @@
 import { Cursor } from "./Cursor.js";
 import { SQLRest } from "./SQLRest.js";
 import { BindValue } from "./BindValue.js";
-import { Alert } from "../application/Alert.js";
+import { MSGGRP } from "../messages/Internal.js";
 import { ConnectionScope } from "./ConnectionScope.js";
 import { Logger, Type } from "../application/Logger.js";
+import { Messages, Level } from "../messages/Messages.js";
 import { EventType } from "../control/events/EventType.js";
 import { FormsModule } from "../application/FormsModule.js";
 import { FormBacking } from "../application/FormBacking.js";
@@ -48,7 +49,7 @@ export class Connection extends BaseConnection
 
 	public static MAXLOCKS:number = 32;
 	public static TRXTIMEOUT:number = 240;
-	public static LOCKTIMEOUT:number = 120;
+	public static LOCKINSPECT:number = 120;
 	public static CONNTIMEOUT:number = 120;
 
 
@@ -98,7 +99,7 @@ export class Connection extends BaseConnection
 	{
 		if (this.connected())
 		{
-			Alert.warning("Connection scope cannot be changed after connect","Database Connection");
+			Messages.warn(MSGGRP.ORDB,1) // Connection scope cannot be changed after connect
 			return;
 		}
 		this.scope$ = scope;
@@ -176,8 +177,7 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.ORDB,response.message,Level.fine);
 			return(false);
 		}
 
@@ -190,8 +190,8 @@ export class Connection extends BaseConnection
 		this.autocommit$ = response.autocommit;
 		this.keepalive$ = (+response.timeout * 4/5)*1000;
 
-		if (this.keepalive$ > 4/5*Connection.LOCKTIMEOUT*1000)
-			this.keepalive$ = 4/5*Connection.LOCKTIMEOUT*1000;
+		if (this.keepalive$ > 4/5*Connection.LOCKINSPECT*1000)
+			this.keepalive$ = 4/5*Connection.LOCKINSPECT*1000;
 
 		await FormEvents.raise(FormEvent.AppEvent(EventType.Connect));
 
@@ -240,12 +240,14 @@ export class Connection extends BaseConnection
 			this.locks$ = 0;
 			this.touched = null;
 			this.modified = null;
+
+			if (response["session"])
+				this.conn$ = response.session;
 		}
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.TRX,response.message,Level.fine);
 			return(false);
 		}
 
@@ -270,12 +272,14 @@ export class Connection extends BaseConnection
 			this.touched = null;
 			this.modified = null;
 			this.trx = new Object();
+
+			if (response["session"])
+				this.conn$ = response.session;
 		}
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.fatal(response.message,"Database Connection");
+			Messages.handle(MSGGRP.TRX,response.message,Level.fine);
 			return(false);
 		}
 
@@ -300,8 +304,7 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.fatal(response.message,"Database Connection");
+			Messages.handle(MSGGRP.TRX,response.message,Level.fine);
 			return(false);
 		}
 
@@ -361,13 +364,15 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 			return(response);
 		}
 
 		if (cursor)
 			cursor.eof = !response.more;
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		return(response);
 	}
@@ -403,13 +408,15 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 			return(response);
 		}
 
 		cursor.eof = !response.more;
 		cursor.pos += response.rows.length;
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		return(response);
 	}
@@ -425,8 +432,6 @@ export class Connection extends BaseConnection
 
 		if (cursor.trx == this.trx)
 		{
-			Logger.log(Type.database,"close cursor");
-
 			let payload:any =
 			{
 				close: true,
@@ -438,10 +443,12 @@ export class Connection extends BaseConnection
 
 			if (!response.success)
 			{
-				console.error(response);
-				Alert.warning(response.message,"Database Connection");
+				Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 				return(response);
 			}
+
+			if (response["session"])
+				this.conn$ = response.session;
 		}
 
 		return(response);
@@ -489,7 +496,7 @@ export class Connection extends BaseConnection
 		{
 			if (response.assert == null)
 			{
-				console.log(response);
+				Messages.handle(MSGGRP.ORDB,response,Level.warn);
 				return(response);
 			}
 		}
@@ -498,6 +505,9 @@ export class Connection extends BaseConnection
 		this.tmowarn = false;
 		this.touched = new Date();
 		this.modified = new Date();
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -535,10 +545,12 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 			return(response);
 		}
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		return(response);
 	}
@@ -575,14 +587,16 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 			return(response);
 		}
 
 		this.tmowarn = false;
 		this.touched = new Date();
 		this.modified = new Date();
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -635,7 +649,12 @@ export class Connection extends BaseConnection
 		this.tmowarn = false;
 		this.touched = new Date();
 		this.modified = new Date();
-		if (sql.assert && !this.autocommit$) this.locks$++;
+
+		if (response["session"])
+			this.conn$ = response.session;
+
+		if (sql.assert && !this.autocommit$)
+			this.locks$++;
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -705,11 +724,20 @@ export class Connection extends BaseConnection
 			}
 		}
 
+		if (response["session"])
+			this.conn$ = response.session;
+
 		return(response);
 	}
 
 	public async batch(stmts:Step[], attributes?:{name:string, value:object}[]) : Promise<any[]>
 	{
+		if (!stmts || stmts.length == 0)
+		{
+			console.error("Nothing to do");
+			return([]);
+		}
+
 		let trxstart:boolean =
 			this.modified == null && this.transactional;
 
@@ -763,6 +791,12 @@ export class Connection extends BaseConnection
 		let locks:number = this.locks$;
 		let steps:any[] = response.steps;
 
+		if (!steps || steps.length == 0)
+		{
+			console.error("No response");
+			return([]);
+		}
+
 		for (let i = 0; i < steps.length; i++)
 		{
 			let resp:any = steps[i];
@@ -777,6 +811,9 @@ export class Connection extends BaseConnection
 		this.tmowarn = false;
 		this.touched = new Date();
 		this.modified = new Date();
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		if (trxstart && this.locks$ > locks)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -823,7 +860,12 @@ export class Connection extends BaseConnection
 		this.tmowarn = false;
 		this.touched = new Date();
 		this.modified = new Date();
-		if (sql.assert && !this.autocommit$) this.locks$++;
+
+		if (response["session"])
+			this.conn$ = response.session;
+
+		if (sql.assert && !this.autocommit$)
+			this.locks$++;
 
 		if (trxstart)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -857,14 +899,18 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 			return(response);
 		}
 
 		this.tmowarn = false;
 		this.touched = new Date();
-		if (patch) this.modified = new Date();
+
+		if (patch)
+			this.modified = new Date();
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		if (trxstart && patch)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -898,14 +944,18 @@ export class Connection extends BaseConnection
 
 		if (!response.success)
 		{
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.SQL,response.message,Level.fine);
 			return(response);
 		}
 
 		this.tmowarn = false;
 		this.touched = new Date();
-		if (patch) this.modified = new Date();
+
+		if (patch)
+			this.modified = new Date();
+
+		if (response["session"])
+			this.conn$ = response.session;
 
 		if (trxstart && patch)
 			await FormEvents.raise(FormEvent.AppEvent(EventType.OnTransaction));
@@ -958,6 +1008,15 @@ export class Connection extends BaseConnection
 		this.running$ = true;
 		await FormsModule.sleep(this.keepalive$);
 
+		if (this.touched$)
+		{
+			let now:number = (new Date()).getTime();
+			let next:number = this.touched$.getTime() + this.keepalive$;
+
+			let nap:number = next - now;
+			if (nap > 1000) await FormsModule.sleep(nap);
+		}
+
 		if (!this.connected())
 		{
 			this.running$ = false;
@@ -979,8 +1038,7 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			this.conn$ = null;
-			console.error(response);
-			Alert.warning(response.message,"Database Connection");
+			Messages.handle(MSGGRP.ORDB,response.message,Level.fine);
 			await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
 			this.running$ = false;
 			return(response);
@@ -1001,11 +1059,11 @@ export class Connection extends BaseConnection
 				if (!this.tmowarn$)
 				{
 					this.tmowarn = true;
-					Alert.warning("Maximum number of locks reached. Transaction will be rolled back in "+Connection.TRXTIMEOUT+" seconds","Database Connection");
+					Messages.warn(MSGGRP.TRX,6,Connection.TRXTIMEOUT); // Maximum number of locks reached
 				}
 				else
 				{
-					Alert.warning("Transaction is being rolled back","Database Connection");
+					Messages.warn(MSGGRP.TRX,7); // Transaction is being rolled back
 					await FormBacking.rollback();
 				}
 			}
@@ -1017,7 +1075,7 @@ export class Connection extends BaseConnection
 			{
 				if (idle > Connection.TRXTIMEOUT && this.tmowarn)
 				{
-					Alert.warning("Transaction is being rolled back","Database Connection");
+					Messages.warn(MSGGRP.TRX,7); // Transaction is being rolled back
 					await FormBacking.rollback();
 				}
 				else
@@ -1025,7 +1083,7 @@ export class Connection extends BaseConnection
 					if (idle > Connection.TRXTIMEOUT*2/3 && !this.tmowarn)
 					{
 						this.tmowarn = true;
-						Alert.warning("Transaction will be rolled back in "+Connection.TRXTIMEOUT+" seconds","Database Connection");
+						Messages.warn(MSGGRP.TRX,8,Connection.TRXTIMEOUT); // Transaction will be rolled back
 					}
 				}
 			}

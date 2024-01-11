@@ -31,7 +31,7 @@
         {
           "name": "test",
           "class": "ccc",
-          "enabled": true
+          "enabled": false
         }
       ]
     },

@@ -51,6 +51,17 @@ public class Logger
   private final static int LOGSIZE = 10 * 1024 * 1024;
 
 
+  public static String getEmergencyOut()
+  {
+    String logdir = Paths.apphome + File.separator + "logs";
+
+    File ldir = new File(logdir);
+    if (!ldir.exists()) ldir.mkdir();
+
+    return(logdir+File.separator+"server.out");
+  }
+
+
   Logger(JSONObject config, String inst) throws Exception
   {
     String path = Paths.apphome;

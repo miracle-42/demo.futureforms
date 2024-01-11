@@ -22,7 +22,7 @@
 import { Form } from "../public/Form.js";
 import { Block } from "../public/Block.js";
 import { FormBacking } from "./FormBacking.js";
-import { Class, isClass } from '../types/Class.js';
+import { Class, isClass } from '../public/Class.js';
 import { DataSource } from '../model/interfaces/DataSource.js';
 import { EventFilter } from '../control/events/EventFilter.js';
 

@@ -74,7 +74,7 @@ request ()
     esac
 
     echo Command:
-    echo \ curl --silent --data \"$(echo $DATA | sed -e 's/"/\\"/g')\" $URL
+    echo \ curl --silent --data \'$DATA\' $URL
     echo
     RES=$(curl --silent --data "$DATA" $URL)
     echo Response:

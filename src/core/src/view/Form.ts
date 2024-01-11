@@ -23,10 +23,12 @@ import { Status } from './Row.js';
 import { Block } from './Block.js';
 import { FieldDrag } from './FieldDrag.js';
 import { Record } from '../model/Record.js';
-import { Alert } from '../application/Alert.js';
 import { DataType } from './fields/DataType.js';
 import { Classes } from '../internal/Classes.js';
+import { MSGGRP } from '../messages/Internal.js';
+import { Messages } from '../messages/Messages.js';
 import { Form as ModelForm } from '../model/Form.js';
+import { Form as Internal } from '../internal/Form.js';
 import { Logger, Type } from '../application/Logger.js';
 import { Block as ModelBlock } from '../model/Block.js';
 import { ListOfValues } from '../public/ListOfValues.js';
@@ -96,7 +98,9 @@ export class Form implements EventListenerObject
 	public set canvas(canvas:Canvas)
 	{
 		this.canvas$ = canvas;
-		this.canvas.getContent()?.addEventListener("focus",this);
+		this.canvas$.getView().setAttribute("form",this.name);
+		this.canvas$.getContent()?.addEventListener("focus",this);
+		if (this.parent instanceof Internal) this.canvas$.getView().setAttribute("internal","true");
 	}
 
 	public get model() : ModelForm
@@ -618,7 +622,8 @@ export class Form implements EventListenerObject
 
 		if (!block || !field)
 		{
-			Alert.warning("field or block undefined","Send Key");
+			// Unable to locate field or block
+			Messages.warn(MSGGRP.FRAMEWORK,17,block+"."+field);
 			return(false);
 		}
 
@@ -640,7 +645,8 @@ export class Form implements EventListenerObject
 
 		if (!match || match.length == 0)
 		{
-			Alert.warning("unable to locate field '"+field+"' or block '"+block+"'","Send Key");
+			// Unable to locate field or block
+			Messages.warn(MSGGRP.FRAMEWORK,17,block+"."+field);
 			return(false);
 		}
 
@@ -808,7 +814,7 @@ export class Form implements EventListenerObject
 				params.set("type",DataType[block.fieldinfo.get(inst.name).type]);
 				params.set("properties",new FieldProperties(inst.defaultProperties));
 
-				await this.parent.callform(Classes.QueryEditorClass,params);
+				await this.parent.callform(Classes.AdvancedQueryClass,params);
 				return(true);
 			}
 
@@ -978,9 +984,9 @@ export class Form implements EventListenerObject
 			if (!await blk.goRow(row))
 				return(false);
 
+			params.set("lov",lov);
 			params.set("field",field);
 			params.set("block",block);
-			params.set("properties",lov);
 			params.set("form",this.parent);
 			this.parent.callform(Classes.ListOfValuesClass,params);
 

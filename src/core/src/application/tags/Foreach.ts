@@ -92,7 +92,13 @@ export class Foreach implements Tag
 			let str:string = "";
 			let elem:HTMLElement = tag.cloneNode() as HTMLElement;
 
-			for(let r=0; r < replace.length; r++)
+			for (let a = 0; a < elem.attributes.length; a++)
+			{
+				let attr:Node = elem.attributes.item(a);
+				attr.nodeValue = attr.nodeValue.replaceAll(index,i+"");
+			}
+
+			for (let r=0; r < replace.length; r++)
 			{
 				str += content.substring(pos,replace[r]) + i;
 				pos = replace[r] + index.length;

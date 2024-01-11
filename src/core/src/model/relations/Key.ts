@@ -20,7 +20,8 @@
 */
 
 import { Block } from "../Block.js";
-import { Alert } from "../../application/Alert.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
 
 /**
  * A Key is simply a definition stating that
@@ -40,13 +41,15 @@ export class Key
 	{
 		if (block == null)
 		{
-			Alert.fatal("Invalid key definition, block: 'null'","Key");
+			// Invalid key definition
+			Messages.severe(MSGGRP.FRAMEWORK,14);
 			return;
 		}
 
 		if (fields == null)
 		{
-			Alert.fatal("Invalid key definition, fields: 'null'","Key");
+			// Invalid key definition
+			Messages.severe(MSGGRP.FRAMEWORK,15);
 			return;
 		}
 
@@ -55,7 +58,8 @@ export class Key
 
 		if (fields.length == 0)
 		{
-			Alert.fatal("Invalid key definition, no fields","Key");
+			// Invalid key definition
+			Messages.severe(MSGGRP.FRAMEWORK,15);
 			return;
 		}
 

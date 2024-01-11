@@ -22,7 +22,8 @@
 import { SQLRest } from "./SQLRest.js";
 import { DataType } from "./DataType.js";
 import { Connection } from "./Connection.js";
-import { Alert } from "../application/Alert.js";
+import { MSGGRP } from "../messages/Internal.js";
+import { Messages } from "../messages/Messages.js";
 import { SQLRestBuilder } from "./SQLRestBuilder.js";
 import { Parameter, ParameterType } from "./Parameter.js";
 import { DatabaseConnection } from "../public/DatabaseConnection.js";
@@ -50,7 +51,8 @@ export class StoredProcedure
 	{
 		if (connection == null)
 		{
-			Alert.fatal("Cannot create stored procedure when connection is null",this.constructor.name);
+			// Cannot create object when onnection is null
+			Messages.severe(MSGGRP.ORDB,2,this.constructor.name);
 			return;
 		}
 

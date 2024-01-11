@@ -311,36 +311,63 @@ export class Input implements FieldImplementation, EventListenerObject
 		attributes.forEach((value,attr) =>
 		{
 			if (attr == "trim")
-				this.trim = value?.trim().toLowerCase() == "true";
+			{
+				if (value != "false")
+					this.trim = value?.trim().toLowerCase() == "true";
+			}
 
 			if (attr == "date")
-				this.datatype$ = DataType.date;
+			{
+				if (value != "false")
+					this.datatype$ = DataType.date;
+			}
 
 			if (attr == "datetime")
-				this.datatype$ = DataType.datetime;
+			{
+				if (value != "false")
+					this.datatype$ = DataType.datetime;
+			}
 
 			if (attr == "upper")
-				this.case = Case.upper;
+			{
+				if (value != "false")
+					this.case = Case.upper;
+			}
 
 			if (attr == "lower")
-				this.case = Case.lower;
+			{
+				if (value != "false")
+					this.case = Case.lower;
+			}
 
 			if (attr == "initcap")
-				this.case = Case.initcap;
+			{
+				if (value != "false")
+					this.case = Case.initcap;
+			}
 
 			if (attr == "boolean")
-				this.datatype$ = DataType.boolean;
+			{
+				if (value != "false")
+					this.datatype$ = DataType.boolean;
+			}
 
 			if (attr == "integer")
 			{
-				this.int = true;
-				this.datatype$ = DataType.integer;
+				if (value != "false")
+				{
+					this.int = true;
+					this.datatype$ = DataType.integer;
+				}
 			}
 
 			if (attr == "decimal")
 			{
-				this.dec = true;
-				this.datatype$ = DataType.decimal;
+				if (value != "false")
+				{
+					this.dec = true;
+					this.datatype$ = DataType.decimal;
+				}
 			}
 
 			if (attr == "maxlength")
@@ -459,6 +486,7 @@ export class Input implements FieldImplementation, EventListenerObject
 			bubble = true;
 
 			let value:string = this.getElementValue();
+			if (this.datamapper) value = this.datamapper.getValue(Tier.Backend);
 
 			if (value != this.initial)
 			{
@@ -500,6 +528,7 @@ export class Input implements FieldImplementation, EventListenerObject
 		{
 			bubble = false;
 			let value:string = this.getElementValue();
+			if (this.datamapper) value = this.datamapper.getValue(Tier.Backend);
 
 			if (value != this.initial)
 			{

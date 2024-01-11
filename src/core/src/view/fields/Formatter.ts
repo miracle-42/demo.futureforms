@@ -49,7 +49,8 @@
  */
 
 import { DataType } from "./DataType.js";
-import { Alert } from "../../application/Alert.js";
+import { MSGGRP } from "../../messages/Internal.js";
+import { Messages } from "../../messages/Messages.js";
 import { Formatter as FormatterType } from "./interfaces/Formatter.js";
 import { DatePart, FormatToken, dates } from "../../model/dates/dates.js";
 
@@ -694,7 +695,8 @@ export class Formatter implements FormatterType
 		{
 			if (dates.parse(this.value) == null)
 			{
-				Alert.message("Date '"+input+"' is not a valid date","Date Validation");
+				// Not a valid date input
+				Messages.warn(MSGGRP.FRAMEWORK,20,input);
 				return(null);
 			}
 		}
@@ -711,7 +713,8 @@ export class Formatter implements FormatterType
 
 			if (date == null)
 			{
-				Alert.message("Date '"+input+"' is not a valid date","Date Validation");
+				// Not a valid date input
+				Messages.warn(MSGGRP.FRAMEWORK,20,input);
 				return(null);
 			}
 		}

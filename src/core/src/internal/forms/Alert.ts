@@ -42,7 +42,7 @@ export class Alert extends Form
 
 	constructor()
 	{
-		super(Alert.page);
+		super(Alert.prepare());
 
 		this.moveable = true;
 		this.resizable = true;
@@ -101,8 +101,7 @@ export class Alert extends Form
 			}
 		}
 
-
-		let fatal:boolean = this.parameters.get("fatal");
+		let severe:boolean = this.parameters.get("severe");
 		let warning:boolean = this.parameters.get("warning");
 
 		Internals.stylePopupWindow(view,title,Alert.HEIGHT,Alert.WIDTH);
@@ -116,7 +115,7 @@ export class Alert extends Form
 		block.style.width = document.body.offsetWidth+"px";
 		block.style.height = document.body.offsetHeight+"px";
 
-		if (fatal) block.classList.add("type","fatal");
+		if (severe) block.classList.add("type","severe");
 		if (warning) block.classList.add("type","warning");
 
 		this.canvas.zindex = 2147483647;
@@ -165,21 +164,26 @@ export class Alert extends Form
 		return(split);
 	}
 
+	private static prepare() : string
+	{
+		let page:string = Alert.page;
+		page = page.replace("{OK}",Internals.OKButtonText);
+		return(page);
+	}
+
 	public static page:string =
 		`<div id="block"></div>` +
-
-		Internals.header +
+			Internals.header +
 		`
 		<div name="popup-body">
-			<div name="popup-alert">
-				<div name="alertlogo"></div>
+			<div name="alert">
 				<div name="msg" from="alert"></div>
 			</div>
-		</div>
 
-		<div name="lowerright">
-			<div name="buttonarea">
-				<button name="close" onClick="this.close()">Ok</button>
+			<div name="lower-right">
+				<div name="button-area">
+					<button name="close" onClick="this.close()">{OK}</button>
+				</div>
 			</div>
 		</div>
 		`

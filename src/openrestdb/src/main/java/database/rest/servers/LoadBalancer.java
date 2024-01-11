@@ -29,17 +29,13 @@ class LoadBalancer
 {
   private int last = -1;
   private final int htsrvs;
-  private final int threads;
   private final int servers;
-  private final Config config;
   private final RESTClient[] workers;
 
 
   LoadBalancer(Config config) throws Exception
   {
-    this.config = config;
     this.servers = config.getTopology().servers;
-    this.threads = config.getTopology().workers;
 
     short htsrvs = 1;
     if (config.getTopology().hot) htsrvs++;

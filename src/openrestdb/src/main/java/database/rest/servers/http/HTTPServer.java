@@ -225,5 +225,12 @@ public class HTTPServer extends Thread
 
     state = STOPPED;
     logger.info("HTTPServer("+type+") stopped");
+
+    try
+    {
+      if (!this.server.config().getTopology().hot)
+        System.exit(0);
+    }
+    catch (Exception e) {;}
   }
 }

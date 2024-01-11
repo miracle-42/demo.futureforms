@@ -1,195 +1,213 @@
 <include src="/html/canvasheader"></include>
 
-<fieldset class="section">
-	<legend>employees</legend>
-	<fieldset class="block left">
-	  <legend>multirow</legend>
-	  <table>
-		 <thead>
-			<tr>
-			  <th></th>
-			  <th>
-				 <th>
-					<label class="above" for="emp.hd.0.0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Hire Date</label>
-				 </th>
-				 <th>
-					<label class="above" for="emp.fn.0.0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">First Name</label>
-				 </th>
-				 <th>
-					<label class="above" for="emp.ln.0.0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Last Name</label>
-				 </th>
-				 <th>
-					<label class="above" for="emp.sal.0.0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Salary</label>
-				 </th>
-				 <th>
-					<label class="above" for="emp.ema.0.0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Email</label>
-				 </th>
-				 <th>
-					<label class="above" for="emp.pn.0.0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Phone Number</label>
-				 </th>
-			  </th>
-			</tr>
-		 </thead>
-		 <tbody>
-			<tr foreach="row in 0..3">
-			  <td class="indicator" from="CountryDS" row="$row" type="row-indicator"></td>
-			  <td>
-				 <td>
-					<input name="hire_date" from="employees" type="date" date id="emp.hd.0.$row" row="$row">
-				 </td>
-				 <td>
-					<input type="text" name="first_name" from="employees" size="40" initcap id="emp.fn.0.$row" row="$row">
-				 </td>
-				 <td>
-					<input type="text" name="last_name" from="employees" size="40" initcap id="emp.ln.0.$row" row="$row">
-				 </td>
-				 <td>
-					<input type="text" name="salary" from="employees" size="8" decimal id="emp.sal.0.$row" row="$row">
-				 </td>
-				 <td>
-					<input type="text" name="email" from="employees" size="40" lower id="emp.ema.0.$row" row="$row">
-				 </td>
-				 <td>
-					<input type="text" name="phone_number" from="employees" size="20" lower id="emp.pn.0.$row" row="$row">
-				 </td>
-			  </td>
-			</tr>
-		 </tbody>
-	  </table>
-	</fieldset>
-	<fieldset class="block right">
-	  <legend>details</legend>
-	  <table>
-		 <tbody>
-			<tr>
-			  <tr>
-				 <td>
-					<label class="left" for="emp.hd.1.0">Hire Date</label>
-				 </td>
-				 <td>:</td>
-				 <td>
-					<input name="hire_date" from="employees" type="date" date id="emp.hd.1.0">
-				 </td>
-			  </tr>
-			  <tr>
-				 <td>
-					<label class="left" for="emp.fn.1.0">First Name</label>
-				 </td>
-				 <td>:</td>
-				 <td>
-					<input type="text" name="first_name" from="employees" size="40" initcap id="emp.fn.1.0">
-				 </td>
-			  </tr>
-			  <tr>
-				 <td>
-					<label class="left" for="emp.ln.1.0">Last Name</label>
-				 </td>
-				 <td>:</td>
-				 <td>
-					<input type="text" name="last_name" from="employees" size="40" initcap id="emp.ln.1.0">
-				 </td>
-			  </tr>
-			  <tr>
-				 <td>
-					<label class="left" for="emp.sal.1.0">Salary</label>
-				 </td>
-				 <td>:</td>
-				 <td>
-					<input type="text" name="salary" from="employees" size="8" decimal id="emp.sal.1.0">
-				 </td>
-			  </tr>
-			  <tr>
-				 <td>
-					<label class="left" for="emp.ema.1.0">Email</label>
-				 </td>
-				 <td>:</td>
-				 <td>
-					<input type="text" name="email" from="employees" size="40" lower id="emp.ema.1.0">
-				 </td>
-			  </tr>
-			  <tr>
-				 <td>
-					<label class="left" for="emp.pn.1.0">Phone Number</label>
-				 </td>
-				 <td>:</td>
-				 <td>
-					<input type="text" name="phone_number" from="employees" size="20" lower id="emp.pn.1.0">
-				 </td>
-			  </tr>
-			</tr>
-		 </tbody>
-	  </table>
-	</fieldset>
-	<div class="block right">
-	  <fieldset class="group$group$">
-		 <fieldset class="group1">
+<div style="width:1450px;"></div>
+<form>
+	<fieldset class="container">
+		<fieldset class="section left">
+		<legend>multirow</legend>
+		<table>
+			<thead>
+				<tr>
+				<th></th>
+				<th>
+					<label class="above" for="emp:hd:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Hire Date</label>
+				</th>
+				<th>
+					<label class="above" for="emp:fn:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">First Name</label>
+				</th>
+				<th>
+					<label class="above" for="emp:ln:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Last Name</label>
+				</th>
+				<th>
+					<label class="above" for="emp:ln:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Name</label>
+				</th>
+				<th>
+					<label class="above" for="emp:sal:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Salary</label>
+				</th>
+				<th>
+					<label class="above" for="emp:ema:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Email</label>
+				</th>
+				<th>
+					<label class="above" for="emp:pn:0:0" tabindex="0" draggable="true" ondragstart="this.startFieldDragging()">Phone Number</label>
+				</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr foreach="row in 0..3">
+				<td class="indicator" from="CountryDS" row="$row" type="row-indicator"></td>
+				<td>
+					<input name="hire_date" from="employees" type="date" date id="emp:hd:0:$row" row="$row">
+				</td>
+				<td>
+					<input type="text" name="first_name" from="employees" size="40" initcap id="emp:fn:0:$row" row="$row">
+				</td>
+				<td>
+					<input type="text" name="last_name" from="employees" size="40" initcap id="emp:ln:0:$row" row="$row">
+				</td>
+				<td>
+					<input type="text" name="name" from="employees" size="40" initcap derived id="emp:ln:0:$row" row="$row">
+				</td>
+				<td>
+					<input type="text" name="salary" from="employees" size="8" decimal id="emp:sal:0:$row" row="$row">
+				</td>
+				<td>
+					<input type="text" name="email" from="employees" size="40" lower id="emp:ema:0:$row" row="$row">
+				</td>
+				<td>
+					<input type="text" name="phone_number" from="employees" size="20" id="emp:pn:0:$row" row="$row">
+				</td>
+				</tr>
+			</tbody>
+		</table>
+		</fieldset>
+		<fieldset class="section below left">
+		<legend>details</legend>
+		<table>
+			<tbody>
+				<tr>
+				<td>
+					<label class="left" for="emp:hd:1:0">Hire Date</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input name="hire_date" from="employees" type="date" date id="emp:hd:1:0">
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<label class="left" for="emp:fn:1:0">First Name</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="first_name" from="employees" size="40" initcap id="emp:fn:1:0">
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<label class="left" for="emp:ln:1:0">Last Name</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="last_name" from="employees" size="40" initcap id="emp:ln:1:0">
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<label class="left" for="emp:ln:1:0">Name</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="name" from="employees" size="40" initcap derived id="emp:ln:1:0">
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<label class="left" for="emp:sal:1:0">Salary</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="salary" from="employees" size="8" decimal id="emp:sal:1:0">
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<label class="left" for="emp:ema:1:0">Email</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="email" from="employees" size="40" lower id="emp:ema:1:0">
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<label class="left" for="emp:pn:1:0">Phone Number</label>
+				</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="phone_number" from="employees" size="20" id="emp:pn:1:0">
+				</td>
+				</tr>
+			</tbody>
+		</table>
+		</fieldset>
+		<div class="container flex">
+		<fieldset class="group0 section">
+			<legend>group0</legend>
+			<table class="table">
+				<tbody>
+				<tr>
+					<td>
+						<label class="left group0" for="emp:hd:2:0">Hire Date</label>
+					</td>
+					<td>:</td>
+					<td>
+						<input name="hire_date" from="employees" type="date" date id="emp:hd:2:0" class="group0">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="left group0" for="emp:fn:2:0">First Name</label>
+					</td>
+					<td>:</td>
+					<td>
+						<input type="text" name="first_name" from="employees" size="40" initcap id="emp:fn:2:0" class="group0">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="left group0" for="emp:ln:2:0">Last Name</label>
+					</td>
+					<td>:</td>
+					<td>
+						<input type="text" name="last_name" from="employees" size="40" initcap id="emp:ln:2:0" class="group0">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="left group0" for="emp:ln:2:0">Name</label>
+					</td>
+					<td>:</td>
+					<td>
+						<input type="text" name="name" from="employees" size="40" initcap derived id="emp:ln:2:0" class="group0">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="left group0" for="emp:sal:2:0">Salary</label>
+					</td>
+					<td>:</td>
+					<td>
+						<input type="text" name="salary" from="employees" size="8" decimal id="emp:sal:2:0" class="group0">
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</fieldset>
+		<fieldset class="group1 section">
 			<legend>group1</legend>
 			<table class="table">
-			  <tbody>
-				 <tr>
+				<tbody>
+				<tr>
 					<td>
-					  <label class="left group1" for="emp.hd.2.0">Hire Date</label>
+						<label class="left group1" for="emp:ema:2:0">Email</label>
 					</td>
 					<td>:</td>
 					<td>
-					  <input name="hire_date" from="employees" type="date" date id="emp.hd.2.0" class="group1">
+						<input type="text" name="email" from="employees" size="40" lower id="emp:ema:2:0" class="group1">
 					</td>
-				 </tr>
-				 <tr>
+				</tr>
+				<tr>
 					<td>
-					  <label class="left group1" for="emp.fn.2.0">First Name</label>
+						<label class="left group1" for="emp:pn:2:0">Phone Number</label>
 					</td>
 					<td>:</td>
 					<td>
-					  <input type="text" name="first_name" from="employees" size="40" initcap id="emp.fn.2.0" class="group1">
+						<input type="text" name="phone_number" from="employees" size="20" id="emp:pn:2:0" class="group1">
 					</td>
-				 </tr>
-				 <tr>
-					<td>
-					  <label class="left group1" for="emp.ln.2.0">Last Name</label>
-					</td>
-					<td>:</td>
-					<td>
-					  <input type="text" name="last_name" from="employees" size="40" initcap id="emp.ln.2.0" class="group1">
-					</td>
-				 </tr>
-				 <tr>
-					<td>
-					  <label class="left group1" for="emp.sal.2.0">Salary</label>
-					</td>
-					<td>:</td>
-					<td>
-					  <input type="text" name="salary" from="employees" size="8" decimal id="emp.sal.2.0" class="group1">
-					</td>
-				 </tr>
-			  </tbody>
+				</tr>
+				</tbody>
 			</table>
-		 </fieldset>
-		 <fieldset class="group2">
-			<legend>group2</legend>
-			<table class="table">
-			  <tbody>
-				 <tr>
-					<td>
-					  <label class="left group2" for="emp.ema.2.0">Email</label>
-					</td>
-					<td>:</td>
-					<td>
-					  <input type="text" name="email" from="employees" size="40" lower id="emp.ema.2.0" class="group2">
-					</td>
-				 </tr>
-				 <tr>
-					<td>
-					  <label class="left group2" for="emp.pn.2.0">Phone Number</label>
-					</td>
-					<td>:</td>
-					<td>
-					  <input type="text" name="phone_number" from="employees" size="20" lower id="emp.pn.2.0" class="group2">
-					</td>
-				 </tr>
-			  </tbody>
-			</table>
-		 </fieldset>
-	  </fieldset>
-	</div>
- </fieldset>
+		</fieldset>
+		</div>
+	</fieldset>
+</form>

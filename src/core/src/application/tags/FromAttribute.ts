@@ -21,13 +21,15 @@
 
 import { Tag } from "./Tag.js";
 import { Form } from "../../public/Form.js";
-import { Class } from "../../types/Class.js";
+import { Class } from "../../public/Class.js";
 import { Properties } from "../Properties.js";
 import { Form as InternalForm } from "../../internal/Form.js";
 import { FieldInstance } from "../../view/fields/FieldInstance.js";
 
 export class FromAttribute implements Tag
 {
+	public recursive:boolean = false;
+
 	public parse(component:any, tag:HTMLElement, attr:string) : string|HTMLElement|HTMLElement[]
 	{
 		if (component == null)
@@ -45,10 +47,18 @@ export class FromAttribute implements Tag
 		}
 
 		let type:string = tag.getAttribute("type")?.toLowerCase();
-		let btag:Class<Tag> = Properties.FieldTypeLibrary.get(type);
+		let forwcl:Class<Tag> = Properties.FieldTypeLibrary.get(type);
 
-		if (btag != null)
-			return(new btag().parse(component,tag,attr));
+		if (forwcl != null)
+		{
+			let forw:Tag = new forwcl();
+
+			let response:HTMLElement|HTMLElement[]|string|null =
+				forw.parse(component,tag,attr);
+
+			this.recursive = forw.recursive;
+			return(response);
+		}
 
 		if (attr != Properties.BindAttr) tag.removeAttribute(attr);
 		let field:FieldInstance = new FieldInstance(component,tag);

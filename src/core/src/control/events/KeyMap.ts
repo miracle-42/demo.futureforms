@@ -20,7 +20,7 @@
 */
 
 import { KeyCodes } from "./KeyCodes.js";
-import { Class } from "../../types/Class.js";
+import { Class } from "../../public/Class.js";
 import { BrowserEvent } from "./BrowserEvent.js";
 
 

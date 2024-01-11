@@ -19,7 +19,7 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class } from "../../types/Class.js";
+import { Class } from "../../public/Class.js";
 import { Radio } from "./implementations/Radio.js";
 import { Input } from "./implementations/Input.js";
 import { Select } from "./implementations/Select.js";

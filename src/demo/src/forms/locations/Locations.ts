@@ -23,7 +23,7 @@ import content from './Locations.html';
 
 import { BaseForm } from "../../BaseForm";
 import { Countries } from '../../blocks/Countries';
-import { Block, datasource, EventType, formevent, FormEvent } from "forms42core";
+import { Block, datasource, EventType, formevent, FormEvent, Level } from "forms42core";
 import { Locations as Locationdata, CountryNameFilter } from "../../datasources/database/Locations";
 
 @datasource("Locations",Locationdata)
@@ -68,7 +68,7 @@ export class Locations extends BaseForm
 		{
 			if (country == null)
 			{
-				this.warning("Invalid country code","Countries");
+				this.alert("Invalid country code","Countries",Level.warn);
 				return(false);
 			}
 		}

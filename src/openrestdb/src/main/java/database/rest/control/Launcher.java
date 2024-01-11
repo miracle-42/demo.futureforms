@@ -37,10 +37,17 @@ import java.io.ByteArrayOutputStream;
 import database.rest.config.Topology;
 import database.rest.handlers.Handler;
 import database.rest.database.Database;
+import database.rest.custom.Encryption;
 import database.rest.cluster.Statistics;
 import database.rest.custom.SQLRewriter;
+import database.rest.custom.PreProcessor;
 import database.rest.custom.SQLValidator;
+import database.rest.custom.SQLWhiteList;
 import database.rest.custom.Authenticator;
+import database.rest.custom.PostProcessor;
+import database.rest.custom.SQLRewriterAPI;
+import database.rest.custom.SQLValidatorAPI;
+import database.rest.custom.AuthenticatorAPI;
 import database.rest.servers.rest.RESTClient;
 import database.rest.servers.rest.RESTServer;
 import database.rest.handlers.file.Deployment;
@@ -425,11 +432,24 @@ public class Launcher implements ILauncher
         Handler.class,
         Database.class,
         ILauncher.class,
+
         RESTClient.class,
         RESTServer.class,
+
         SQLRewriter.class,
+        SQLRewriterAPI.class,
+
         SQLValidator.class,
+        SQLValidatorAPI.class,
+
+        Encryption.class,
+        SQLWhiteList.class,
+
+        PreProcessor.class,
+        PostProcessor.class,
+
         Authenticator.class,
+        AuthenticatorAPI.class,
       };
 
       Loader loader = new Loader(keep);

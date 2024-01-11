@@ -1,7 +1,7 @@
 import { FormsModule } from "../FormsModule";
-import { BindValue, Filter, FilterStructure, Filters, ListOfValues, DatabaseTable } from "forms42core";
+import { Filter, FilterStructure, Filters, ListOfValues, DatabaseTable } from "forms42core";
 
-export class CountryList2 implements ListOfValues
+export class CountryList2 extends ListOfValues
 {
 	public title:string = "Countries";
 
@@ -21,6 +21,8 @@ export class CountryList2 implements ListOfValues
 
 	constructor()
 	{
+		super();
+		
 		this.datasource = new Countries();
 
 		this.sourcefields = "country_id";

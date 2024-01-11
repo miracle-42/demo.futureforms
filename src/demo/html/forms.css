@@ -1,6 +1,7 @@
 form
 {
 	display:block;
+	overflow: auto;
 	margin:5px 20px 20px 20px;
 }
 /*-------------------*/

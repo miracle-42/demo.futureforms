@@ -282,12 +282,21 @@ public class Session
 
           if (pool != null)
           {
-            database.dangling(true);
             setSecret(pool.token());
             setMethod(AuthMethod.PoolToken);
-          }
 
-          break;
+            // Reuse the connection ?
+            if (pool.username().equals(username))
+            {
+              database.dangling(true);
+              break;
+            }
+            else
+            {
+              // Or drop it
+              database.disconnect();
+            }
+          }
 
         case PoolToken :
           if (scope == Scope.Dedicated) database = pool.connect(secret);
@@ -432,6 +441,22 @@ public class Session
 
       return(false);
     }
+  }
+
+
+  public PreparedStatement prepare(String sql, ArrayList<BindValue> bindvalues) throws Exception
+  {
+    if (bindvalues == null) bindvalues = new ArrayList<BindValue>();
+    PreparedStatement stmt = database.prepare(sql,bindvalues,null);
+    return(stmt);
+  }
+
+
+  public CallableStatement prepareCall(String sql, ArrayList<BindValue> bindvalues) throws Exception
+  {
+    if (bindvalues == null) bindvalues = new ArrayList<BindValue>();
+    CallableStatement stmt = database.prepareCall(sql,bindvalues,null);
+    return(stmt);
   }
 
 

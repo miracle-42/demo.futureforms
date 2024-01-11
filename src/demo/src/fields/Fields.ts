@@ -20,7 +20,9 @@
 */
 
 import content from './Fields.html';
+
 import { BaseForm } from '../BaseForm';
+import { EventType, formevent } from 'forms42core';
 
 export class Fields extends BaseForm
 {
@@ -28,5 +30,13 @@ export class Fields extends BaseForm
 	{
 		super(content);
 		this.title = "Fieldtypes";
+	}
+
+	@formevent({type: EventType.PostViewInit})
+	public async noautofill() : Promise<boolean>
+	{
+		document.querySelectorAll("input").forEach((elem) =>
+		{elem.autocomplete = "off"})
+		return(true);
 	}
 }

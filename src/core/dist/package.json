@@ -1,0 +1,35 @@
+{
+  "name": "forms42core",
+  "version": "2.1.1",
+  "description": "Forms42 core api",
+  "type": "module",
+  "main": "index.js",
+  "types": "public-api.d.ts",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "tsc": "tsc",
+    "build": "cp version.ts index.ts && cat public-api.d.ts >> index.ts && tsc && cp public-api.d.ts package.json dist && cp -R mods dist"
+  },
+  "keywords": [
+    "Database",
+    "Forms"
+  ],
+  "author": "Alex Høffner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ahoeffner/forms42core/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahoeffner/forms42core.git"
+  },
+  "homepage": "https://github.com/ahoeffner/forms42core#readme",
+  "devDependencies": {
+    "@types/json-schema": "^7.0.11",
+    "@types/node": "^18.14.0",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "eslint": "^8.34.0",
+    "typescript": "^4.9.5"
+  }
+}

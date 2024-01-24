@@ -23,9 +23,11 @@ package database.rest.database.impl;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.sql.PreparedStatement;
 import database.rest.database.Database;
 import database.rest.database.BindValue;
+import database.rest.database.BindValueDef;
 
 
 public class Generic extends Database
@@ -43,7 +45,7 @@ public class Generic extends Database
   }
 
   @Override
-  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, String dateform) throws Exception
+  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, HashMap<String,BindValueDef> alltypes, String dateform) throws Exception
   {
     throw new Exception("Feature not supported");
   }

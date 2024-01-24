@@ -19,39 +19,25 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package database.rest.database.impl;
+package database.rest.custom;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.sql.PreparedStatement;
-import database.rest.database.Database;
-import database.rest.database.BindValue;
 import database.rest.database.BindValueDef;
 
 
-public class Postgres extends Database
+public class BindValue extends BindValueDef
 {
-  @Override
-  public void setProxyUser(String username) throws Exception
-  {
-    super.execute("set role "+username);
-  }
+   public BindValue(String name, Object value)
+   {
+      super(name.toLowerCase(),value);
+   }
 
-  @Override
-  public void releaseProxyUser() throws Exception
-  {
-  }
+   public BindValue(String name, Object value, String datatype)
+   {
+      super(name.toLowerCase(),datatype.toLowerCase(),false,value);
+   }
 
-  @Override
-  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, HashMap<String,BindValueDef> alltypes, String dateform) throws Exception
-  {
-    return(new ReturnValueHandle(this.prepare(sql,bindvalues,dateform)));
-  }
-
-  @Override
-  public ResultSet executeUpdateWithReturnValues(PreparedStatement stmt, String dateform) throws Exception
-  {
-    return(stmt.executeQuery());
-  }
+   public BindValue(String name, Object value, String datatype, boolean out)
+   {
+      super(name.toLowerCase(),datatype.toLowerCase(),false,value);
+   }
 }

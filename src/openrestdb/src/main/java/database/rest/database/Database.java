@@ -26,6 +26,7 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.sql.DriverManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -140,6 +141,26 @@ public abstract class Database
   public void setAutoCommit(boolean on) throws Exception
   {
     conn.setAutoCommit(on);
+  }
+
+
+  public void setClientInfo(ArrayList<NameValuePair<Object>> clientinfo) throws Exception
+  {
+    if (clientinfo != null)
+    {
+      for(NameValuePair<Object> entry : clientinfo)
+        conn.setClientInfo(entry.getName(),entry.getValue()+"");
+    }
+  }
+
+
+  public void clearClientInfo(ArrayList<NameValuePair<Object>> clientinfo) throws Exception
+  {
+    if (clientinfo != null)
+    {
+      for(NameValuePair<Object> entry : clientinfo)
+        conn.setClientInfo(entry.getName(),"");
+    }
   }
 
 
@@ -374,7 +395,7 @@ public abstract class Database
   public abstract void releaseProxyUser() throws Exception;
   public abstract void setProxyUser(String username) throws Exception;
   public abstract ResultSet executeUpdateWithReturnValues(PreparedStatement stmt, String dateform) throws Exception;
-  public abstract ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, String dateform) throws Exception;
+  public abstract ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, HashMap<String,BindValueDef> alltypes, String dateform) throws Exception;
 
 
   public static class ReturnValueHandle

@@ -19,50 +19,25 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/**
- * Forms must be placed on a canvas. This is to ensure that the form can be blocked
- * when for instance a LOV is active. It also provides means for moving, hiding etc.
- *
- * Some styling of the canvas is necessary but made public through this class.
- * It is also possible for expert users to replace the canvas class completely if needed.
- */
-export class Canvas
+import { Tag } from "./Tag.js";
+import { FormBacking } from "../FormBacking.js";
+
+
+export class FormTag implements Tag
 {
-	public static page:string =
-	`
-	<div name="canvas">
-		<div name="modal"></div>
-		<div name="content"></div>
-	</div>
-	`;
+   parse(_component: any, tag: HTMLElement, _attr: string): string | HTMLElement | HTMLElement[]
+   {
+      let form:string = tag.getAttribute("form");
 
-	public static CanvasStyle:string =
-	`
-		position: relative;
-		width: fit-content;
-		height: fit-content;
-	`
+		let params:Map<string,any> = new Map<string,any>();
+		for (let i = 0; i < tag.attributes.length; i++)
+		{
+			let attr:Attr = tag.attributes.item(i);
+			if (attr.name != "form") params.set(attr.name,attr.value);
+		}
 
-	public static ModalStyle:string =
-	`
-		top: 0;
-		left: 0;
-		width: 0;
-		height: 0;
-		position: absolute;
-	`
+		FormBacking.showform(form,null,params,tag);
+      return(tag);
+   }
 
-	public static ContentStyle:string =
-	`
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		position: relative;
-	`
-
-	public static ModalClasses:string = "modal";
-	public static CanvasClasses:string = "canvas";
-	public static ContentClasses:string = "canvas-content";
-	public static CanvasHandleClass:string = "canvas-handle";
 }

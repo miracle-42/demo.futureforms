@@ -260,6 +260,7 @@ export class ListOfValues extends Form
 			if (init != null)	this.setValue("filter","criteria",init+"");
 		}
 
+		this.focus();
 		this.query();
 		return(false);
 	}

@@ -64,8 +64,11 @@ export enum EventType
 
 	OnTransaction,
 
-	onNewForm,
+	OnNewForm,
 	OnCloseForm,
+
+	OnFormEnabled,
+	OnFormDisabled,
 
 	PostViewInit,
 	PostCloseForm,

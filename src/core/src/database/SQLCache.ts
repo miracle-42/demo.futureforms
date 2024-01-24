@@ -19,50 +19,42 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/**
- * Forms must be placed on a canvas. This is to ensure that the form can be blocked
- * when for instance a LOV is active. It also provides means for moving, hiding etc.
- *
- * Some styling of the canvas is necessary but made public through this class.
- * It is also possible for expert users to replace the canvas class completely if needed.
- */
-export class Canvas
+export class SQLCache
 {
-	public static page:string =
-	`
-	<div name="canvas">
-		<div name="modal"></div>
-		<div name="content"></div>
-	</div>
-	`;
+	private static cache$:Map<string,Entry> =
+		new Map<string,Entry>();
 
-	public static CanvasStyle:string =
-	`
-		position: relative;
-		width: fit-content;
-		height: fit-content;
-	`
 
-	public static ModalStyle:string =
-	`
-		top: 0;
-		left: 0;
-		width: 0;
-		height: 0;
-		position: absolute;
-	`
+	public static get(sql:string,maxage?:number) : any
+	{
+		let entry:Entry = SQLCache.cache$.get(sql);
 
-	public static ContentStyle:string =
-	`
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		position: relative;
-	`
+		if (maxage && maxage > 0)
+		{
+			let now:number = new Date().getTime();
+			if (now > entry.timestamp + maxage)
+			{
+				SQLCache.cache$.delete(sql);
+				return(null);
+			}
+		}
 
-	public static ModalClasses:string = "modal";
-	public static CanvasClasses:string = "canvas";
-	public static ContentClasses:string = "canvas-content";
-	public static CanvasHandleClass:string = "canvas-handle";
+		return(entry?.response);
+	}
+
+	public static put(sql:string,response:any) : void
+	{
+		SQLCache.cache$.set(sql,new Entry(response));
+	}
+
+	public clear() : void
+	{
+		SQLCache.cache$.clear();
+	}
+}
+
+class Entry
+{
+	timestamp:number = new Date().getTime();
+	constructor(public response:any) {};
 }

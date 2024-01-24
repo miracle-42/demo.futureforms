@@ -4,6 +4,6 @@
       "module": "ES2022",
       "declaration": true,
       "esModuleInterop": true,
-      "outDir": "./dist",
+      "outDir": "./dist"
     }
 }

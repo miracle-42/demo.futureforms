@@ -45,6 +45,8 @@ export class Connection extends BaseConnection
 	private tmowarn$:boolean = false;
 	private authmethod$:string = null;
 	private autocommit$:boolean = false;
+	private attributes$:Map<string,any> = new Map<string,any>();
+	private clientinfo$:Map<string,any> = new Map<string,any>();
 	private scope$:ConnectionScope = ConnectionScope.transactional;
 
 	public static MAXLOCKS:number = 32;
@@ -120,6 +122,26 @@ export class Connection extends BaseConnection
 		return(this.scope != ConnectionScope.stateless);
 	}
 
+	public addAttribute(name:string, value:any) : void
+	{
+		this.attributes$.set(name,value);
+	}
+
+	public deleteAttribute(name:string) : void
+	{
+		this.attributes$.delete(name);
+	}
+
+	public addClientInfo(name:string, value:any) : void
+	{
+		this.clientinfo$.set(name,value);
+	}
+
+	public deleteClientInfo(name:string) : void
+	{
+		this.clientinfo$.delete(name);
+	}
+
 	public connected() : boolean
 	{
 		return(this.conn$ != null);
@@ -170,6 +192,16 @@ export class Connection extends BaseConnection
 			  {payload[name] = value})
 		}
 
+		if (this.clientinfo$.size > 0)
+		{
+			let info:{name:string, value:any}[] = [];
+			this.clientinfo$.forEach((value,name) => info.push({name: name, value: value}));
+			payload["clientinfo"] = info;
+		}
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		Logger.log(Type.database,"connect");
 		let thread:number = FormsModule.showLoading("Connecting");
 		let response:any = await this.post("connect",payload);
@@ -207,8 +239,16 @@ export class Connection extends BaseConnection
 		this.trx = new Object();
 		this.touched = new Date();
 
+		let payload:any =
+		{
+			session: this.conn$
+		};
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		Logger.log(Type.database,"disconnect");
-		let response:any = await this.post("disconnect",{session: this.conn$});
+		let response:any = await this.post("disconnect",payload);
 
 		if (response.success)
 		{
@@ -230,9 +270,17 @@ export class Connection extends BaseConnection
 		this.trx = new Object();
 		this.touched = new Date();
 
+		let payload:any =
+		{
+			session: this.conn$
+		};
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		Logger.log(Type.database,"commit");
 		let thread:number = FormsModule.showLoading("Comitting");
-		let response:any = await this.post("commit",{session: this.conn$});
+		let response:any = await this.post("commit",payload);
 		FormsModule.hideLoading(thread);
 
 		if (response.success)
@@ -261,9 +309,17 @@ export class Connection extends BaseConnection
 
 		this.tmowarn = false;
 
+		let payload:any =
+		{
+			session: this.conn$
+		};
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		Logger.log(Type.database,"rollback");
 		let thread:number = FormsModule.showLoading("Rolling back");
-		let response:any = await this.post("rollback",{session: this.conn$});
+		let response:any = await this.post("rollback",payload);
 		FormsModule.hideLoading(thread);
 
 		if (response.success)
@@ -290,9 +346,17 @@ export class Connection extends BaseConnection
 	{
 		this.tmowarn = false;
 
-		Logger.log(Type.database,"rollback");
+		let payload:any =
+		{
+			session: this.conn$
+		};
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
+		Logger.log(Type.database,"release");
 		let thread:number = FormsModule.showLoading("Releasing connection");
-		let response:any = await this.post("release",{session: this.conn$});
+		let response:any = await this.post("release",payload);
 		FormsModule.hideLoading(thread);
 
 		if (response.success)
@@ -357,6 +421,9 @@ export class Connection extends BaseConnection
 			{payload[entry.name] = entry.value;})
 		}
 
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		Logger.log(Type.database,"select");
 		let thread:number = FormsModule.showLoading("Querying");
 		let response:any = await this.post("select",payload);
@@ -400,8 +467,12 @@ export class Connection extends BaseConnection
 			return(this.select(sql,cursor,cursor.rows,false));
 		}
 
-		Logger.log(Type.database,"fetch");
 		let payload:any = {session: this.conn$, cursor: cursor.name};
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
+		Logger.log(Type.database,"fetch");
 		let thread:number = FormsModule.showLoading("Fetching data");
 		let response:any = await this.post("fetch",payload);
 		FormsModule.hideLoading(thread);
@@ -438,6 +509,9 @@ export class Connection extends BaseConnection
 				session: this.conn$,
 				cursor: cursor.name
 			};
+
+			this.attributes$.forEach((value,name) =>
+				{payload[name] = value})
 
 			response = await this.post("fetch",payload);
 
@@ -484,6 +558,9 @@ export class Connection extends BaseConnection
 		if (sql.assert)
 			payload.assert = this.convert(sql.assert);
 
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		this.tmowarn = false;
 		this.touched = new Date();
 
@@ -496,7 +573,7 @@ export class Connection extends BaseConnection
 		{
 			if (response.assert == null)
 			{
-				Messages.handle(MSGGRP.ORDB,response,Level.warn);
+				Messages.handle(MSGGRP.ORDB,response,Level.info);
 				return(response);
 			}
 		}
@@ -534,6 +611,9 @@ export class Connection extends BaseConnection
 			sql.attributes.forEach((entry) =>
 			{payload[entry.name] = entry.value;})
 		}
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
 
 		this.tmowarn = false;
 		this.touched = new Date();
@@ -576,6 +656,9 @@ export class Connection extends BaseConnection
 			sql.attributes.forEach((entry) =>
 			{payload[entry.name] = entry.value;})
 		}
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
 
 		this.tmowarn = false;
 		this.touched = new Date();
@@ -628,6 +711,9 @@ export class Connection extends BaseConnection
 
 		if (sql.assert)
 			payload.assert = this.convert(sql.assert);
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
 
 		this.tmowarn = false;
 		this.touched = new Date();
@@ -688,6 +774,9 @@ export class Connection extends BaseConnection
 
 			if (stmt.assert)
 				step.payload.assert = this.convert(stmt.assert);
+
+			this.attributes$.forEach((value,name) =>
+				{step.payload[name] = value})
 
 			step.payload.bindvalues = this.convert(stmt.bindvalues);
 
@@ -766,6 +855,9 @@ export class Connection extends BaseConnection
 			if (stmt.assert)
 				step.payload.assert = this.convert(stmt.assert);
 
+			this.attributes$.forEach((value,name) =>
+				{step.payload[name] = value})
+
 			step.payload.bindvalues = this.convert(stmt.bindvalues);
 
 			request.push(step);
@@ -840,6 +932,9 @@ export class Connection extends BaseConnection
 		if (sql.assert)
 			payload.assert = this.convert(sql.assert);
 
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		this.tmowarn = false;
 		this.touched = new Date();
 
@@ -888,6 +983,9 @@ export class Connection extends BaseConnection
 			bindvalues: this.convert(sql.bindvalues)
 		};
 
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
+
 		this.tmowarn = false;
 		this.touched = new Date();
 
@@ -932,6 +1030,9 @@ export class Connection extends BaseConnection
 			session: this.conn$,
 			bindvalues: this.convert(sql.bindvalues)
 		};
+
+		this.attributes$.forEach((value,name) =>
+			{payload[name] = value})
 
 		this.tmowarn = false;
 		this.touched = new Date();
@@ -1038,7 +1139,7 @@ export class Connection extends BaseConnection
 		if (!response.success)
 		{
 			this.conn$ = null;
-			Messages.handle(MSGGRP.ORDB,response.message,Level.fine);
+			Messages.handle(MSGGRP.ORDB,response.message,Level.warn);
 			await FormEvents.raise(FormEvent.AppEvent(EventType.Disconnect));
 			this.running$ = false;
 			return(response);

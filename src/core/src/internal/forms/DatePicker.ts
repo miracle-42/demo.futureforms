@@ -153,6 +153,8 @@ export class DatePicker extends Form
 		this.setValue("calendar","date",value);
 
 		this.setDate();
+		this.focus();
+
 		return(true);
 	}
 

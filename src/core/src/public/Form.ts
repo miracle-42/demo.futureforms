@@ -19,8 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class } from './Class.js';
 import { Block } from './Block.js';
+import { Class, isClass } from './Class.js';
 import { Alert } from '../application/Alert.js';
 import { Key } from '../model/relations/Key.js';
 import { ListOfValues } from './ListOfValues.js';
@@ -31,6 +31,7 @@ import { KeyMap } from '../control/events/KeyMap.js';
 import { TriggerFunction } from './TriggerFunction.js';
 import { Framework } from '../application/Framework.js';
 import { Messages, Level } from '../messages/Messages.js';
+import { Properties } from '../application/Properties.js';
 import { EventType } from '../control/events/EventType.js';
 import { FormBacking } from '../application/FormBacking.js';
 import { DataSource } from '../model/interfaces/DataSource.js';
@@ -38,6 +39,7 @@ import { EventFilter } from '../control/events/EventFilter.js';
 import { Canvas, View } from '../application/interfaces/Canvas.js';
 import { CanvasComponent } from '../application/CanvasComponent.js';
 import { FormEvent, FormEvents } from '../control/events/FormEvents.js';
+import { ComponentFactory } from '../application/interfaces/ComponentFactory.js';
 
 /*
  * Any change to this, must be carried forward to interal/form.
@@ -322,10 +324,16 @@ export class Form implements CanvasComponent
 	}
 
 	/** Set the LOV for the given block, field or fields */
-	public setListOfValues(lov:ListOfValues, block:string, field:string|string[]) : void
+	public setListOfValues(lov:ListOfValues|Class<ListOfValues>, block:string, field:string|string[]) : void
 	{
 		if (!Array.isArray(field))
 			field = [field];
+
+		if (isClass(lov))
+		{
+			let factory:ComponentFactory = Properties.FactoryImplementation;
+			lov = factory.createBean(lov) as ListOfValues;
+		}
 
 		for (let i = 0; i < field.length; i++)
 			FormBacking.getBacking(this).setListOfValues(block,field[i],lov);
@@ -451,6 +459,7 @@ export class Form implements CanvasComponent
 
 		if (parent != null)
 		{
+			await FormEvents.raise(FormEvent.FormEvent(EventType.OnFormEnabled,parent));
 			parent.canvas?.unblock(); parent.focus();
 			if (backing) backing.hasModalChild = false;
 		}

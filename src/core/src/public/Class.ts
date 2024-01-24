@@ -20,49 +20,17 @@
 */
 
 /**
- * Forms must be placed on a canvas. This is to ensure that the form can be blocked
- * when for instance a LOV is active. It also provides means for moving, hiding etc.
- *
- * Some styling of the canvas is necessary but made public through this class.
- * It is also possible for expert users to replace the canvas class completely if needed.
+ * Definition of the type 'Class'
+ * Javascript doesn't have a suitable
+ * definition of a Class, especially since
+ * it is not really Object Oriented
  */
-export class Canvas
+export type Class<T> =
 {
-	public static page:string =
-	`
-	<div name="canvas">
-		<div name="modal"></div>
-		<div name="content"></div>
-	</div>
-	`;
+    new(...args: any[]) : T;
+};
 
-	public static CanvasStyle:string =
-	`
-		position: relative;
-		width: fit-content;
-		height: fit-content;
-	`
-
-	public static ModalStyle:string =
-	`
-		top: 0;
-		left: 0;
-		width: 0;
-		height: 0;
-		position: absolute;
-	`
-
-	public static ContentStyle:string =
-	`
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		position: relative;
-	`
-
-	public static ModalClasses:string = "modal";
-	public static CanvasClasses:string = "canvas";
-	public static ContentClasses:string = "canvas-content";
-	public static CanvasHandleClass:string = "canvas-handle";
+export function isClass(clazz:any) : clazz is Class<any>
+{
+	return((clazz+"").startsWith("class"));
 }

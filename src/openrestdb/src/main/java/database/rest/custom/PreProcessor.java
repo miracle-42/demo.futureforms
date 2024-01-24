@@ -19,39 +19,12 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package database.rest.database.impl;
+package database.rest.custom;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.sql.PreparedStatement;
-import database.rest.database.Database;
-import database.rest.database.BindValue;
-import database.rest.database.BindValueDef;
+import org.json.JSONObject;
 
 
-public class Postgres extends Database
+public interface PreProcessor
 {
-  @Override
-  public void setProxyUser(String username) throws Exception
-  {
-    super.execute("set role "+username);
-  }
-
-  @Override
-  public void releaseProxyUser() throws Exception
-  {
-  }
-
-  @Override
-  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, HashMap<String,BindValueDef> alltypes, String dateform) throws Exception
-  {
-    return(new ReturnValueHandle(this.prepare(sql,bindvalues,dateform)));
-  }
-
-  @Override
-  public ResultSet executeUpdateWithReturnValues(PreparedStatement stmt, String dateform) throws Exception
-  {
-    return(stmt.executeQuery());
-  }
+  void process(String user, JSONObject payload) throws Exception;
 }

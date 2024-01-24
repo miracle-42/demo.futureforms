@@ -21,13 +21,16 @@
 
 package database.rest.database.impl;
 
+import java.util.HashMap;
 import java.sql.Savepoint;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Properties;
+import oracle.jdbc.OracleTypes;
 import java.sql.PreparedStatement;
 import database.rest.database.Database;
 import database.rest.database.BindValue;
+import database.rest.database.BindValueDef;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.driver.OracleConnection;
 
@@ -62,8 +65,24 @@ public class Oracle extends Database
 
 
   @Override
-  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, String dateform) throws Exception
+  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, HashMap<String,BindValueDef> alltypes, String dateform) throws Exception
   {
+    String keyword = " returning ";
+    int pos = sql.lastIndexOf(keyword);
+    String clause = sql.substring(pos+keyword.length());
+
+    String[] retcols = clause.split(",");
+
+    for (int i = 0; i < retcols.length; i++)
+      retcols[i] = retcols[i].trim().toLowerCase();
+
+    sql += " into ";
+
+    for (int i = 0; i < retcols.length; i++)
+      sql += "?,";
+
+    sql = sql.substring(0,sql.length()-1);
+
     ArrayList<String> columns = new ArrayList<String>();
     OracleConnection conn = (OracleConnection) super.connection();
     OraclePreparedStatement stmt = (OraclePreparedStatement) conn.prepareStatement(sql);
@@ -84,7 +103,18 @@ public class Oracle extends Database
       }
     }
 
-    ReturnValueHandle handle = new ReturnValueHandle(stmt,columns.toArray(new String[0]));
+    for (int i = 0; i < retcols.length; i++)
+    {
+      int ix = bindvalues.size() + i;
+      int type = OracleTypes.VARCHAR;
+
+      BindValueDef b = alltypes.get(retcols[i]);
+      if (b != null) type = b.type;
+
+      stmt.registerReturnParameter(ix+1,type);
+    }
+
+    ReturnValueHandle handle = new ReturnValueHandle(stmt,retcols);
     return(handle);
   }
 

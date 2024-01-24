@@ -747,6 +747,7 @@ public class Rest
     AuthMethod method = null;
     boolean privateses = true;
     AuthResponse custresp = null;
+    ArrayList<NameValuePair<Object>> clientinfo = new ArrayList<NameValuePair<Object>>();
 
     try
     {
@@ -789,6 +790,17 @@ public class Rest
           return(error(custom.name+" authentication failed"));
 
         username = custresp.user;
+      }
+
+      if (payload.has("clientinfo"))
+      {
+        JSONArray entries = payload.getJSONArray("clientinfo");
+
+        for (int i = 0; i < entries.length(); i++)
+        {
+          JSONObject entry = entries.getJSONObject(i);
+          clientinfo.add(new NameValuePair<Object>(entry.getString("name"),entry.get("value")));
+        }
       }
 
       switch(meth)
@@ -845,6 +857,7 @@ public class Rest
       }
 
       state.session(new Session(this.config,method,pool,scope,username,secret));
+      state.session.setClientInfo(clientinfo);
 
       state.session().connect(batch);
       if (batch) state.session().share();
@@ -1339,7 +1352,7 @@ public class Rest
       if (returning)
       {
         state.lock();
-        Cursor cursor = state.session().executeUpdateWithReturnValues(sql,bindvalues,dateform);
+        Cursor cursor = state.session().executeUpdateWithReturnValues(sql,bindvalues,this.bindvalues,dateform);
         state.unlock();
 
         cursor.dateformat = dateform;

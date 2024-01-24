@@ -19,39 +19,66 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package database.rest.database.impl;
+package database.rest.custom;
 
-import java.sql.ResultSet;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.sql.PreparedStatement;
-import database.rest.database.Database;
-import database.rest.database.BindValue;
-import database.rest.database.BindValueDef;
 
 
-public class Postgres extends Database
+public class SQLWhiteList
 {
-  @Override
-  public void setProxyUser(String username) throws Exception
-  {
-    super.execute("set role "+username);
-  }
+   private final boolean ignorecase;
+   private final HashSet<String> allowed;
 
-  @Override
-  public void releaseProxyUser() throws Exception
-  {
-  }
 
-  @Override
-  public ReturnValueHandle prepareWithReturnValues(String sql, ArrayList<BindValue> bindvalues, HashMap<String,BindValueDef> alltypes, String dateform) throws Exception
-  {
-    return(new ReturnValueHandle(this.prepare(sql,bindvalues,dateform)));
-  }
+   public SQLWhiteList()
+   {
+      this(true);
+   }
 
-  @Override
-  public ResultSet executeUpdateWithReturnValues(PreparedStatement stmt, String dateform) throws Exception
-  {
-    return(stmt.executeQuery());
-  }
+   public SQLWhiteList(boolean ignorecase)
+   {
+      this.ignorecase = ignorecase;
+      this.allowed = new HashSet<String>();
+   }
+
+   public void add(String sql)
+   {
+      add(sql,true);
+   }
+
+   public void add(String sql, boolean normalize)
+   {
+      if (normalize) sql = normalize(sql);
+      allowed.add(sql);
+   }
+
+   public void remove(String sql)
+   {
+      remove(sql,true);
+   }
+
+   public void remove(String sql, boolean normalize)
+   {
+      if (normalize) sql = normalize(sql);
+      allowed.remove(sql);
+   }
+
+   public boolean has(String sql)
+   {
+      return(has(sql,true));
+   }
+
+   public boolean has(String sql, boolean normalize)
+   {
+      if (normalize) sql = normalize(sql);
+      return(allowed.contains(sql));
+   }
+
+   public String normalize(String sql)
+   {
+      return(SQLStringParser.normalize(sql,ignorecase));
+   }
 }

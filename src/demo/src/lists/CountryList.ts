@@ -19,7 +19,7 @@ export class CountryList extends ListOfValues
 	constructor()
 	{
 		super();
-		
+
 		this.datasource = new Countries();
 		this.bindvalue = this.datasource.country;
 
@@ -39,8 +39,9 @@ class Countries extends QueryTable
 
 		this.sql =
 		`
+			/* Oracle doesn't have ilike */
 			select country_id, country_name from countries
-			where country_id||' '||country_name ilike '%'||:country||'%'
+			where upper(country_id||' '||country_name) like upper('%'||:country||'%')
 		`;
 
 		this.sorting = "country_id";

@@ -18,7 +18,7 @@ export class DepartmentsList extends ListOfValues
 	constructor()
 	{
 		super();
-		
+
 		this.datasource = new Departments();
 		this.bindvalue = this.datasource.department;
 
@@ -39,7 +39,7 @@ class Departments extends QueryTable
 		this.sql =
 		`
 			select department_id, department_name from departments
-			where department_name ilike '%'||:department||'%'
+			where upper(department_name) like upper('%'||:department||'%')
 		`;
 
 		this.sorting = "department_id";

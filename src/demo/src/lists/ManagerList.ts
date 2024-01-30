@@ -39,7 +39,7 @@ class Employees extends QueryTable
 		this.sql =
 		`
 			select employee_id, first_name, last_name from employees
-			where first_name||' '||last_name ilike '%'||:emp||'%'
+			where upper(first_name||' '||last_name) like upper('%'||:emp||'%')
 		`;
 
 		this.sorting = "first_name, last_name";

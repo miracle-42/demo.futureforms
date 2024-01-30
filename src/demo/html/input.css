@@ -4,8 +4,12 @@ input
 	font-size: 14px;
 	font-weight: normal;
 	margin:0px 0px 0px 10px;
-	transition: all 0.18s ease;
 	border-bottom: 2px solid black;
+}
+
+input:focus-visible
+{
+	border-radius: 4px;
 }
 
 input[date]

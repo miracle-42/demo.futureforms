@@ -131,9 +131,7 @@ export class FormsModule extends FormsCoreModule
 
 		FormsModule.DATABASE = new Connection(backend);
 		FormsModule.DATABASE.scope = ConnectionScope.transactional;
-
 		FormsModule.defaultFlushStrategy = FlushStrategy.Block;
-
 		let infomation:HTMLElement = document.querySelector(".infomation");
 		infomation.appendChild(KeyMapPage.show(keymap));
 
@@ -225,6 +223,7 @@ export class FormsModule extends FormsCoreModule
 
 		if (form.accepted && form.username && form.password)
 		{
+			FormsModule.DATABASE.addClientInfo("OCSID.CLIENTID","FutureForms");
 			if (!await FormsModule.DATABASE.connect(form.username,form.password))
 			{
 				await FormsModule.sleep(2000);

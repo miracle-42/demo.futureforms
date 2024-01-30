@@ -21,12 +21,13 @@
 
 package database.rest.database;
 
+import java.util.HashMap;
 import java.sql.ResultSet;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Properties;
 import java.sql.DriverManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -148,8 +149,12 @@ public abstract class Database
   {
     if (clientinfo != null)
     {
+      Properties props = new Properties();
+
       for(NameValuePair<Object> entry : clientinfo)
-        conn.setClientInfo(entry.getName(),entry.getValue()+"");
+        props.setProperty(entry.getName(),entry.getValue()+"");
+
+      conn.setClientInfo(props);
     }
   }
 
@@ -157,10 +162,7 @@ public abstract class Database
   public void clearClientInfo(ArrayList<NameValuePair<Object>> clientinfo) throws Exception
   {
     if (clientinfo != null)
-    {
-      for(NameValuePair<Object> entry : clientinfo)
-        conn.setClientInfo(entry.getName(),"");
-    }
+      conn.setClientInfo(new Properties());
   }
 
 

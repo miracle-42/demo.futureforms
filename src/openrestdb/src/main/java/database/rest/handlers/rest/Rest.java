@@ -1365,6 +1365,13 @@ public class Rest
         json.success(true);
         json.add("affected",table.size());
 
+        if (columns != null)
+        {
+          json.push("columns",SimpleArray);
+          json.add(columns);
+          json.pop();
+        }
+
         json.push("rows",ObjectArray);
         for(Object[] row : table) json.add(columns,row);
         json.pop();
@@ -1855,7 +1862,19 @@ public class Rest
       if (!bvalue.has("value")) outval = true;
       else value = bvalue.get("value");
 
-      this.bindvalues.put(name,new BindValueDef(name,type,outval,value));
+      BindValueDef curr = this.bindvalues.get(name);
+      BindValueDef next = new BindValueDef(name,type,outval,value);
+
+      if (curr != null)
+      {
+        if (curr.type != next.type)
+          logger.warning("Bindvalue '"+name+"' is sent twice, with different types");
+
+        if (curr.value != null)
+          continue;
+      }
+
+      this.bindvalues.put(name,next);
     }
   }
 

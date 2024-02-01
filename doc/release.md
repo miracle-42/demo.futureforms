@@ -45,7 +45,7 @@ If you have any changes which should be added do that
 
 Create a release branch which can be shared with other testers
 
-    git checkout -b release-$NEWREL dev
+    git checkout -b candidate-$NEWREL latest
 
 Bump version with a script and an editor
 
@@ -71,23 +71,23 @@ Publish the release branch to other testers
 If someone should test this release candidate, it can
 be pushed.
 
-    git push --set-upstream origin release-$NEWREL
+    git push --set-upstream origin candidate-$NEWREL
 
 Now the release is finished and can be merged in to
 `main` and `dev`.
 Tag `main` so it can be checked out agian.
 
     git checkout main
-    git merge --no-ff release-$NEWREL
+    git merge --no-ff candidate-$NEWREL
 
 Merge the last minute changes back into `dev`.
 
     git checkout dev
-    git merge --no-ff release-$NEWREL
+    git merge --no-ff candidate-$NEWREL
 
 The release is now finished and the branch can be deleted.
 
-    git branch -d release-$NEWREL
+    git branch -d candidate-$NEWREL
 
 Make a pull in case the developers has added more code.
 

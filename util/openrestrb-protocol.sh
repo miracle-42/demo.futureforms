@@ -11,25 +11,33 @@ set -e
 
 if [[ -z $1 ]]
 then
-  echo Usage:
-  echo -e "\t$0 connect <user> <password>"
-  echo -e "\t$0 ping"
-  echo -e "\t$0 status"
-  echo -e "\t$0 select"
-  echo -e "\t$0 release"
-  echo -e "\t$0 insert <country-code> <country-name>"
-  echo -e "\t$0 commit"
-  echo -e "\t$0 disconnect"
-  echo
-  echo Eaxmple:
-  echo -e "\t$0 connect hr hr"
-  echo -e "\texport SESSION=0123456789abcdef"
-  echo -e "\t$0 select"
-  echo -e "\t$0 insert HR Croatia"
-  echo -e "\t$0 commit"
-  echo
-  echo export SESSION=\<session-id\>
-  exit 1
+    echo Usage:
+    echo -e "\t$0 connect <user> <password>"
+    echo -e "\t$0 ping"
+    echo -e "\t$0 status"
+    echo -e "\t$0 select"
+    echo -e "\t$0 release"
+    echo -e "\t$0 insert <country-code> <country-name>"
+    echo -e "\t$0 commit"
+    echo -e "\t$0 disconnect"
+    echo
+    echo Eaxmple:
+    echo -e "\t$0 connect hr hr"
+    echo -e "\texport SESSION=0123456789abcdef"
+    echo -e "\t$0 select"
+    echo -e "\t$0 insert HR Croatia"
+    echo -e "\t$0 commit"
+    echo
+    echo export SESSION=\<session-id\>
+    exit 1
+fi
+
+if which curl > /dev/null
+then
+    echo
+else
+    echo Program \'curl\' NOT found.
+    exit 1
 fi
 
 if [[ -z $PGPASSWORD ]]
@@ -42,8 +50,8 @@ fi
 
 missingArg ()
 {
-  echo Error: Missing argument $1
-  exit 1
+    echo Error: Missing argument $1
+    exit 1
 }
 
 FFHOST=${FFHOST:-http://localhost:9002}

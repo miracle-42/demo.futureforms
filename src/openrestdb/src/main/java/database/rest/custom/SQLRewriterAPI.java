@@ -96,11 +96,15 @@ public class SQLRewriterAPI
    public ArrayList<String> getTables(PreparedStatement stmt) throws Exception
    {
       ArrayList<String> tables = new ArrayList<String>();
+      if (stmt == null) return(tables);
 
-      for (int i = 0; i < stmt.getMetaData().getColumnCount(); i++)
+      if (stmt.getMetaData() != null)
       {
-         String table = stmt.getMetaData().getTableName(i+1);
-         if (!tables.contains(table)) tables.add(table);
+         for (int i = 0; i < stmt.getMetaData().getColumnCount(); i++)
+         {
+            String table = stmt.getMetaData().getTableName(i+1);
+            if (!tables.contains(table)) tables.add(table);
+         }
       }
 
       return(tables);

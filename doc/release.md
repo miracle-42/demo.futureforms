@@ -3,14 +3,14 @@
 When the development has come to a new state where it is time for a new
 release, these tasks will be done:
 
-* Branch from development trunk
-* Create a 'release branch'
+* Branch from `latest`
+* Create a 'candidate branch'
 * Bump version number
 * Edit ChangeLog
 * Fix last minute changes
-* Push 'release branch' and test thoroughly 
+* Push 'candidate branch' and test thoroughly 
 * Checkout 'main'
-* Merge 'dev'
+* Merge 'latest'
 * Push 'main'
 * Pack binaries
 * On GitHub
@@ -19,10 +19,10 @@ release, these tasks will be done:
   - Add binaries
   - Release
 * On local, pull Github
-* Branch to 'dev'
-* Merge 'release branch'
-* Delete 'release branch'
-* Push 'dev'
+* Branch to 'latest'
+* Merge 'candidate branch'
+* Delete 'candidate branch'
+* Push 'latest'
 
 ## Release tasks
 
@@ -45,7 +45,7 @@ If you have any changes which should be added do that
 
 Create a release branch which can be shared with other testers
 
-    git checkout -b release-$NEWREL dev
+    git checkout -b candidate-$NEWREL latest
 
 Bump version with a script and an editor
 
@@ -71,23 +71,23 @@ Publish the release branch to other testers
 If someone should test this release candidate, it can
 be pushed.
 
-    git push --set-upstream origin release-$NEWREL
+    git push --set-upstream origin candidate-$NEWREL
 
 Now the release is finished and can be merged in to
-`main` and `dev`.
+`main` and `latest`.
 Tag `main` so it can be checked out agian.
 
     git checkout main
-    git merge --no-ff release-$NEWREL
+    git merge --no-ff candidate-$NEWREL
 
-Merge the last minute changes back into `dev`.
+Merge the last minute changes back into `latest`.
 
-    git checkout dev
-    git merge --no-ff release-$NEWREL
+    git checkout latest
+    git merge --no-ff candidate-$NEWREL
 
-The release is now finished and the branch can be deleted.
+The candidate is now finished and the branch can be deleted.
 
-    git branch -d release-$NEWREL
+    git branch -d candidate-$NEWREL
 
 Make a pull in case the developers has added more code.
 
@@ -140,7 +140,6 @@ Click attach binaries and select files.
 ![Attach binaries](../img/rel-9.png)
 
 ![Select files](../img/rel-11.png)
-
 
 At the buttom click "Save draft" and "Publish release".
 

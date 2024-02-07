@@ -1,0 +1,12 @@
+generator/Template$ColumnCompare.class
+generator/Generator$1.class
+generator/Generator.class
+generator/Utils.class
+generator/Table$IDFactory$Sequence.class
+generator/Table$IDFactory.class
+generator/Config.class
+generator/Field.class
+generator/Merger.class
+generator/Table.class
+generator/Template.class
+generator/Column.class

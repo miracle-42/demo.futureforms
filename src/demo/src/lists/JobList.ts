@@ -18,7 +18,7 @@ export class JobList extends ListOfValues
 	constructor()
 	{
 		super();
-		
+
 		this.datasource = new Jobs();
 		this.bindvalue = this.datasource.job;
 
@@ -39,7 +39,7 @@ class Jobs extends QueryTable
 		this.sql =
 		`
 			select job_id, job_title from jobs
-			where job_id||' '||job_title ilike '%'||:job||'%'
+			where upper(job_id||' '||job_title) like upper('%'||:job||'%')
 		`;
 
 		this.sorting = "job_title";

@@ -86,7 +86,7 @@ export class Menu extends MenuComponent
 		return(true);
 	}
 
-	@formevent({type: EventType.onNewForm})
+	@formevent({type: EventType.OnNewForm})
 	public async onFormOpen(event:FormEvent) : Promise<boolean>
 	{
 		let entry:MenuEntry = null;

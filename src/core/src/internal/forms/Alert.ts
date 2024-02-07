@@ -133,7 +133,7 @@ export class Alert extends Form
 		setTimeout(() => {this.closeRunning(alerts)},10000);
 
 		this.focus();
-		return(false);
+		return(true);
 	}
 
 	// Make sure we get focus

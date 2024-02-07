@@ -18,7 +18,7 @@ export class LocationList extends ListOfValues
 	constructor()
 	{
 		super();
-		
+
 		this.datasource = new Locations();
 		this.bindvalue = this.datasource.loc;
 
@@ -39,7 +39,7 @@ class Locations extends QueryTable
 		this.sql =
 		`
 			select loc_id, city, street_address from locations
-			where city||' '||street_address ilike '%'||:loc||'%'
+			where upper(city||' '||street_address) like upper('%'||:loc||'%')
 		`;
 
 		this.sorting = "city,street_address";

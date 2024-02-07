@@ -43,6 +43,7 @@ td
 .indicator
 {
 	width:10px;
+	padding-right:0;
 	align-items: center;
 	justify-content: center;
 }

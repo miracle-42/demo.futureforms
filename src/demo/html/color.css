@@ -67,8 +67,8 @@
 
 .topbar li a:not([disabled]):focus,
 .topbar li a:not([disabled]):hover,
-.left-menu-container a:not([disabled]):hover,
-.left-menu-container a:not([disabled]):focus
+.left-menu-container li a:not([disabled]):hover,
+.left-menu-container li  a:not([disabled]):focus
 {
    background-color: #6060F0;
 }
@@ -143,26 +143,90 @@ div[name="popup-body"]
 div[name="popup-body"] div[name="lov"],
 div[name="popup-body"] div[name="msg"],
 div[name="popup-body"] div[name="login"],
-div[name="popup-body"] div[name="query"],
-div[name="popup-body"] div[name="date-picker"]
+div[name="popup-body"] div[name="advanced-query"],
+div[name="popup-body"] div[name="list-of-values"]
 {
    background-color: white;
 }
+
+div[name="popup-body"] div[name="date-picker"]
+{
+   background: #424549;
+}
+
 
 #block  ~ div[name="popup-body"] div[name="alertlogo"]
 {
    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(104%) contrast(101%);
 }
 
+
+/* icon calculator */
+span.calendar:hover,
+span.calendar:focus
+{
+	transition: all 0.15s ease-out 0s;
+	filter: invert(46%) sepia(83%) saturate(468%) hue-rotate(161deg) brightness(99%) contrast(85%);
+}
+
 /*-----------------------*/
 /* calculator */
 
 div[name="prev"]:hover,
+div[name="prev"]:focus,
 div[name="next"]:hover,
-div[name="next"]:focus,
-div[name="prev"]:focus
+div[name="next"]:focus
 {
-	background-color: rgb(205, 205, 205);
+   background-color: rgb(120, 120, 120);
+}
+
+div[name="date"]
+{
+   color:white;
+   background: #2f3031;
+}
+
+div[name="date"] input
+{
+   color:white;
+   background: #2f3031;
+   border-bottom: lightgray solid 1px;
+}
+
+div[name="month"]
+{
+   color:white;
+   background: #2f3031;
+}
+
+div[name="week"]:nth-child(2)
+{
+   color:white;
+   padding:0 2px;
+   background: #2f3031;
+   border-top: 1px white solid;
+}
+
+div[name="week"]:nth-child(2) span
+{
+   border-top:none;
+}
+
+div[name="week"]:not(:nth-child(2))
+{
+   background: #ffffff;
+}
+
+div[name="week"]:last-child
+{
+   border-bottom-left-radius: 15px;
+   border-bottom-right-radius: 15px;
+   border-bottom: #2f3031 solid 10px;
+}
+
+div[name="week"] div[name="day"]
+{
+   border: solid #595959 1px;
 }
 
 div[name="prev"]:active,
@@ -172,9 +236,17 @@ div[name="next"]:active
 	background-color: gray;
 }
 
+span[name^="day-"]
+{
+   width: 100%;
+   height: 100%;
+   display:flex;
+   justify-content: center;
+}
+
 .weekend
 {
-	color:red;
+	color:#ff0000;
 }
 
 /*-----------------------*/

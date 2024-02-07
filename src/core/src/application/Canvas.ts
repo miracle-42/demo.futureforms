@@ -57,8 +57,8 @@ export class Canvas implements CanvasDefinition, EventListenerObject
 	public set resizable(flag:boolean)
 	{
 		this.resizable$ = flag;
-		if (flag) this.canvas.style.resize = "both";
-		else      this.canvas.style.resize = "none";
+		this.canvas.style.resize = flag ? "both" : "none";
+		this.canvas.style.overflow = flag ? "hidden" : "auto";
 	}
 
 	public get zindex() : number

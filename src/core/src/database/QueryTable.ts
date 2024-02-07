@@ -22,6 +22,7 @@
 import { Cursor } from "./Cursor.js";
 import { SQLRest } from "./SQLRest.js";
 import { DataType } from "./DataType.js";
+import { SQLCache } from "./SQLCache.js";
 import { BindValue } from "./BindValue.js";
 import { SQLSource } from "./SQLSource.js";
 import { Record } from "../model/Record.js";
@@ -111,6 +112,7 @@ export class QueryTable extends SQLSource implements DataSource
 	{
 		let clone:QueryTable = new QueryTable(this.pubconn$,this.sql$);
 
+		clone.where$ = this.where$;
 		clone.sorting = this.sorting;
 		clone.columns$ = this.columns$;
 		clone.described$ = this.described$;
@@ -412,11 +414,19 @@ export class QueryTable extends SQLSource implements DataSource
 	private async describe() : Promise<boolean>
 	{
 		if (this.described$) return(true);
+		let first:string = this.where$ ? " where " : " and ";
 
-		let stmt:string = this.sql$ + " and 1 = 2";
+		console.log(first)
+
+		let stmt:string = this.sql$ + first + " 1 = 2";
+		console.log(stmt)
 		let sql:SQLRest = SQLRestBuilder.finish(stmt,this.where$,null,this.bindings$,null);
 
-		let response:any = await this.conn$.select(sql,null,1,true);
+		let response:any = SQLCache.get(sql.stmt);
+
+		let cached:boolean = false;
+		if (response) cached = true;
+		else response = await this.conn$.select(sql,null,1,true);
 
 		if (!response.success)
 		{
@@ -425,20 +435,25 @@ export class QueryTable extends SQLSource implements DataSource
 			return(false);
 		}
 
+		if (!cached)
+			SQLCache.put(sql.stmt,response);
+
 		let columns:string[] = response.columns;
 
 		for (let i = 0; i < columns.length; i++)
 		{
+			columns[i] = columns[i].toLowerCase();
+
 			let type:string = response.types[i];
-			let cname:string = columns[i].toLowerCase();
 			let datatype:DataType = DataType[type.toLowerCase()];
 
-			let exist:DataType = this.datatypes$.get(cname);
-			if (!exist) this.datatypes$.set(cname,datatype);
+			let exist:DataType = this.datatypes$.get(columns[i]);
+			if (!exist) this.datatypes$.set(columns[i],datatype);
 		}
 
 		this.columns$ = columns;
 		this.described$ = response.success;
+
 		return(this.described$);
 	}
 
@@ -489,7 +504,7 @@ export class QueryTable extends SQLSource implements DataSource
 			}
 
 			let response:any = {succes: true, rows: [rows[r]]};
-			record.response = new DatabaseResponse(response, this.columns);
+			record.response = new DatabaseResponse(response,this.columns);
 
 			record.cleanup();
 			fetched.push(record);

@@ -27,7 +27,7 @@ import { Class, isClass } from "../../public/Class.js";
 import { ListOfValues } from "../../public/ListOfValues.js";
 import { Properties } from "../../application/Properties.js";
 import { FormsModule } from "../../application/FormsModule.js";
-import { ComponentFactory } from "../../application/ComponentFactory.js";
+import { ComponentFactory } from '../../application/interfaces/ComponentFactory.js';
 import { Formatter, SimpleFormatter, isFormatter, isSimpleFormatter } from "./interfaces/Formatter.js";
 
 

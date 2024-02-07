@@ -88,6 +88,7 @@ export class UsernamePassword extends Form
 
 		Internals.stylePopupWindow(view,this.title);
 
+		this.focus();
 		return(true);
 	}
 

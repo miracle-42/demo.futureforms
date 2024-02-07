@@ -81,7 +81,7 @@ export class FormBacking
 		canvas.setComponent(instance);
 		FormBacking.getViewForm(instance).canvas = canvas;
 
-		await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance));
+		await FormEvents.raise(FormEvent.FormEvent(EventType.OnNewForm,instance));
 		await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance));
 
 		return(instance);
@@ -125,7 +125,7 @@ export class FormBacking
 		let canvas:Canvas = new canvasimpl();
 		let instance:Form = await factory.createForm(form,parameters);
 
-		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.onNewForm,instance)))
+		if (!await FormEvents.raise(FormEvent.FormEvent(EventType.OnNewForm,instance)))
 			return(null);
 
 		canvas.setComponent(instance);
@@ -138,12 +138,11 @@ export class FormBacking
 			parent.canvas?.block();
 			FormBacking.getBacking(instance).parent = parent;
 			let backing:FormBacking = FormBacking.getBacking(parent);
+			await FormEvents.raise(FormEvent.FormEvent(EventType.OnFormDisabled,parent));
 			if (backing) backing.hasModalChild = true;
 		}
 
-		if (await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance)))
-			instance.focus();
-
+		await FormEvents.raise(FormEvent.FormEvent(EventType.PostViewInit,instance));
 		return(instance);
 	}
 

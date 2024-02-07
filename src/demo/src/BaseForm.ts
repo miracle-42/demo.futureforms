@@ -53,6 +53,8 @@ export class BaseForm extends Form
 		this.getView().style.left = posX + "px";
 
 		this.setTitle(this.title);
+
+		this.focus();
 		return(true);
 	}
 
